@@ -1,18 +1,19 @@
 # Types for the Telegram Bot API
 
-> Please consider contributing to [@grammyjs/types](https://github.com/grammyjs/types) instead.
-> `typegram` is legacy and will not be updated directly anymore.
-> Instead, [@grammyjs/types](https://github.com/grammyjs/types) is maintained and kept in sync with the Bot API specification.
-> Changes are backported to `typegram` periodically to keep older projects running.
+<a href="https://core.telegram.org/bots/api">
+	<img src="https://img.shields.io/badge/Bot%20API-v6.7-f36caf.svg?style=flat-square" alt="Bot API Version" />
+</a>
 
-This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api) in version 6.4.
+This project is a fork of [@KnorpelSenf/typegram](https://github.com/KnorpelSenf/typegram), specialised for Telegraf. Typegram is legacy, and now backported from [@grammyjs/types](https://github.com/grammyjs/types).
+
+This fork keeps Telegram Bot API types updated for Telegraf. This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api).
 
 It contains zero bytes of executable code.
 
 ## Installation
 
 ```bash
-npm install --save-dev typegram
+npm install --save-dev @telegraf/types
 ```
 
 ## Available Types
@@ -25,24 +26,24 @@ If you need to access the individual variants of an `Update`, refer to `Update.M
 
 In fact, this pattern is used for various types, namely:
 
+- `Update`
+- `Message`
 - `CallbackQuery`
 - `Chat`
 - `ChatFromGetChat`
 - `InlineKeyboardButton`
 - `KeyboardButton`
-- `Message`
 - `MessageEntity`
 - `Location`
-- `Update`
 
 (Naturally, when the API specification is actually modelling types to be unions (e.g. `InlineQueryResult`), this is reflected here as a union type, too.)
 
-## Using API Response Objects
+## Using API Response objects
 
 The Telegram Bot API does not return just the requested data in the body of the response objects.
 
 Instead, they are wrapped inside an object that has an `ok: boolean` status flag, indicating success or failure of the preceding API request.
-This outer object is modelled in `typegram` by the `ApiResponse` type.
+This outer object is modelled in `@telegraf/types` by the `ApiResponse` type.
 
 ## Customizing `InputFile` and accessing API methods
 
@@ -54,11 +55,11 @@ The first two means to send a file are already covered by the type annotations a
 In all places where a `file_id` or a URL is permitted, the corresponding property allows a `string`.
 
 We will now look at the type declarations that are relevant for uploading files directly.
-Depending on the code you're using the `typegram` types for, you may want to support different ways to specify the file to be uploaded.
+Depending on the code you're using the types for, you may want to support different ways to specify the file to be uploaded.
 As an example, you may want to be able to make calls to `sendDocument` with an object that conforms to `{ path: string }` in order to specify the location of a local file.
 (Your code is then assumed to able to translate calls to `sendDocument` and the like to multipart/form-data uploads when supplied with an object alike `{ path: '/tmp/file.txt' }` in the `document` property of the argument object.)
 
-`typegram` cannot possibly know what objects you want to support as `InputFile`s.
+This library cannot automatically know what objects you want to support as `InputFile`s.
 
 However, you can specify your own version of what an `InputFile` is throughout all affected methods and interfaces.
 
@@ -70,20 +71,20 @@ interface MyInputFile {
 }
 ```
 
-You can then customize `typegram` to fit your needs by passing your custom `InputFile` to the `ApiMethods` type.
+You can then customize the types to fit your needs by passing your custom `InputFile` to the `ApiMethods` type.
 
 ```ts
-import * as Typegram from "typegram";
+import * as Telegram from "@telegraf/types";
 
-type API = Typegram.ApiMethods<MyInputFile>;
+type API = Telegram.ApiMethods<MyInputFile>;
 ```
 
 You can now access all types that must respect `MyInputFile` through the `API` type:
 
 ```ts
 // The utility types `Opts` and `Ret`:
-type Opts<M extends keyof API> = Typegram.Opts<MyInputFile>[M];
-type Ret<M extends keyof API> = Typegram.Ret<MyInputFile>[M];
+type Opts<M extends keyof API> = Telegram.Opts<MyInputFile>[M];
+type Ret<M extends keyof API> = Telegram.Ret<MyInputFile>[M];
 ```
 
 Each method takes just a single argument with a structure that corresponds to the object expected by Telegram.
@@ -94,30 +95,21 @@ If you directly need to access the return type of a method, consider using `Ret<
 
 ```ts
 // The adjusted `InputMedia*` types:
-type InputMedia = Typegram.InputMedia<MyInputFile>;
-type InputMediaPhoto = Typegram.InputMediaPhoto<MyInputFile>;
-type InputMediaVideo = Typegram.InputMediaVideo<MyInputFile>;
-type InputMediaAnimation = Typegram.InputMediaAnimation<MyInputFile>;
-type InputMediaAudio = Typegram.InputMediaAudio<MyInputFile>;
-type InputMediaDocument = Typegram.InputMediaDocument<MyInputFile>;
+type InputMedia = Telegram.InputMedia<MyInputFile>;
+type InputMediaPhoto = Telegram.InputMediaPhoto<MyInputFile>;
+type InputMediaVideo = Telegram.InputMediaVideo<MyInputFile>;
+type InputMediaAnimation = Telegram.InputMediaAnimation<MyInputFile>;
+type InputMediaAudio = Telegram.InputMediaAudio<MyInputFile>;
+type InputMediaDocument = Telegram.InputMediaDocument<MyInputFile>;
 ```
 
 Note that interfaces other than the ones mentioned above are unaffected by the customization through `MyInputFile`.
-They can simply continue to be imported directly from `typegram`.
+They can simply continue to be imported directly.
 
-## Where Do the Types Come from
+## Development
 
-They're handwritten.
+This project is written for Deno and built for Node. Running `pnpm prepare` runs the deno2node script to build for Node.
 
-That is, they're of course not entirely handwritten.
-The initial version of them were produced in one afternoon by a combination of copying and pasting from the website, VIM magic, regular expressions, and VSCode auto-formatting the rest.
+## Where do the types come from
 
-After that, some more work and a few community contributions did the polishing.
-
-Subsequent updates to the API were integrated manually in a similar fashion.
-
-Other people's previous attempts to harvest the types directly from the website using a script failed due to the required effort of handling special cases about the layout of the website.
-
-The [grammY](https://github.com/grammyjs/grammY) bot framework was orginally based on `typegram` which served as the starting point for [the grammY types package](https://github.com/grammyjs/types).
-Starting after the upgrade to Bot API 5.0, most changes and updates to `typegram` were simply `git cherry-pick`ed from this repository.
-If you want to contribute to `typegram`, it may makes sense to add them to grammY first and then can easily be backported to `typegram`.
+They're handwritten. Typegram was started by [@KnorpelSenf](https://github.com/KnorpelSenf), who eventually used it as a starting point for [the grammY types package](https://github.com/grammyjs/types). `@telegraf/types` is based on both packages, and regularly syncs with them and the Bot API.
