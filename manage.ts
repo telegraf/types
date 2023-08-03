@@ -54,7 +54,7 @@ export interface UserFromGetMe extends User {
   supports_inline_queries: boolean;
 }
 
-export namespace Chat {
+export declare namespace Chat {
   // ABSTRACT
   /** Internal type holding properties that all kinds of chats share. */
   interface AbstractChat {

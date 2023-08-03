@@ -7,7 +7,7 @@ export interface InlineKeyboardMarkup {
   inline_keyboard: InlineKeyboardButton[][];
 }
 
-export namespace InlineKeyboardButton {
+export declare namespace InlineKeyboardButton {
   interface AbstractInlineKeyboardButton {
     /** Label text on the button */
     text: string;
@@ -104,7 +104,7 @@ export interface SwitchInlineQueryChosenChat {
 /** A placeholder, currently holds no information. Use BotFather to set up your game. */
 export interface CallbackGame {}
 
-export namespace CallbackQuery {
+export declare namespace CallbackQuery {
   interface AbstractQuery {
     /** Unique identifier for this query */
     id: string;
@@ -154,7 +154,7 @@ export interface ReplyKeyboardMarkup {
   selective?: boolean;
 }
 
-export namespace KeyboardButton {
+export declare namespace KeyboardButton {
   export interface CommonButton {
     /** Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed */
     text: string;
