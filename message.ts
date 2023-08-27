@@ -87,6 +87,10 @@ export declare namespace Message {
     /** Message is a sticker, information about the sticker */
     sticker: Sticker;
   }
+  export interface StoryMessage extends CommonMessage {
+    /** Message is a forwarded story. Currently holds no information */
+    story: Story;
+  }
   export interface VideoMessage extends MediaMessage {
     /** Message is a video, information about the video */
     video: Video;
@@ -291,6 +295,7 @@ export type CommonMessageBundle =
   | Message.PhotoMessage
   | Message.PollMessage
   | Message.StickerMessage
+  | Message.StoryMessage
   | Message.TextMessage
   | Message.VenueMessage
   | Message.VideoMessage
@@ -356,11 +361,11 @@ Please note:
 
 - Any character with code between 1 and 126 inclusively can be escaped anywhere with a preceding '\' character, in which case it is treated as an ordinary character and not a part of the markup. This implies that '\' character usually must be escaped with a preceding '\' character.
 - Inside `pre` and `code` entities, all '`' and '\' characters must be escaped with a preceding '\' character.
-- Inside `(...)` part of inline link definition, all ')' and '\' must be escaped with a preceding '\' character.
-- A valid emoji must be provided as an alternative value for the custom emoji. The emoji will be shown instead of the custom emoji in places where a custom emoji cannot be displayed (e.g., system notifications) or if the message is forwarded by a non-premium user. It is recommended to use the emoji from the emoji field of the custom emoji sticker.
-- Custom emoji entities can only be used by bots that purchased additional usernames on Fragment.
+- Inside the `(...)` part of the inline link and custom emoji definition, all ')' and '\' must be escaped with a preceding '\' character.
 - In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
 - In case of ambiguity between `italic` and `underline` entities `__` is always greadily treated from left to right as beginning or end of `underline` entity, so instead of `___italic underline___` use `___italic underline_\r__`, where `\r` is a character with code 13, which will be ignored.
+- A valid emoji must be provided as an alternative value for the custom emoji. The emoji will be shown instead of the custom emoji in places where a custom emoji cannot be displayed (e.g., system notifications) or if the message is forwarded by a non-premium user. It is recommended to use the emoji from the emoji field of the custom emoji sticker.
+- Custom emoji entities can only be used by bots that purchased additional usernames on Fragment.
 
 #### HTML style
 To use this mode, pass *HTML* in the *parse_mode* field. The following tags are currently supported:
@@ -629,8 +634,13 @@ export interface PollOption {
 export interface PollAnswer {
   /** Unique poll identifier */
   poll_id: string;
-  /** The user, who changed the answer to the poll */
-  user: User;
+  /** The chat that changed the answer to the poll, if the voter is anonymous */
+  voter_chat?: Chat;
+  /** The user, who changed the answer to the poll, if the voter isn't anonymous
+   *
+   * For backward compatibility, the field user will contain the user 136817688 (@Channel_Bot) if the voter was a chat
+   */
+  user?: User;
   /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
   option_ids: number[];
 }
@@ -704,6 +714,9 @@ export interface Venue {
   /** Google Places type of the venue. (See supported types.) */
   google_place_type?: string;
 }
+
+/** This object represents a message about a forwarded story in the chat. Currently holds no information. */
+export interface Story {}
 
 /** This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user. */
 export interface ProximityAlertTriggered {
