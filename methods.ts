@@ -800,6 +800,12 @@ export type ApiMethods<F> = {
     can_invite_users?: boolean;
     /** Pass True if the administrator can pin messages, supergroups only */
     can_pin_messages?: boolean;
+    /** Pass True if the administrator can post stories in the channel; channels only */
+    can_post_stories?: boolean;
+    /** Pass True if the administrator can edit stories posted by other users; channels only */
+    can_edit_stories?: boolean;
+    /** Pass True if the administrator can delete stories posted by other users */
+    can_delete_stories?: boolean;
     /** Pass True if the user is allowed to create, rename, close, and reopen forum topics, supergroups only */
     can_manage_topics?: boolean;
   }): true;

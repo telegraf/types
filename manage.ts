@@ -256,6 +256,12 @@ export interface ChatAdministratorRights {
   can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; groups and supergroups only */
   can_pin_messages?: boolean;
+  /** True, if the administrator can post stories in the channel; channels only */
+  can_post_stories?: boolean;
+  /** True, if the administrator can edit stories posted by other users; channels only */
+  can_edit_stories?: boolean;
+  /** True, if the administrator can delete stories posted by other users */
+  can_delete_stories?: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
   can_manage_topics?: boolean;
 }
@@ -317,6 +323,12 @@ export interface ChatMemberAdministrator {
   can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; groups and supergroups only */
   can_pin_messages?: boolean;
+  /** True, if the administrator can post stories in the channel; channels only */
+  can_post_stories?: boolean;
+  /** True, if the administrator can edit stories posted by other users; channels only */
+  can_edit_stories?: boolean;
+  /** True, if the administrator can delete stories posted by other users */
+  can_delete_stories?: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
   can_manage_topics?: boolean;
   /** Custom title for this user */
