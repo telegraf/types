@@ -1,6 +1,6 @@
 # Types for the Telegram Bot API [![Deno shield](https://img.shields.io/static/v1?label=Built%20for&message=Deno&style=flat-square&logo=deno&labelColor=000&color=fff)](https://deno.land/x/telegraf_types)
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.8-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v6.9-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
 
 This project is a fork of [@KnorpelSenf/typegram](https://github.com/KnorpelSenf/typegram), specialised for Telegraf. Typegram is legacy, and now backported from [@grammyjs/types](https://github.com/grammyjs/types).
 
