@@ -189,7 +189,7 @@ export declare namespace Message {
   }
   export interface ChatSharedMessage extends ServiceMessage {
     /** Service message: a chat was shared with the bot */
-    chat_shared?: ChatShared;
+    chat_shared: ChatShared;
   }
   export interface ConnectedWebsiteMessage extends ServiceMessage {
     /** The domain name of the website on which the user has logged in. More about Telegram Login » */
@@ -197,7 +197,7 @@ export declare namespace Message {
   }
   export interface WriteAccessAllowedMessage extends ServiceMessage {
     /** Service message: the user allowed the bot added to the attachment menu to write messages */
-    write_access_allowed?: WriteAccessAllowed;
+    write_access_allowed: WriteAccessAllowed;
   }
   export interface PassportDataMessage extends ServiceMessage {
     /** Telegram Passport data */
@@ -213,7 +213,7 @@ export declare namespace Message {
   }
   export interface ForumTopicEditedMessage extends ServiceMessage {
     /** Service message: forum topic edited */
-    forum_topic_edited?: ForumTopicEdited;
+    forum_topic_edited: ForumTopicEdited;
   }
   export interface ForumTopicClosedMessage extends ServiceMessage {
     /** Service message: forum topic closed */
@@ -225,11 +225,11 @@ export declare namespace Message {
   }
   export interface GeneralForumTopicHiddenMessage extends ServiceMessage {
     /** Service message: the 'General' forum topic hidden */
-    general_forum_topic_hidden?: GeneralForumTopicHidden;
+    general_forum_topic_hidden: GeneralForumTopicHidden;
   }
   export interface GeneralForumTopicUnhiddenMessage extends ServiceMessage {
     /** Service message: the 'General' forum topic unhidden */
-    general_forum_topic_unhidden?: GeneralForumTopicUnhidden;
+    general_forum_topic_unhidden: GeneralForumTopicUnhidden;
   }
   export interface VideoChatScheduledMessage extends ServiceMessage {
     /** Service message: video chat scheduled */
@@ -255,28 +255,32 @@ export declare namespace Message {
 
 /** Helper type that bundles all possible `Message.ServiceMessage`s. More specifically, bundles all messages that do not have a `reply_to_message` field, i.e. are not a `Message.CommonMessage`. */
 export type ServiceMessageBundle =
-  | Message.ChannelChatCreatedMessage
-  | Message.ChatSharedMessage
-  | Message.ConnectedWebsiteMessage
+  | Message.NewChatMembersMessage
+  | Message.LeftChatMemberMessage
+  | Message.NewChatTitleMessage
+  | Message.NewChatPhotoMessage
   | Message.DeleteChatPhotoMessage
   | Message.GroupChatCreatedMessage
-  | Message.InvoiceMessage
-  | Message.LeftChatMemberMessage
+  | Message.SupergroupChatCreated
+  | Message.ChannelChatCreatedMessage
   | Message.MessageAutoDeleteTimerChangedMessage
-  | Message.MigrateFromChatIdMessage
   | Message.MigrateToChatIdMessage
-  | Message.NewChatMembersMessage
-  | Message.NewChatPhotoMessage
-  | Message.NewChatTitleMessage
+  | Message.MigrateFromChatIdMessage
+  | Message.PinnedMessageMessage
+  | Message.InvoiceMessage
+  | Message.SuccessfulPaymentMessage
+  | Message.UserSharedMessage
+  | Message.ChatSharedMessage
+  | Message.ConnectedWebsiteMessage
+  | Message.WriteAccessAllowedMessage
   | Message.PassportDataMessage
   | Message.ProximityAlertTriggeredMessage
   | Message.ForumTopicCreatedMessage
+  | Message.ForumTopicEditedMessage
   | Message.ForumTopicClosedMessage
   | Message.ForumTopicReopenedMessage
-  | Message.PinnedMessageMessage
-  | Message.SuccessfulPaymentMessage
-  | Message.SupergroupChatCreated
-  | Message.UserSharedMessage
+  | Message.GeneralForumTopicHiddenMessage
+  | Message.GeneralForumTopicUnhiddenMessage
   | Message.VideoChatScheduledMessage
   | Message.VideoChatStartedMessage
   | Message.VideoChatEndedMessage
