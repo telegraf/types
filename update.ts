@@ -1,8 +1,12 @@
 import type { ChosenInlineResult, InlineQuery } from "./inline.ts";
 import type {
   Chat,
+  ChatBoostRemoved,
+  ChatBoostUpdated,
   ChatJoinRequest,
   ChatMemberUpdated,
+  MessageReactionCountUpdated,
+  MessageReactionUpdated,
   User,
 } from "./manage.ts";
 import type { CallbackQuery } from "./markup.ts";
@@ -69,6 +73,14 @@ export declare namespace Update {
     /** New version of a channel post that is known to the bot and was edited */
     edited_channel_post: Edited & Channel & M;
   }
+  export interface MessageReactionUpdatedUpdate extends AbstractUpdate {
+    /** A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `"message_reaction"` in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots. */
+    message_reaction: MessageReactionUpdated;
+  }
+  export interface MessageReactionCountUpdatedUpdate extends AbstractUpdate {
+    /** Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `"message_reaction_count"` in the list of allowed_updates to receive these updates. */
+    message_reaction_count: MessageReactionCountUpdated;
+  }
   export interface InlineQueryUpdate extends AbstractUpdate {
     /** New incoming inline query */
     inline_query: InlineQuery;
@@ -109,6 +121,14 @@ export declare namespace Update {
   export interface ChatJoinRequestUpdate extends AbstractUpdate {
     /** A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates. */
     chat_join_request: ChatJoinRequest;
+  }
+  export interface ChatBoostUpdatedUpdate extends AbstractUpdate {
+    /** A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates. */
+    chat_boost: ChatBoostUpdated;
+  }
+  export interface ChatBoostRemovedUpdate extends AbstractUpdate {
+    /** A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates. */
+    removed_chat_boost: ChatBoostRemoved;
   }
 }
 
