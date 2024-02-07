@@ -222,11 +222,11 @@ export type ApiMethods<F> = {
 
   /** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
   copyMessages(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
-    /** Unique identifier for the chat where the original messages were sent (or channel username in the format @channelusername) */
+    /** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
     from_chat_id: number | string;
     /** Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
     message_ids: number[];
@@ -494,8 +494,6 @@ export type ApiMethods<F> = {
     protect_content?: boolean;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
   }): Array<
     | Message.AudioMessage
     | Message.DocumentMessage
@@ -1170,7 +1168,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
   getUserChatBoosts(arg: {
-    /** Unique identifier for the chat or username of the channel (in the format @channelusername) */
+    /** Unique identifier for the chat or username of the channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
