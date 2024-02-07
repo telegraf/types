@@ -525,7 +525,7 @@ export interface TextQuote {
   /** Text of the quoted part of a message that is replied to by the given message */
   text: string;
   /** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes. */
-  entities: MessageEntity[];
+  entities?: MessageEntity[];
   /** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
   position: number;
   /** True, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server. */
@@ -668,7 +668,7 @@ export type ExternalReplyInfo =
 export interface ReplyParameters {
   /** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified */
   message_id: number;
-  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format @channelusername) */
+  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`) */
   chat_id?: number | string;
   /** Pass True if the message should be sent even if the specified message to be replied to is not found; can be used only for replies in the same chat and forum topic. */
   allow_sending_without_reply?: boolean;
@@ -1092,8 +1092,8 @@ export interface Giveaway {
   prize_description?: string;
   /** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways. */
   country_codes?: string[];
-  /** Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for */
-  premium_subscription_month_count: number;
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  premium_subscription_month_count?: number;
 }
 
 /** This object represents a message about the completion of a giveaway with public winners. */
@@ -1108,12 +1108,12 @@ export interface GiveawayWinners {
   winner_count: number;
   /** List of up to 100 winners of the giveaway */
   winners: User[];
-  /** Optional. The number of other chats the user had to join in order to be eligible for the giveaway */
-  additional_chat_count: number;
-  /** Optional. The number of months the Telegram Premium subscription won from the giveaway will be active for */
-  premium_subscription_month_count: number;
-  /** Optional. Number of undistributed prizes */
-  unclaimed_prize_count: number;
+  /** The number of other chats the user had to join in order to be eligible for the giveaway */
+  additional_chat_count?: number;
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  premium_subscription_month_count?: number;
+  /** Number of undistributed prizes */
+  unclaimed_prize_count?: number;
   /** True, if only users who had joined the chats after the giveaway started were eligible to win */
   only_new_members?: true;
   /** True, if the giveaway was canceled because the payment for it was refunded */
@@ -1126,8 +1126,8 @@ export interface GiveawayWinners {
 export interface GiveawayCompleted {
   /** Number of winners in the giveaway */
   winner_count: number;
-  /** Optional. Number of undistributed prizes */
-  unclaimed_prize_count: number;
+  /** Number of undistributed prizes */
+  unclaimed_prize_count?: number;
   /** Message with the giveaway that was completed, if it wasn't deleted */
   giveaway_message?: Message;
 }
