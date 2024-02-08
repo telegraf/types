@@ -17,18 +17,22 @@ import type {
   ChatPermissions,
   File,
   ForumTopic,
+  ReactionType,
+  UserChatBoosts,
   UserFromGetMe,
   UserProfilePhotos,
   WebhookInfo,
 } from "./manage.ts";
 import type {
   GameHighScore,
+  LinkPreviewOptions,
   MaskPosition,
   Message,
   MessageEntity,
   MessageId,
   ParseMode,
   Poll,
+  ReplyParameters,
   SentWebAppMessage,
   Sticker,
   StickerSet,
@@ -128,7 +132,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send text messages. On success, the sent Message is returned. */
   sendMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -138,16 +142,14 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in message text, which can be specified instead of parse_mode */
     entities?: MessageEntity[];
-    /** Boolean Disables link previews for links in this message */
-    disable_web_page_preview?: boolean;
+    /** Link preview generation options for the message */
+    link_preview_options?: LinkPreviewOptions;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -158,11 +160,11 @@ export type ApiMethods<F> = {
 
   /** Use this method to forward messages of any kind. Service messages can't be forwarded. On success, the sent Message is returned. */
   forwardMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
-    /** Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername) */
+    /** Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`) */
     from_chat_id: number | string;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
@@ -172,13 +174,29 @@ export type ApiMethods<F> = {
     message_id: number;
   }): Message;
 
-  /** Use this method to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
-  copyMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+  /** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned. */
+  forwardMessages(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
-    /** Unique identifier for the chat where the original message was sent (or channel username in the format @channelusername) */
+    /** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
+    from_chat_id: number | string;
+    /** Identifiers of 1-100 messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
+    message_ids: number[];
+    /** Sends the messages silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the forwarded messages from forwarding and saving */
+    protect_content?: boolean;
+  }): MessageId[];
+
+  /** Use this method to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
+  copyMessage(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    message_thread_id?: number;
+    /** Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`) */
     from_chat_id: number | string;
     /** Message identifier in the chat specified in from_chat_id */
     message_id: number;
@@ -192,10 +210,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -204,9 +220,27 @@ export type ApiMethods<F> = {
       | ForceReply;
   }): MessageId;
 
+  /** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
+  copyMessages(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    message_thread_id?: number;
+    /** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
+    from_chat_id: number | string;
+    /** Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
+    message_ids: number[];
+    /** Sends the messages silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the sent messages from forwarding and saving */
+    protect_content?: boolean;
+    /** Pass True to copy the messages without their captions */
+    remove_caption?: boolean;
+  }): MessageId[];
+
   /** Use this method to send photos. On success, the sent Message is returned. */
   sendPhoto(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -224,10 +258,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -240,7 +272,7 @@ export type ApiMethods<F> = {
 
   For sending voice messages, use the sendVoice method instead. */
   sendAudio(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -264,10 +296,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -278,7 +308,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
   sendDocument(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -298,10 +328,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -312,7 +340,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
   sendVideo(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -340,10 +368,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -354,7 +380,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
   sendAnimation(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -380,10 +406,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -394,7 +418,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
   sendVoice(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -412,10 +436,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -427,7 +449,7 @@ export type ApiMethods<F> = {
   /** Use this method to send video messages. On success, the sent Message is returned.
   As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. */
   sendVideoNote(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -443,10 +465,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -457,7 +477,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned. */
   sendMediaGroup(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** An array describing messages to be sent, must include 2-10 items */
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -472,10 +492,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent messages from forwarding and saving */
     protect_content?: boolean;
-    /** If messages are a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
   }): Array<
     | Message.AudioMessage
     | Message.DocumentMessage
@@ -485,7 +503,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send point on the map. On success, the sent Message is returned. */
   sendLocation(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -505,10 +523,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -519,7 +535,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageLiveLocation(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
     message_id?: number;
@@ -541,7 +557,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
   stopMessageLiveLocation(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
     message_id?: number;
@@ -553,7 +569,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send information about a venue. On success, the sent Message is returned. */
   sendVenue(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -577,10 +593,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -591,7 +605,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send phone contacts. On success, the sent Message is returned. */
   sendContact(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -607,10 +621,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -621,7 +633,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send a native poll. On success, the sent Message is returned. */
   sendPoll(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -653,10 +665,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -667,7 +677,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned. */
   sendDice(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -677,10 +687,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -695,7 +703,7 @@ export type ApiMethods<F> = {
 
   We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
   sendChatAction(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
     action:
@@ -712,6 +720,18 @@ export type ApiMethods<F> = {
       | "upload_video_note";
     /** Unique identifier for the target message thread; supergroups only */
     message_thread_id?: number;
+  }): true;
+
+  /** Use this method to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. In albums, bots must react to the first message. Returns True on success. */
+  setMessageReaction(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Identifier of the target message */
+    message_id: number;
+    /** New list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. */
+    reaction?: ReactionType[];
+    /** Pass True to set the reaction with a big animation */
+    is_big?: Boolean;
   }): true;
 
   /** Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object. */
@@ -738,7 +758,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
   banChatMember(args: {
-    /** Unique identifier for the target group or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -750,7 +770,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success. */
   unbanChatMember(args: {
-    /** Unique identifier for the target group or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -774,7 +794,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success. */
   promoteChatMember(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -822,7 +842,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
   banChatSenderChat(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target sender chat */
     sender_chat_id: number;
@@ -830,7 +850,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns True on success. */
   unbanChatSenderChat(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target sender chat */
     sender_chat_id: number;
@@ -850,13 +870,13 @@ export type ApiMethods<F> = {
 
   Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again. */
   exportChatInviteLink(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): string;
 
   /** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
   createChatInviteLink(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Invite link name; 0-32 characters */
     name?: string;
@@ -870,7 +890,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
   editChatInviteLink(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** The invite link to edit */
     invite_link: string;
@@ -886,7 +906,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object. */
   revokeChatInviteLink(args: {
-    /** Unique identifier of the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier of the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** The invite link to revoke */
     invite_link: string;
@@ -894,7 +914,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
   approveChatJoinRequest(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -902,7 +922,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
   declineChatJoinRequest(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -910,7 +930,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
   setChatPhoto(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** New chat photo, uploaded using multipart/form-data */
     photo: F;
@@ -918,13 +938,13 @@ export type ApiMethods<F> = {
 
   /** Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
   deleteChatPhoto(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): true;
 
   /** Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
   setChatTitle(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** New chat title, 1-128 characters */
     title: string;
@@ -932,7 +952,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
   setChatDescription(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** New chat description, 0-255 characters */
     description?: string;
@@ -940,7 +960,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success. */
   pinChatMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of a message to pin */
     message_id: number;
@@ -950,7 +970,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success. */
   unpinChatMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned. */
     message_id?: number;
@@ -958,25 +978,25 @@ export type ApiMethods<F> = {
 
   /** Use this method to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success. */
   unpinAllChatMessages(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): true;
 
   /** Use this method for your bot to leave a group, supergroup or channel. Returns True on success. */
   leaveChat(args: {
-    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): true;
 
   /** Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success. */
   getChat(args: {
-    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): ChatFromGetChat;
 
   /** Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects. */
   getChatAdministrators(args: {
-    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): Array<ChatMemberOwner | ChatMemberAdministrator>;
 
@@ -986,13 +1006,13 @@ export type ApiMethods<F> = {
 
   /** Use this method to get the number of members in a chat. Returns Int on success. */
   getChatMemberCount(args: {
-    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
   }): number;
 
   /** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success. */
   getChatMember(args: {
-    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
@@ -1146,6 +1166,14 @@ export type ApiMethods<F> = {
     language_code?: string;
   }): BotName;
 
+  /** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
+  getUserChatBoosts(arg: {
+    /** Unique identifier for the chat or username of the channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Unique identifier of the target user */
+    user_id: number;
+  }): UserChatBoosts[];
+
   /** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
   setMyCommands(args: {
     /** A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */
@@ -1230,7 +1258,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageText(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
     message_id?: number;
@@ -1242,15 +1270,15 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in message text, which can be specified instead of parse_mode */
     entities?: MessageEntity[];
-    /** Disables link previews for links in this message */
-    disable_web_page_preview?: boolean;
+    /** Link preview generation options for the message */
+    link_preview_options?: LinkPreviewOptions;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
   }): (Update.Edited & Message.TextMessage) | true;
 
   /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageCaption(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
     message_id?: number;
@@ -1268,7 +1296,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageMedia(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
     message_id?: number;
@@ -1282,7 +1310,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageReplyMarkup(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
     message_id?: number;
@@ -1294,7 +1322,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
   stopPoll(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of the original message with the poll */
     message_id: number;
@@ -1313,15 +1341,23 @@ export type ApiMethods<F> = {
   - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
   Returns True on success. */
   deleteMessage(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of the message to delete */
     message_id: number;
   }): true;
 
+  /** Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success. */
+  deleteMessages(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Identifiers of 1-100 messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
+    message_ids: number[];
+  }): true;
+
   /** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
   sendSticker(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -1333,10 +1369,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
     reply_markup?:
       | InlineKeyboardMarkup
@@ -1494,7 +1528,7 @@ export type ApiMethods<F> = {
 
   /** Use this method to send invoices. On success, the sent Message is returned. */
   sendInvoice(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
@@ -1544,10 +1578,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
     reply_markup?: InlineKeyboardMarkup;
   }): Message.InvoiceMessage;
@@ -1640,10 +1672,8 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
-    /** If the message is a reply, ID of the original message */
-    reply_to_message_id?: number;
-    /** Pass True if the message should be sent even if the specified replied-to message is not found */
-    allow_sending_without_reply?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
     reply_markup?: InlineKeyboardMarkup;
   }): Message.GameMessage;

@@ -14,30 +14,24 @@ export declare namespace Message {
     from?: User;
     /** Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
     sender_chat?: Chat;
-    /** Date the message was sent in Unix time */
+    /** Date the message was sent in Unix time. It is always a positive number, representing a valid date. */
     date: number;
-    /** Conversation the message belongs to */
+    /** Chat the message belongs to */
     chat: Chat;
     /** True, if the message is sent to a forum topic */
     is_topic_message?: boolean;
   }
   export interface CommonMessage extends ServiceMessage {
-    /** For forwarded messages, sender of the original message */
-    forward_from?: User;
-    /** For messages forwarded from channels or from anonymous administrators, information about the original sender chat */
-    forward_from_chat?: Chat;
-    /** For messages forwarded from channels, identifier of the original message in the channel */
-    forward_from_message_id?: number;
-    /** For forwarded messages that were originally sent in channels or by an anonymous chat administrator, signature of the message sender if present */
-    forward_signature?: string;
-    /** Sender's name for messages forwarded from users who disallow adding a link to their account in forwarded messages */
-    forward_sender_name?: string;
-    /** For forwarded messages, date the original message was sent in Unix time */
-    forward_date?: number;
+    /** Information about the original message for forwarded messages */
+    forward_origin?: MessageOrigin;
     /** True, if the message is a channel post that was automatically forwarded to the connected discussion group */
     is_automatic_forward?: true;
-    /** For replies, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. */
+    /** For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. */
     reply_to_message?: ReplyMessage;
+    /** Information about the message that is being replied to, which may come from another chat or forum topic */
+    external_reply?: ExternalReplyInfo;
+    /** For replies that quote part of the original message, the quoted part of the message */
+    quote?: TextQuote;
     /** Bot through which the message was sent */
     via_bot?: User;
     /** Date the message was last edited in Unix time */
@@ -46,6 +40,8 @@ export declare namespace Message {
     has_protected_content?: true;
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string;
+    /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
+    link_preview_options?: LinkPreviewOptions;
     /** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
     reply_markup?: InlineKeyboardMarkup;
   }
@@ -164,16 +160,16 @@ export declare namespace Message {
     message_auto_delete_timer_changed: MessageAutoDeleteTimerChanged;
   }
   export interface MigrateToChatIdMessage extends ServiceMessage {
-    /** The group has been migrated to a supergroup with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier. */
+    /** The group has been migrated to a supergroup with the specified identifier. */
     migrate_to_chat_id: number;
   }
   export interface MigrateFromChatIdMessage extends ServiceMessage {
-    /** The supergroup has been migrated from a group with the specified identifier. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier. */
+    /** The supergroup has been migrated from a group with the specified identifier. */
     migrate_from_chat_id: number;
   }
   export interface PinnedMessageMessage extends ServiceMessage {
     /** Specified message was pinned. Note that the Message object in this field will not contain further reply_to_message fields even if it is itself a reply. */
-    pinned_message: ReplyMessage;
+    pinned_message: Omit<MaybeInaccessibleMessage, "reply_to_message">;
   }
   export interface InvoiceMessage extends ServiceMessage {
     /** Message is an invoice for a payment, information about the invoice. More about payments » */
@@ -183,9 +179,9 @@ export declare namespace Message {
     /** Message is a service message about a successful payment, information about the payment. More about payments » */
     successful_payment: SuccessfulPayment;
   }
-  export interface UserSharedMessage extends ServiceMessage {
+  export interface UsersSharedMessage extends ServiceMessage {
     /** Service message: a user was shared with the bot */
-    user_shared: UserShared;
+    users_shared: UsersShared;
   }
   export interface ChatSharedMessage extends ServiceMessage {
     /** Service message: a chat was shared with the bot */
@@ -231,6 +227,22 @@ export declare namespace Message {
     /** Service message: the 'General' forum topic unhidden */
     general_forum_topic_unhidden: GeneralForumTopicUnhidden;
   }
+  export interface GiveawayCreatedMessage extends ServiceMessage {
+    /** Service message: a scheduled giveaway was created */
+    giveaway_created: GiveawayCreated;
+  }
+  export interface GiveawayMessage extends ServiceMessage {
+    /** The message is a scheduled giveaway message */
+    giveaway: Giveaway;
+  }
+  export interface GiveawayWinnersMessage extends ServiceMessage {
+    /** A giveaway with public winners was completed */
+    giveaway_winners: GiveawayWinners;
+  }
+  export interface GiveawayCompletedMessage extends ServiceMessage {
+    /** Service message: a giveaway without public winners was completed */
+    giveaway_completed: GiveawayCompleted;
+  }
   export interface VideoChatScheduledMessage extends ServiceMessage {
     /** Service message: video chat scheduled */
     video_chat_scheduled: VideoChatScheduled;
@@ -269,7 +281,7 @@ export type ServiceMessageBundle =
   | Message.PinnedMessageMessage
   | Message.InvoiceMessage
   | Message.SuccessfulPaymentMessage
-  | Message.UserSharedMessage
+  | Message.UsersSharedMessage
   | Message.ChatSharedMessage
   | Message.ConnectedWebsiteMessage
   | Message.WriteAccessAllowedMessage
@@ -281,6 +293,10 @@ export type ServiceMessageBundle =
   | Message.ForumTopicReopenedMessage
   | Message.GeneralForumTopicHiddenMessage
   | Message.GeneralForumTopicUnhiddenMessage
+  | Message.GiveawayCreatedMessage
+  | Message.GiveawayMessage
+  | Message.GiveawayWinnersMessage
+  | Message.GiveawayCompletedMessage
   | Message.VideoChatScheduledMessage
   | Message.VideoChatStartedMessage
   | Message.VideoChatEndedMessage
@@ -320,19 +336,38 @@ export interface MessageId {
   message_id: number;
 }
 
+/** This object describes a message that was deleted or is otherwise inaccessible to the bot. */
+export interface InaccessibleMessage {
+  /** Chat the message belonged to. */
+  chat: Chat;
+  /** Unique message identifier inside the chat. */
+  message_id: number;
+  /** Always 0. The field can be used to differentiate regular and inaccessible messages. */
+  date: 0;
+}
+
+/** This object describes a message that can be inaccessible to the bot. It can be one of
+
+- Message
+- InaccessibleMessage */
+export type MaybeInaccessibleMessage =
+  | Message
+  | InaccessibleMessage;
+
 /** Describes an inline message sent by a Web App on behalf of a user. */
 export interface SentWebAppMessage {
   /** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
   inline_message_id: string;
 }
 
-/** The Bot API supports basic formatting for messages. You can use bold, italic, underlined, strikethrough, and spoiler text, as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly. You can use either markdown-style or HTML-style formatting.
+/** The Bot API supports basic formatting for messages. You can use bold, italic, underlined, strikethrough, spoiler text, block quotations as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly. You can specify text entities directly, or use markdown-style or HTML-style formatting.
 
 Note that Telegram clients will display an **alert** to the user before opening an inline link ('Open this link?' together with the full URL).
 
 Message entities can be nested, providing following restrictions are met:
 - If two entities have common characters, then one of them is fully contained inside another.
 - bold, italic, underline, strikethrough, and spoiler entities can contain and can be part of any other entities, except pre and code.
+- blockquote entities can't be nested.
 - All other entities can't contain each other.
 
 Links `tg://user?id=<user_id>` can be used to mention a user by their ID without using a username. Please note:
@@ -340,11 +375,13 @@ Links `tg://user?id=<user_id>` can be used to mention a user by their ID without
 - These links will work only if they are used inside an inline link or in an inline keyboard button. For example, they will not work, when used in a message text.
 - Unless the user is a member of the chat where they were mentioned, these mentions are only guaranteed to work if the user has contacted the bot in private in the past or has sent a callback query to the bot via an inline button and doesn't have Forwarded Messages privacy enabled for the bot.
 
+You can find the list of programming and markup languages for which syntax highlighting is supported at [libprisma#supported-languages](https://github.com/TelegramMessenger/libprisma#supported-languages).
+
 #### MarkdownV2 style
 To use this mode, pass *MarkdownV2* in the *parse_mode* field. Use the following syntax in your message:
 
 ```
-  *bold \*text*
+*bold \*text*
 _italic \*text_
 __underline__
 ~strikethrough~
@@ -360,6 +397,9 @@ pre-formatted fixed-width code block
 `​`​`python
 pre-formatted fixed-width code block written in the Python programming language
 `​`​`
+>Block quotation started
+>Block quotation continued
+>The last line of the block quotation
 ```
 Please note:
 
@@ -387,6 +427,7 @@ To use this mode, pass *HTML* in the *parse_mode* field. The following tags are 
 <code>inline fixed-width code</code>
 <pre>pre-formatted fixed-width code block</pre>
 <pre><code class="language-python">pre-formatted fixed-width code block written in the Python programming language</code></pre>
+<blockquote>Block quotation started\nBlock quotation continued\nThe last line of the block quotation</blockquote>
 ```
 Please note:
 
@@ -403,7 +444,7 @@ Please note:
 This is a legacy mode, retained for backward compatibility. To use this mode, pass *Markdown* in the *parse_mode* field. Use the following syntax in your message:
 
 ```
-  *bold text*
+*bold text*
 _italic text_
 [inline URL](http://www.example.com/)
 [inline mention of a user](tg://user?id=123456789)
@@ -418,14 +459,14 @@ pre-formatted fixed-width code block written in the Python programming language
 Please note:
 
 - Entities must not be nested, use parse mode MarkdownV2 instead.
-- There is no way to specify underline and strikethrough entities, use parse mode MarkdownV2 instead.
+- There is no way to specify “underline”, “strikethrough”, “spoiler”, “blockquote” and “custom_emoji” entities, use parse mode MarkdownV2 instead.
 - To escape characters '_', '*', '`', '[' outside of an entity, prepend the characters '\' before them.
 - Escaping inside entities is not allowed, so entity must be closed first and reopened again: use `_snake_\__case_` for italic `snake_case` and `*2*\**2=4*` for bold `2*2=4`. */
 export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 
 export declare namespace MessageEntity {
   interface AbstractMessageEntity {
-    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
+    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
     type: string;
     /** Offset in UTF-16 code units to the start of the entity */
     offset: number;
@@ -442,6 +483,7 @@ export declare namespace MessageEntity {
       | "email"
       | "phone_number"
       | "bold"
+      | "blockquote"
       | "italic"
       | "underline"
       | "strikethrough"
@@ -477,6 +519,222 @@ export type MessageEntity =
   | MessageEntity.PreMessageEntity
   | MessageEntity.TextLinkMessageEntity
   | MessageEntity.TextMentionMessageEntity;
+
+/** This object contains information about the quoted part of a message that is replied to by the given message. */
+export interface TextQuote {
+  /** Text of the quoted part of a message that is replied to by the given message */
+  text: string;
+  /** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes. */
+  entities?: MessageEntity[];
+  /** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
+  position: number;
+  /** True, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server. */
+  is_manual?: true;
+}
+
+/** Base properties shared by all ExternalReplyInfo variants */
+export interface AbstractExternalReply {
+  /** Origin of the message replied to by the given message */
+  origin: MessageOrigin;
+  /** Chat the original message belongs to. Available only if the chat is a supergroup or a channel. */
+  chat?: Chat;
+  /** Unique message identifier inside the original chat. Available only if the original chat is a supergroup or a channel. */
+  message_id?: number;
+  /** Options used for link preview generation for the original message, if it is a text message */
+  link_preview_options?: LinkPreviewOptions;
+}
+
+/** Properties shared by Animation, Photo, and Video ExternalReplyInfo */
+export interface AbstractExternalReplyMedia {
+  /** True, if the message media is covered by a spoiler animation */
+  has_media_spoiler?: true;
+}
+
+export interface ExternalReplyAnimation
+  extends AbstractExternalReply, AbstractExternalReplyMedia {
+  /** Message is an animation, information about the animation */
+  animation: Animation;
+}
+
+export interface ExternalReplyAudio extends AbstractExternalReply {
+  /** Message is an audio file, information about the file */
+  audio: Audio;
+}
+
+export interface ExternalReplyDocument extends AbstractExternalReply {
+  /** Message is a general file, information about the file */
+  document: Document;
+}
+
+export interface ExternalReplyPhoto
+  extends AbstractExternalReply, AbstractExternalReplyMedia {
+  /** Message is a photo, available sizes of the photo */
+  photo: PhotoSize[];
+}
+
+export interface ExternalReplySticker extends AbstractExternalReply {
+  /** Message is a sticker, information about the sticker */
+  sticker: Sticker;
+}
+
+export interface ExternalReplyStory extends AbstractExternalReply {
+  /** Message is a forwarded story */
+  story: Story;
+}
+
+export interface ExternalReplyVideo
+  extends AbstractExternalReply, AbstractExternalReplyMedia {
+  /** Message is a video, information about the video */
+  video: Video;
+}
+
+export interface ExternalReplyVideoNote extends AbstractExternalReply {
+  /** Message is a video note, information about the video message */
+  video_note: VideoNote;
+}
+
+export interface ExternalReplyVoice extends AbstractExternalReply {
+  /** Message is a voice message, information about the file */
+  voice: Voice;
+}
+
+export interface ExternalReplyContact extends AbstractExternalReply {
+  /** Message is a shared contact, information about the contact */
+  contact: Contact;
+}
+
+export interface ExternalReplyDice extends AbstractExternalReply {
+  /** Message is a dice with random value */
+  dice: Dice;
+}
+
+export interface ExternalReplyGame extends AbstractExternalReply {
+  /** Message is a game, information about the game. More about games » */
+  game: Game;
+}
+
+export interface ExternalReplyGiveaway extends AbstractExternalReply {
+  /** Message is a scheduled giveaway, information about the giveaway */
+  giveaway: Giveaway;
+}
+
+export interface ExternalReplyGiveawayWinners extends AbstractExternalReply {
+  /** A giveaway with public winners was completed */
+  giveaway_winners: GiveawayWinners;
+}
+
+export interface ExternalReplyInvoice extends AbstractExternalReply {
+  /** Message is an invoice for a payment, information about the invoice. More about payments » */
+  invoice: Invoice;
+}
+
+export interface ExternalReplyLocation extends AbstractExternalReply {
+  /** Message is a shared location, information about the location */
+  location: Location;
+}
+
+export interface ExternalReplyPoll extends AbstractExternalReply {
+  /** Message is a native poll, information about the poll */
+  poll: Poll;
+}
+
+export interface ExternalReplyVenue extends AbstractExternalReply {
+  /** Message is a venue, information about the venue */
+  venue: Venue;
+}
+
+/** This object contains information about a message that is being replied to, which may come from another chat or forum topic. */
+export type ExternalReplyInfo =
+  | ExternalReplyAnimation
+  | ExternalReplyAudio
+  | ExternalReplyDocument
+  | ExternalReplyPhoto
+  | ExternalReplySticker
+  | ExternalReplyStory
+  | ExternalReplyVideo
+  | ExternalReplyVideoNote
+  | ExternalReplyVoice
+  | ExternalReplyContact
+  | ExternalReplyDice
+  | ExternalReplyGame
+  | ExternalReplyGiveaway
+  | ExternalReplyGiveawayWinners
+  | ExternalReplyInvoice
+  | ExternalReplyLocation
+  | ExternalReplyPoll
+  | ExternalReplyVenue;
+
+/** Describes reply parameters for the message that is being sent. */
+export interface ReplyParameters {
+  /** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified */
+  message_id: number;
+  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`) */
+  chat_id?: number | string;
+  /** Pass True if the message should be sent even if the specified message to be replied to is not found; can be used only for replies in the same chat and forum topic. */
+  allow_sending_without_reply?: boolean;
+  /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message. */
+  quote?: string;
+  /** Mode for parsing entities in the quote. See formatting options for more details. */
+  quote_parse_mode?: string;
+  /** A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
+  quote_entities?: MessageEntity[];
+  /** Position of the quote in the original message in UTF-16 code units */
+  quote_position?: number;
+}
+
+/** This object describes the origin of a message. It can be one of
+
+- MessageOriginUser
+- MessageOriginHiddenUser
+- MessageOriginChat
+- MessageOriginChannel
+ */
+type MessageOrigin =
+  | MessageOriginUser
+  | MessageOriginHiddenUser
+  | MessageOriginChat
+  | MessageOriginChannel;
+
+export interface AbstractMessageOrigin {
+  /** Type of the message origin */
+  type: string;
+  /** Date the message was sent originally in Unix time */
+  date: number;
+}
+
+/** The message was originally sent by a known user. */
+export interface MessageOriginUser {
+  type: "user";
+  /** User that sent the message originally */
+  sender_user: User;
+}
+
+/** The message was originally sent by an unknown user. */
+export interface MessageOriginHiddenUser {
+  type: "hidden_user";
+  /** Name of the user that sent the message originally */
+  sender_user_name: string;
+}
+
+/** The message was originally sent on behalf of a chat to a group chat. */
+export interface MessageOriginChat {
+  type: "chat";
+  /** Chat that sent the message originally */
+  sender_chat: Chat;
+  /** For messages originally sent by an anonymous chat administrator, original message author signature */
+  author_signature?: string;
+}
+
+/** The message was originally sent to a channel chat. */
+export interface MessageOriginChannel {
+  type: "channel";
+  /** Channel chat to which the message was originally sent */
+  chat: Chat;
+  /** Unique message identifier inside the chat */
+  message_id: number;
+  /** Signature of the original post author */
+  author_signature?: string;
+}
 
 /** This object represents one size of a photo or a file / sticker thumbnail. */
 export interface PhotoSize {
@@ -612,7 +870,7 @@ export interface Contact {
   first_name: string;
   /** Contact's last name */
   last_name?: string;
-  /** Contact's user identifier in Telegram. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
+  /** Contact's user identifier in Telegram. */
   user_id?: number;
   /** Additional data about the contact in the form of a vCard */
   vcard?: string;
@@ -768,19 +1026,19 @@ export interface GeneralForumTopicHidden {}
 /** This object represents a service message about General forum topic unhidden in the chat. Currently holds no information. */
 export interface GeneralForumTopicUnhidden {}
 
-/** This object contains information about the user whose identifier was shared with the bot using a KeyboardButtonRequestUser button. */
-export interface UserShared {
+/** This object contains information about the user whose identifier was shared with the bot using a KeyboardButtonRequestUsers button. */
+export interface UsersShared {
   /** Identifier of the request */
   request_id: number;
-  /** Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means. */
-  user_id: number;
+  /** Identifiers of the shared users. The bot may not have access to the users and could be unable to use these identifiers, unless the users are already known to the bot by some other means. */
+  user_ids: number[];
 }
 
 /** This object contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button. */
 export interface ChatShared {
   /** Identifier of the request */
   request_id: number;
-  /** Identifier of the shared chat. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means. */
+  /** Identifier of the shared chat. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means. */
   chat_id: number;
 }
 
@@ -813,6 +1071,79 @@ export interface VideoChatEnded {
 export interface VideoChatParticipantsInvited {
   /** New members that were invited to the video chat */
   users: User[];
+}
+
+/** This object represents a service message about the creation of a scheduled giveaway. Currently holds no information. */
+export interface GiveawayCreated {}
+
+/** This object represents a message about a scheduled giveaway. */
+export interface Giveaway {
+  /** The list of chats which the user must join to participate in the giveaway */
+  chats: Chat[];
+  /** Point in time (Unix timestamp) when winners of the giveaway will be selected */
+  winners_selection_date: number;
+  /** The number of users which are supposed to be selected as winners of the giveaway */
+  winner_count: number;
+  /** True, if only users who join the chats after the giveaway started should be eligible to win */
+  only_new_members?: true;
+  /** True, if the list of giveaway winners will be visible to everyone */
+  has_public_winners?: true;
+  /** Description of additional giveaway prize */
+  prize_description?: string;
+  /** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways. */
+  country_codes?: string[];
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  premium_subscription_month_count?: number;
+}
+
+/** This object represents a message about the completion of a giveaway with public winners. */
+export interface GiveawayWinners {
+  /** The chat that created the giveaway */
+  chat: Chat;
+  /** Identifier of the messsage with the giveaway in the chat */
+  giveaway_message_id: number;
+  /** Point in time (Unix timestamp) when winners of the giveaway were selected */
+  winners_selection_date: number;
+  /** Total number of winners in the giveaway */
+  winner_count: number;
+  /** List of up to 100 winners of the giveaway */
+  winners: User[];
+  /** The number of other chats the user had to join in order to be eligible for the giveaway */
+  additional_chat_count?: number;
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  premium_subscription_month_count?: number;
+  /** Number of undistributed prizes */
+  unclaimed_prize_count?: number;
+  /** True, if only users who had joined the chats after the giveaway started were eligible to win */
+  only_new_members?: true;
+  /** True, if the giveaway was canceled because the payment for it was refunded */
+  was_refunded?: true;
+  /** Description of additional giveaway prize */
+  prize_description?: string;
+}
+
+/** This object represents a service message about the completion of a giveaway without public winners. */
+export interface GiveawayCompleted {
+  /** Number of winners in the giveaway */
+  winner_count: number;
+  /** Number of undistributed prizes */
+  unclaimed_prize_count?: number;
+  /** Message with the giveaway that was completed, if it wasn't deleted */
+  giveaway_message?: Message;
+}
+
+/** Describes the options used for link preview generation. */
+export interface LinkPreviewOptions {
+  /** True, if the link preview is disabled */
+  is_disabled?: boolean;
+  /** URL to use for the link preview. If empty, then the first URL found in the message text will be used */
+  url?: string;
+  /** True, if the media in the link preview is suppposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
+  prefer_small_media?: boolean;
+  /** True, if the media in the link preview is suppposed to be enlarged; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
+  prefer_large_media?: boolean;
+  /** True, if the link preview must be shown above the message text; otherwise, the link preview will be shown below the message text */
+  show_above_text?: boolean;
 }
 
 /** Describes data sent from a Web App to the bot. */
