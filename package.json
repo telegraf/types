@@ -1,7 +1,7 @@
 {
   "name": "@telegraf/types",
   "private": false,
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "Type declarations for the Telegram API",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,6 @@
   },
   "keywords": [
     "telegram",
-    "grammy",
     "telegraf",
     "bot",
     "api",
@@ -32,6 +31,6 @@
     "index.js"
   ],
   "devDependencies": {
-    "deno-bin": "^1.31.1"
+    "deno-bin": "^1.40.4"
   }
 }
