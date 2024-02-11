@@ -73,11 +73,11 @@ export declare namespace Update {
     /** New version of a channel post that is known to the bot and was edited */
     edited_channel_post: Edited & Channel & M;
   }
-  export interface MessageReactionUpdatedUpdate extends AbstractUpdate {
+  export interface MessageReactionUpdate extends AbstractUpdate {
     /** A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `"message_reaction"` in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots. */
     message_reaction: MessageReactionUpdated;
   }
-  export interface MessageReactionCountUpdatedUpdate extends AbstractUpdate {
+  export interface MessageReactionCountUpdate extends AbstractUpdate {
     /** Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `"message_reaction_count"` in the list of allowed_updates to receive these updates. */
     message_reaction_count: MessageReactionCountUpdated;
   }
@@ -122,11 +122,11 @@ export declare namespace Update {
     /** A request to join the chat has been sent. The bot must have the can_invite_users administrator right in the chat to receive these updates. */
     chat_join_request: ChatJoinRequest;
   }
-  export interface ChatBoostUpdatedUpdate extends AbstractUpdate {
+  export interface ChatBoostUpdate extends AbstractUpdate {
     /** A chat boost was added or changed. The bot must be an administrator in the chat to receive these updates. */
     chat_boost: ChatBoostUpdated;
   }
-  export interface ChatBoostRemovedUpdate extends AbstractUpdate {
+  export interface RemovedChatBoostUpdate extends AbstractUpdate {
     /** A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates. */
     removed_chat_boost: ChatBoostRemoved;
   }
@@ -140,6 +140,8 @@ export type Update =
   | Update.ChatMemberUpdate
   | Update.ChosenInlineResultUpdate
   | Update.EditedChannelPostUpdate
+  | Update.MessageReactionUpdate
+  | Update.MessageReactionCountUpdate
   | Update.EditedMessageUpdate
   | Update.InlineQueryUpdate
   | Update.MessageUpdate
@@ -148,4 +150,6 @@ export type Update =
   | Update.PollAnswerUpdate
   | Update.PollUpdate
   | Update.ShippingQueryUpdate
-  | Update.ChatJoinRequestUpdate;
+  | Update.ChatJoinRequestUpdate
+  | Update.ChatBoostUpdate
+  | Update.RemovedChatBoostUpdate;
