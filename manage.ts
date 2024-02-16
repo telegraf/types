@@ -174,12 +174,16 @@ export declare namespace Chat {
     join_by_request?: true;
     /** For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds. Returned only in getChat. */
     slow_mode_delay?: number;
+    /** For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in getChat. */
+    unrestrict_boost_count?: number;
     /** True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat. */
     has_aggressive_anti_spam_enabled?: true;
     /** True, if new chat members will have access to old messages; available only to chat administrators. Returned only in getChat. */
     has_visible_history?: boolean;
     /** For supergroups, name of group sticker set. Returned only in getChat. */
     sticker_set_name?: string;
+    /** For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat. */
+    custom_emoji_sticker_set_name?: string;
     /** For supergroups, the location to which the supergroup is connected. Returned only in getChat. */
     location?: ChatLocation;
   }
@@ -257,7 +261,7 @@ export interface ChatInviteLink {
 export interface ChatAdministratorRights {
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, chat statistics, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -277,9 +281,9 @@ export interface ChatAdministratorRights {
   can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; groups and supergroups only */
   can_pin_messages?: boolean;
-  /** True, if the administrator can post stories in the channel; channels only */
+  /** True, if the administrator can post stories to the chat */
   can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users; channels only */
+  /** True, if the administrator can edit stories posted by other users */
   can_edit_stories?: boolean;
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories?: boolean;
@@ -325,7 +329,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_be_edited: boolean;
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, chat statistics, message statistics in channels, see channel members, see anonymous administrators in supergroups and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -345,9 +349,9 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; groups and supergroups only */
   can_pin_messages?: boolean;
-  /** True, if the administrator can post stories in the channel; channels only */
+  /** True, if the administrator can post stories to the chat */
   can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users; channels only */
+  /** True, if the administrator can edit stories posted by other users */
   can_edit_stories?: boolean;
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories?: boolean;
