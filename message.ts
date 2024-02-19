@@ -22,6 +22,8 @@ export declare namespace Message {
     is_topic_message?: boolean;
   }
   export interface CommonMessage extends ServiceMessage {
+    /** If the sender of the message boosted the chat, the number of boosts added by the user */
+    sender_boost_count?: number;
     /** Information about the original message for forwarded messages */
     forward_origin?: MessageOrigin;
     /** True, if the message is a channel post that was automatically forwarded to the connected discussion group */
@@ -32,6 +34,8 @@ export declare namespace Message {
     external_reply?: ExternalReplyInfo;
     /** For replies that quote part of the original message, the quoted part of the message */
     quote?: TextQuote;
+    /** For replies to a story, the original story */
+    reply_to_story?: Story;
     /** Bot through which the message was sent */
     via_bot?: User;
     /** Date the message was last edited in Unix time */
@@ -203,6 +207,10 @@ export declare namespace Message {
     /** Service message. A user in the chat triggered another user's proximity alert while sharing Live Location. */
     proximity_alert_triggered: ProximityAlertTriggered;
   }
+  export interface BoostAddedMessage extends ServiceMessage {
+    /** Service message: user boosted the chat */
+    boost_added: ChatBoostAdded;
+  }
   export interface ForumTopicCreatedMessage extends ServiceMessage {
     /** Service message: forum topic created */
     forum_topic_created: ForumTopicCreated;
@@ -287,6 +295,7 @@ export type ServiceMessageBundle =
   | Message.WriteAccessAllowedMessage
   | Message.PassportDataMessage
   | Message.ProximityAlertTriggeredMessage
+  | Message.BoostAddedMessage
   | Message.ForumTopicCreatedMessage
   | Message.ForumTopicEditedMessage
   | Message.ForumTopicClosedMessage
@@ -978,7 +987,12 @@ export interface Venue {
 }
 
 /** This object represents a message about a forwarded story in the chat. Currently holds no information. */
-export interface Story {}
+export interface Story {
+  /** Chat that posted the story */
+  chat: Chat;
+  /** Unique identifier for the story in the chat */
+  id: number;
+}
 
 /** This object represents the content of a service message, sent whenever a user in the chat triggers a proximity alert set by another user. */
 export interface ProximityAlertTriggered {
@@ -994,6 +1008,12 @@ export interface ProximityAlertTriggered {
 export interface MessageAutoDeleteTimerChanged {
   /** New auto-delete time for messages in the chat; in seconds */
   message_auto_delete_time: number;
+}
+
+/** This object represents a service message about a user boosting a chat. */
+export interface ChatBoostAdded {
+  /** Number of boosts added by the user */
+  boost_count: number;
 }
 
 /** This object represents a service message about a new forum topic created in the chat. */
