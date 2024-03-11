@@ -712,21 +712,21 @@ export interface AbstractMessageOrigin {
 }
 
 /** The message was originally sent by a known user. */
-export interface MessageOriginUser {
+export interface MessageOriginUser extends AbstractMessageOrigin {
   type: "user";
   /** User that sent the message originally */
   sender_user: User;
 }
 
 /** The message was originally sent by an unknown user. */
-export interface MessageOriginHiddenUser {
+export interface MessageOriginHiddenUser extends AbstractMessageOrigin {
   type: "hidden_user";
   /** Name of the user that sent the message originally */
   sender_user_name: string;
 }
 
 /** The message was originally sent on behalf of a chat to a group chat. */
-export interface MessageOriginChat {
+export interface MessageOriginChat extends AbstractMessageOrigin {
   type: "chat";
   /** Chat that sent the message originally */
   sender_chat: Chat;
@@ -735,7 +735,7 @@ export interface MessageOriginChat {
 }
 
 /** The message was originally sent to a channel chat. */
-export interface MessageOriginChannel {
+export interface MessageOriginChannel extends AbstractMessageOrigin {
   type: "channel";
   /** Channel chat to which the message was originally sent */
   chat: Chat;
