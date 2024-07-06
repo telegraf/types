@@ -24,6 +24,8 @@ export declare namespace Message {
   export interface CommonMessage extends ServiceMessage {
     /** If the sender of the message boosted the chat, the number of boosts added by the user */
     sender_boost_count?: number;
+    /** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
+    business_connection_id?: string;
     /** Information about the original message for forwarded messages */
     forward_origin?: MessageOrigin;
     /** True, if the message is a channel post that was automatically forwarded to the connected discussion group */

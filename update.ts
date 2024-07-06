@@ -1,5 +1,7 @@
 import type { ChosenInlineResult, InlineQuery } from "./inline.ts";
 import type {
+  BusinessConnection,
+  BusinessMessagesDeleted,
   Chat,
   ChatBoostRemoved,
   ChatBoostUpdated,
@@ -46,6 +48,11 @@ export declare namespace Update {
     forward_sender_name?: never;
     forward_date?: never;
   }
+  /** Internal type holding properties that updates about business messages share. */
+  export interface Biz {
+    /** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
+    business_connection_id: string;
+  }
 
   export interface AbstractUpdate {
     /** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This ID becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
@@ -72,6 +79,26 @@ export declare namespace Update {
   > extends AbstractUpdate {
     /** New version of a channel post that is known to the bot and was edited */
     edited_channel_post: Edited & Channel & M;
+  }
+  export interface BusinessConnectionUpdate extends AbstractUpdate {
+    /** The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot */
+    business_connection: BusinessConnection;
+  }
+  export interface BusinessMessageUpdate<
+    M extends CommonMessageBundle = CommonMessageBundle,
+  > extends AbstractUpdate {
+    /** New message from a connected business account */
+    business_message: New & NonChannel & Biz & M;
+  }
+  export interface EditedBusinessMessageUpdate<
+    M extends CommonMessageBundle = CommonMessageBundle,
+  > extends AbstractUpdate {
+    /** New version of a message from a connected business account */
+    edited_business_message: Edited & NonChannel & Biz & M;
+  }
+  export interface DeletedBusinessMessagesUpdate extends AbstractUpdate {
+    /** A connected business account has deleted messages */
+    deleted_business_messages: BusinessMessagesDeleted;
   }
   export interface MessageReactionUpdate extends AbstractUpdate {
     /** A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `"message_reaction"` in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots. */
@@ -140,6 +167,10 @@ export type Update =
   | Update.ChatMemberUpdate
   | Update.ChosenInlineResultUpdate
   | Update.EditedChannelPostUpdate
+  | Update.BusinessConnectionUpdate
+  | Update.BusinessMessageUpdate
+  | Update.EditedBusinessMessageUpdate
+  | Update.DeletedBusinessMessagesUpdate
   | Update.MessageReactionUpdate
   | Update.MessageReactionCountUpdate
   | Update.EditedMessageUpdate

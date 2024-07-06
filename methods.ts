@@ -8,6 +8,7 @@ import type {
 } from "./markup.ts";
 import type {
   BotCommand,
+  BusinessConnection,
   ChatAdministratorRights,
   ChatFromGetChat,
   ChatInviteLink,
@@ -1173,6 +1174,11 @@ export type ApiMethods<F> = {
     /** Unique identifier of the target user */
     user_id: number;
   }): UserChatBoosts[];
+
+  getBusinessConnection(args: {
+    /** Unique identifier of the business connection */
+    business_connection_id: string;
+  }): BusinessConnection;
 
   /** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
   setMyCommands(args: {
