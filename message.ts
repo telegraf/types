@@ -44,6 +44,8 @@ export declare namespace Message {
     edit_date?: number;
     /** True, if the message can't be forwarded */
     has_protected_content?: true;
+    /** True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message */
+    is_from_offline?: true;
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */

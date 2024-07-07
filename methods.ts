@@ -1485,6 +1485,18 @@ export type ApiMethods<F> = {
     sticker: string;
   }): true;
 
+  /** Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success. */
+  replaceStickerInSet(args: {
+    /** User identifier of the sticker set owner */
+    user_id: number;
+    /** Sticker set name */
+    name: String;
+    /** File identifier of the replaced sticker */
+    old_sticker: String;
+    /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged. */
+    sticker: InputSticker<F>;
+  }): true;
+
   /** Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success. */
   setStickerEmojiList(args: {
     /** File identifier of the sticker */

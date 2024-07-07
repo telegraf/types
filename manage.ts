@@ -52,6 +52,8 @@ export interface UserFromGetMe extends User {
   can_read_all_group_messages: boolean;
   /** True, if the bot supports inline queries. Returned only in getMe. */
   supports_inline_queries: boolean;
+  /** True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe. */
+  can_connect_to_business?: boolean;
 }
 
 export declare namespace Chat {
@@ -155,6 +157,8 @@ export declare namespace Chat {
   /** Internal type representing private chats returned from `getChat`. */
   export interface PrivateGetChat
     extends PrivateChat, NonGroupGetChat, PrivateAndChannelGetChat {
+    /** For private chats, the date of birth of the user */
+    birthdate?: Birthdate;
     /** Bio of the other party in a private chat. Returned only in getChat. */
     bio?: string;
     /** True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat. */
@@ -479,6 +483,16 @@ export interface ChatPermissions {
   can_pin_messages?: boolean;
   /** True, if the user is allowed to create forum topics. If omitted defaults to the value of can_pin_messages */
   can_manage_topics?: boolean;
+}
+
+/** Describes the birthdate of a user. */
+export interface Birthdate {
+  /** Day of the user's birth; 1-31 */
+  day: number;
+  /** Month of the user's birth; 1-12 */
+  month: number;
+  /** Optional. Year of the user's birth */
+  year?: number;
 }
 
 /** Represents a location to which a chat is connected. */
