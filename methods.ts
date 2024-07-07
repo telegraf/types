@@ -133,6 +133,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send text messages. On success, the sent Message is returned. */
   sendMessage(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -157,7 +159,7 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.TextMessage;
+  }): Message.TextMessage & Message.BusinessSentMessage;
 
   /** Use this method to forward messages of any kind. Service messages can't be forwarded. On success, the sent Message is returned. */
   forwardMessage(args: {
@@ -173,7 +175,7 @@ export type ApiMethods<F> = {
     protect_content?: boolean;
     /** Message identifier in the chat specified in from_chat_id */
     message_id: number;
-  }): Message;
+  }): Message & Message.BusinessSentMessage;
 
   /** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned. */
   forwardMessages(args: {
@@ -241,6 +243,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send photos. On success, the sent Message is returned. */
   sendPhoto(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -267,12 +271,14 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.PhotoMessage;
+  }): Message.PhotoMessage & Message.BusinessSentMessage;
 
   /** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 
   For sending voice messages, use the sendVoice method instead. */
   sendAudio(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -305,10 +311,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.AudioMessage;
+  }): Message.AudioMessage & Message.BusinessSentMessage;
 
   /** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
   sendDocument(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -337,10 +345,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.DocumentMessage;
+  }): Message.DocumentMessage & Message.BusinessSentMessage;
 
   /** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
   sendVideo(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -377,10 +387,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.VideoMessage;
+  }): Message.VideoMessage & Message.BusinessSentMessage;
 
   /** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
   sendAnimation(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -415,10 +427,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.AnimationMessage;
+  }): Message.AnimationMessage & Message.BusinessSentMessage;
 
   /** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
   sendVoice(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -445,11 +459,13 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.VoiceMessage;
+  }): Message.VoiceMessage & Message.BusinessSentMessage;
 
   /** Use this method to send video messages. On success, the sent Message is returned.
   As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. */
   sendVideoNote(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -474,10 +490,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.VideoNoteMessage;
+  }): Message.VideoNoteMessage & Message.BusinessSentMessage;
 
   /** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned. */
   sendMediaGroup(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** An array describing messages to be sent, must include 2-10 items */
@@ -496,10 +514,12 @@ export type ApiMethods<F> = {
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
   }): Array<
-    | Message.AudioMessage
-    | Message.DocumentMessage
-    | Message.PhotoMessage
-    | Message.VideoMessage
+    (
+      | Message.AudioMessage
+      | Message.DocumentMessage
+      | Message.PhotoMessage
+      | Message.VideoMessage
+    ) & Message.BusinessSentMessage
   >;
 
   /** Use this method to send point on the map. On success, the sent Message is returned. */
@@ -532,7 +552,7 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.LocationMessage;
+  }): Message.LocationMessage & Message.BusinessSentMessage;
 
   /** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageLiveLocation(args: {
@@ -554,7 +574,9 @@ export type ApiMethods<F> = {
     proximity_alert_radius?: number;
     /** An object for a new inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message.LocationMessage) | true;
+  }):
+    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
+    | true;
 
   /** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
   stopMessageLiveLocation(args: {
@@ -566,7 +588,9 @@ export type ApiMethods<F> = {
     inline_message_id?: string;
     /** An object for a new inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message.LocationMessage) | true;
+  }):
+    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
+    | true;
 
   /** Use this method to send information about a venue. On success, the sent Message is returned. */
   sendVenue(args: {
@@ -602,10 +626,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.VenueMessage;
+  }): Message.VenueMessage & Message.BusinessSentMessage;
 
   /** Use this method to send phone contacts. On success, the sent Message is returned. */
   sendContact(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -630,10 +656,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.ContactMessage;
+  }): Message.ContactMessage & Message.BusinessSentMessage;
 
   /** Use this method to send a native poll. On success, the sent Message is returned. */
   sendPoll(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -674,10 +702,12 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.PollMessage;
+  }): Message.PollMessage & Message.BusinessSentMessage;
 
   /** Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned. */
   sendDice(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -696,7 +726,7 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.DiceMessage;
+  }): Message.DiceMessage & Message.BusinessSentMessage;
 
   /** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
 
@@ -704,6 +734,8 @@ export type ApiMethods<F> = {
 
   We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
   sendChatAction(args: {
+    /** Unique identifier of the business connection on behalf of which the action will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
@@ -1177,7 +1209,7 @@ export type ApiMethods<F> = {
 
   getBusinessConnection(args: {
     /** Unique identifier of the business connection */
-    business_connection_id: string;
+    business_connection_id?: string;
   }): BusinessConnection;
 
   /** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
@@ -1280,7 +1312,9 @@ export type ApiMethods<F> = {
     link_preview_options?: LinkPreviewOptions;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message.TextMessage) | true;
+  }):
+    | (Update.Edited & Message.TextMessage & Message.BusinessSentMessage)
+    | true;
 
   /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageCaption(args: {
@@ -1298,7 +1332,9 @@ export type ApiMethods<F> = {
     caption_entities?: MessageEntity[];
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message.CaptionableMessage) | true;
+  }):
+    | (Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage)
+    | true;
 
   /** Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageMedia(args: {
@@ -1312,7 +1348,7 @@ export type ApiMethods<F> = {
     media: InputMedia<F>;
     /** An object for a new inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message) | true;
+  }): (Update.Edited & Message & Message.BusinessSentMessage) | true;
 
   /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageReplyMarkup(args: {
@@ -1324,7 +1360,7 @@ export type ApiMethods<F> = {
     inline_message_id?: string;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
-  }): (Update.Edited & Message) | true;
+  }): (Update.Edited & Message & Message.BusinessSentMessage) | true;
 
   /** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
   stopPoll(args: {
@@ -1363,6 +1399,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
   sendSticker(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -1383,7 +1421,7 @@ export type ApiMethods<F> = {
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
-  }): Message.StickerMessage;
+  }): Message.StickerMessage & Message.BusinessSentMessage;
 
   /** Use this method to get a sticker set. On success, a StickerSet object is returned. */
   getStickerSet(args: {
@@ -1588,7 +1626,7 @@ export type ApiMethods<F> = {
     reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
     reply_markup?: InlineKeyboardMarkup;
-  }): Message.InvoiceMessage;
+  }): Message.InvoiceMessage & Message.BusinessSentMessage;
 
   /** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
   createInvoiceLink(args: {
@@ -1668,6 +1706,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send a game. On success, the sent Message is returned. */
   sendGame(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat */
     chat_id: number;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -1682,7 +1722,7 @@ export type ApiMethods<F> = {
     reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
     reply_markup?: InlineKeyboardMarkup;
-  }): Message.GameMessage;
+  }): Message.GameMessage & Message.BusinessSentMessage;
 
   /** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
   setGameScore(args: {
@@ -1700,7 +1740,9 @@ export type ApiMethods<F> = {
     message_id?: number;
     /** Required if chat_id and message_id are not specified. Identifier of the inline message */
     inline_message_id?: string;
-  }): (Update.Edited & Message.GameMessage) | true;
+  }):
+    | (Update.Edited & Message.GameMessage & Message.BusinessSentMessage)
+    | true;
 
   /** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 

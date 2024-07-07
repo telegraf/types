@@ -51,6 +51,10 @@ export declare namespace Message {
     /** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
     reply_markup?: InlineKeyboardMarkup;
   }
+  export interface BusinessSentMessage {
+    /** The bot that actually sent the message on behalf of the business account. Available only for outgoing messages sent on behalf of the connected business account. */
+    sender_business_bot?: User;
+  }
   export interface TextMessage extends CommonMessage {
     /** For text messages, the actual UTF-8 text of the message */
     text: string;
