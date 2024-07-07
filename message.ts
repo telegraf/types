@@ -559,6 +559,20 @@ export interface AbstractExternalReply {
   link_preview_options?: LinkPreviewOptions;
 }
 
+/** This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button. */
+export interface SharedUser {
+  /** Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means. */
+  user_id: number;
+  /**First name of the user, if the name was requested by the bot */
+  first_name?: string;
+  /**Last name of the user, if the name was requested by the bot */
+  last_name?: string;
+  /**Username of the user, if the username was requested by the bot */
+  username?: string;
+  /**Available sizes of the chat photo, if the photo was requested by the bot */
+  photo?: PhotoSize[];
+}
+
 /** Properties shared by Animation, Photo, and Video ExternalReplyInfo */
 export interface AbstractExternalReplyMedia {
   /** True, if the message media is covered by a spoiler animation */
@@ -1056,8 +1070,8 @@ export interface GeneralForumTopicUnhidden {}
 export interface UsersShared {
   /** Identifier of the request */
   request_id: number;
-  /** Identifiers of the shared users. The bot may not have access to the users and could be unable to use these identifiers, unless the users are already known to the bot by some other means. */
-  user_ids: number[];
+  /** Information about users shared with the bot. */
+  users: SharedUser[];
 }
 
 /** This object contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button. */
@@ -1066,6 +1080,12 @@ export interface ChatShared {
   request_id: number;
   /** Identifier of the shared chat. The bot may not have access to the chat and could be unable to use this identifier, unless the chat is already known to the bot by some other means. */
   chat_id: number;
+  /** Title of the chat, if the title was requested by the bot. */
+  title?: string;
+  /** Username of the chat, if the username was requested by the bot and available. */
+  username?: string;
+  /** Available sizes of the chat photo, if the photo was requested by the bot */
+  photo?: PhotoSize[];
 }
 
 /** This object represents a service message about a user allowing a bot to write messages after adding the bot to the attachment menu or launching a Web App from a link. */

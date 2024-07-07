@@ -244,6 +244,12 @@ export interface KeyboardButtonRequestUsers {
   user_is_premium?: boolean;
   /** The maximum number of users to be selected; 1-10. Defaults to 1. */
   max_quantity?: number;
+  /** Pass True to request the users' first and last names */
+  request_name?: boolean;
+  /** Pass True to request the users' usernames */
+  request_username?: boolean;
+  /** Pass True to request the users' photos */
+  request_photo?: boolean;
 }
 
 /** This object defines the criteria used to request a suitable chat. The identifier of the selected chat will be shared with the bot when the corresponding button is pressed. */
@@ -264,4 +270,10 @@ export interface KeyboardButtonRequestChat {
   bot_administrator_rights?: ChatAdministratorRights;
   /** Pass True to request a chat with the bot as a member. Otherwise, no additional restrictions are applied. */
   bot_is_member?: boolean;
+  /** Pass True to request the chat's title */
+  request_title?: boolean;
+  /** Pass True to request the chat's username */
+  request_username?: boolean;
+  /** Pass True to request the chat's photo */
+  request_photo?: boolean;
 }
