@@ -1455,15 +1455,13 @@ export type ApiMethods<F> = {
     title: string;
     /** A list of 1-50 initial stickers to be added to the sticker set */
     stickers: InputSticker<F>[];
-    /** Format of the sticker, must be one of “static”, “animated”, “video” */
-    sticker_format: "static" | "animated" | "video";
     /** Type of stickers in the set, pass “regular”, “mask”, or “custom_emoji”. By default, a regular sticker set is created. */
     sticker_type?: "regular" | "mask" | "custom_emoji";
     /** Pass True if stickers in the sticker set must be repainted to the color of text when used in messages, the accent color if used as emoji status, white on chat photos, or another appropriate color based on context; for custom emoji sticker sets only */
     needs_repainting?: boolean;
   }): true;
 
-  /** Use this method to add a new sticker to a set created by the bot. The format of the added sticker must match the format of the other stickers in the set. Emoji sticker sets can have up to 200 stickers. Animated and video sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns True on success. */
+  /** Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success. */
   addStickerToSet(args: {
     /** User identifier of sticker set owner */
     user_id: number;
@@ -1533,6 +1531,11 @@ export type ApiMethods<F> = {
     user_id: number;
     /** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animated-sticker-requirements for animated sticker technical requirements), or a WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-sticker-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
     thumbnail?: F | string;
+    /** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a WEBM video */
+    format:
+      | "static"
+      | "animated"
+      | "video";
   }): true;
 
   /** Use this method to set the thumbnail of a custom emoji sticker set. Returns True on success. */
@@ -1763,6 +1766,11 @@ export type ApiMethods<F> = {
 export interface InputSticker<F> {
   /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. Animated and video stickers can't be uploaded via HTTP URL. */
   sticker: F | string;
+  /** Format of the added sticker, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, “video” for a WEBM video */
+  format:
+    | "static"
+    | "animated"
+    | "video";
   /** List of 1-20 emoji associated with the sticker */
   emoji_list: string[];
   /** Position where the mask should be placed on faces. For “mask” stickers only. */
