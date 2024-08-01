@@ -19,6 +19,7 @@ import type {
   File,
   ForumTopic,
   ReactionType,
+  User,
   UserChatBoosts,
   UserFromGetMe,
   UserProfilePhotos,
@@ -584,6 +585,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageLiveLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -610,6 +613,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
   stopMessageLiveLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
@@ -1338,6 +1343,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageText(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1360,6 +1367,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageCaption(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1382,6 +1391,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageMedia(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1396,6 +1407,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
   editMessageReplyMarkup(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1408,6 +1421,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
   stopPoll(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of the original message with the poll */
@@ -1830,6 +1845,14 @@ export type ApiMethods<F> = {
     /** Required if chat_id and message_id are not specified. Identifier of the inline message */
     inline_message_id?: string;
   }): GameHighScore[];
+
+  /** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
+  getStarTransactions(args: {
+    /** Number of transactions to skip in the response */
+    offset?: number;
+    /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+    limit?: number;
+  }): StarTransactions;
 };
 
 /** This object describes a sticker to be added to a sticker set. */
@@ -1848,19 +1871,6 @@ export interface InputSticker<F> {
   /** List of 0-20 search keywords for the sticker with total length of up to 64 characters. For “regular” and “custom_emoji” stickers only. */
   keywords?: string[];
 }
-
-/** This object represents the content of a media message to be sent. It should be one of
-  - InputMediaAnimation
-  - InputMediaDocument
-  - InputMediaAudio
-  - InputMediaPhoto
-  - InputMediaVideo */
-export type InputMedia<F> =
-  | InputMediaAnimation<F>
-  | InputMediaDocument<F>
-  | InputMediaAudio<F>
-  | InputMediaPhoto<F>
-  | InputMediaVideo<F>;
 
 /** Represents a photo to be sent. */
 export interface InputMediaPhoto<F> {
@@ -1976,4 +1986,82 @@ export interface InputMediaDocument<F> {
   show_caption_above_media?: boolean;
   /** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album. */
   disable_content_type_detection?: boolean;
+}
+
+/** Contains a list of Telegram Star transactions. */
+export interface StarTransactions {
+  /** The list of transactions */
+  transactions: StarTransaction[];
+}
+
+/** Describes a Telegram Star transaction. */
+export interface StarTransaction {
+  /** Unique identifier of the transaction. Coincides with the identifer of the original transaction for refund transactions. Coincides with SuccessfulPayment.telegram_payment_charge_id for successful incoming payments from users. */
+  id: string;
+  /** Number of Telegram Stars transferred by the transaction */
+  amount: number;
+  /** Date the transaction was created in Unix time */
+  date: number;
+  /** Source of an incoming transaction (e.g., a user purchasing goods or services, Fragment refunding a failed withdrawal). Only for incoming transactions */
+  source?: TransactionPartner;
+  /** Receiver of an outgoing transaction (e.g., a user for a purchase refund, Fragment for a withdrawal). Only for outgoing transactions */
+  receiver?: TransactionPartner;
+}
+
+/** This object describes the source of a transaction, or its recipient for outgoing transactions. */
+export type TransactionPartner =
+  | TransactionPartnerUser
+  | TransactionPartnerFragment
+  | TransactionPartnerTelegramAds
+  | TransactionPartnerOther;
+
+/** Describes a transaction with a user. */
+export interface TransactionPartnerUser {
+  type: "user";
+  user: User;
+  invoice_payload?: string;
+}
+
+/** Describes a withdrawal transaction with Fragment. */
+export interface TransactionPartnerFragment {
+  type: "fragment";
+  withdrawal_state?: RevenueWithdrawalState;
+}
+
+/** Describes a withdrawal transaction to the Telegram Ads platform. */
+export interface TransactionPartnerTelegramAds {
+  type: "telegram_ads";
+}
+
+/** Describes a transaction with an unknown source or recipient. */
+export interface TransactionPartnerOther {
+  type: "other";
+}
+
+/** This object describes the state of a revenue withdrawal operation. */
+export type RevenueWithdrawalState =
+  | RevenueWithdrawalStatePending
+  | RevenueWithdrawalStateSucceeded
+  | RevenueWithdrawalStateFailed;
+
+/** The withdrawal is in progress. */
+export interface RevenueWithdrawalStatePending {
+  /** Type of the state, always “pending” */
+  type: "pending";
+}
+
+/** The withdrawal succeeded. */
+export interface RevenueWithdrawalStateSucceeded {
+  /** Type of the state, always “succeeded” */
+  type: "succeeded";
+  /** Date the withdrawal was completed in Unix time */
+  date: number;
+  /** An HTTPS URL that can be used to see transaction details */
+  url: string;
+}
+
+/** The withdrawal failed and the transaction was refunded. */
+export interface RevenueWithdrawalStateFailed {
+  /** Type of the state, always “failed” */
+  type: "failed";
 }
