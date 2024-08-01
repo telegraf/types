@@ -114,6 +114,8 @@ export declare namespace Chat {
     message_auto_delete_time?: number;
     /** True, if messages from the chat can't be forwarded to other chats. Returned only in getChat. */
     has_protected_content?: true;
+    /** The maximum number of reactions that can be set on a message in the chat */
+    max_reaction_count: number;
   }
   /** Internal type holding properties that private, supergroup, and channel chats returned from `getChat` share. */
   interface NonGroupGetChat extends GetChat {
@@ -433,6 +435,8 @@ export interface ChatMemberUpdated {
   new_chat_member: ChatMember;
   /** Chat invite link, which was used by the user to join the chat; for joining by invite link events only. */
   invite_link?: ChatInviteLink;
+  /** True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator */
+  via_join_request?: boolean;
   /** True, if the user joined the chat via a chat folder invite link */
   via_chat_folder_invite_link?: boolean;
 }

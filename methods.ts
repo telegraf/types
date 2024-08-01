@@ -566,6 +566,8 @@ export type ApiMethods<F> = {
     latitude: number;
     /** Longitude of new location */
     longitude: number;
+    /** New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged */
+    live_period?: number;
     /** The radius of uncertainty for the location, measured in meters; 0-1500 */
     horizontal_accuracy?: number;
     /** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
@@ -668,6 +670,10 @@ export type ApiMethods<F> = {
     message_thread_id?: number;
     /** Poll question, 1-300 characters */
     question: string;
+    /** A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode */
+    question_entities?: MessageEntity[];
+    /** Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed */
+    question_parse_mode?: ParseMode;
     /** A list of answer options, 2-10 strings 1-100 characters each */
     options: readonly string[];
     /** True, if the poll needs to be anonymous, defaults to True */

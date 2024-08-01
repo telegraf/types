@@ -219,6 +219,10 @@ export declare namespace Message {
     /** Service message: user boosted the chat */
     boost_added: ChatBoostAdded;
   }
+  export interface ChatBackgroundSetMessage extends ServiceMessage {
+    /** Service message: chat background set */
+    chat_background_set: ChatBackground;
+  }
   export interface ForumTopicCreatedMessage extends ServiceMessage {
     /** Service message: forum topic created */
     forum_topic_created: ForumTopicCreated;
@@ -304,6 +308,7 @@ export type ServiceMessageBundle =
   | Message.PassportDataMessage
   | Message.ProximityAlertTriggeredMessage
   | Message.BoostAddedMessage
+  | Message.ChatBackgroundSetMessage
   | Message.ForumTopicCreatedMessage
   | Message.ForumTopicEditedMessage
   | Message.ForumTopicClosedMessage
@@ -919,6 +924,8 @@ export interface Dice {
 export interface PollOption {
   /** Option text, 1-100 characters */
   text: string;
+  /** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
+  text_entities?: MessageEntity[];
   /** Number of users that voted for this option */
   voter_count: number;
 }
@@ -944,6 +951,8 @@ export interface Poll {
   id: string;
   /** Poll question, 1-300 characters */
   question: string;
+  /** Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions */
+  question_entities?: MessageEntity[];
   /** List of poll options */
   options: PollOption[];
   /** Total number of users that voted in the poll */
@@ -1036,6 +1045,101 @@ export interface MessageAutoDeleteTimerChanged {
 export interface ChatBoostAdded {
   /** Number of boosts added by the user */
   boost_count: number;
+}
+
+/** The background is filled using the selected color. */
+export interface BackgroundFillSolid {
+  /** Type of the background fill, always “solid” */
+  type: "solid";
+  /** The color of the background fill in the RGB24 format */
+  color: number;
+}
+
+/** The background is a gradient fill. */
+export interface BackgroundFillGradient {
+  /** Type of the background fill, always “gradient” */
+  type: "gradient";
+  /** Top color of the gradient in the RGB24 format */
+  top_color: number;
+  /** Bottom color of the gradient in the RGB24 format */
+  bottom_color: number;
+  /** Clockwise rotation angle of the background fill in degrees; 0-359 */
+  rotation_angle: number;
+}
+
+/** The background is a freeform gradient that rotates after every message in the chat. */
+export interface BackgroundFillFreeformGradient {
+  /** Type of the background fill, always “freeform_gradient” */
+  type: "freeform_gradient";
+  /** A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format */
+  colors: number[];
+}
+
+/** This object describes the type of a background. */
+export type BackgroundFill =
+  | BackgroundFillSolid
+  | BackgroundFillGradient
+  | BackgroundFillFreeformGradient;
+
+/** The background is automatically filled based on the selected colors. */
+export interface BackgroundTypeFill {
+  /** Type of the background, always “fill” */
+  type: "fill";
+  /** The background fill */
+  fill: BackgroundFill;
+  /** Dimming of the background in dark themes, as a percentage; 0-100 */
+  dark_theme_dimming: number;
+}
+
+/** The background is a wallpaper in the JPEG format. */
+export interface BackgroundTypeWallpaper {
+  /** Type of the background, always “wallpaper” */
+  type: "wallpaper";
+  /** Document with the wallpaper */
+  document: Document;
+  /** Dimming of the background in dark themes, as a percentage; 0-100 */
+  dark_theme_dimming: number;
+  /** True, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12 */
+  is_blurred?: true;
+  /** True, if the background moves slightly when the device is tilted */
+  is_moving?: true;
+}
+
+/** The background is a PNG or TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user. */
+export interface BackgroundTypePattern {
+  /** Type of the background, always “pattern” */
+  type: "pattern";
+  /** Document with the pattern */
+  document: Document;
+  /** The background fill that is combined with the pattern */
+  fill: BackgroundFill;
+  /** Intensity of the pattern when it is shown above the filled background; 0-100 */
+  intensity: number;
+  /** True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only */
+  is_inverted?: true;
+  /** True, if the background moves slightly when the device is tilted */
+  is_moving?: true;
+}
+
+/** The background is taken directly from a built-in chat theme. */
+export interface BackgroundTypeChatTheme {
+  /** Type of background, always “chat_theme“ */
+  type: "chat_theme";
+  /** The chat theme to which the background belongs */
+  theme_name: string;
+}
+
+/** This object describes the type of a background. */
+export type BackgroundType =
+  | BackgroundTypeFill
+  | BackgroundTypeWallpaper
+  | BackgroundTypePattern
+  | BackgroundTypeChatTheme;
+
+/** This object represents a chat background. */
+export interface ChatBackground {
+  /** Type of background */
+  type: BackgroundType;
 }
 
 /** This object represents a service message about a new forum topic created in the chat. */
