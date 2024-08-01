@@ -2,7 +2,7 @@
 import type { Chat, File, User } from "./manage.ts";
 import type { InlineKeyboardMarkup } from "./markup.ts";
 import type { PassportData } from "./passport.ts";
-import type { Invoice, SuccessfulPayment } from "./payment.ts";
+import type { Invoice, RefundedPayment, SuccessfulPayment } from "./payment.ts";
 
 export declare namespace Message {
   export interface ServiceMessage {
@@ -270,6 +270,10 @@ export declare namespace Message {
     /** Service message: a giveaway without public winners was completed */
     giveaway_completed: GiveawayCompleted;
   }
+  export interface RefundedPaymentMessage extends ServiceMessage {
+    /** Service message: a payment has been refunded */
+    refunded_payment: RefundedPayment;
+  }
   export interface VideoChatScheduledMessage extends ServiceMessage {
     /** Service message: video chat scheduled */
     video_chat_scheduled: VideoChatScheduled;
@@ -330,7 +334,8 @@ export type ServiceMessageBundle =
   | Message.VideoChatStartedMessage
   | Message.VideoChatEndedMessage
   | Message.VideoChatParticipantsInvitedMessage
-  | Message.WebAppDataMessage;
+  | Message.WebAppDataMessage
+  | Message.RefundedPaymentMessage;
 
 /** Helper type that bundles all possible `Message.CommonMessage`s. More specifically, bundles all messages that do have a `reply_to_message` field, i.e. are a `Message.CommonMessage`. */
 export type CommonMessageBundle =
