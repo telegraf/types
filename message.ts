@@ -50,6 +50,8 @@ export declare namespace Message {
     author_signature?: string;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
     link_preview_options?: LinkPreviewOptions;
+    /** Unique identifier of the message effect added to the message */
+    effect_id?: string;
     /** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
     reply_markup?: InlineKeyboardMarkup;
   }
@@ -68,6 +70,8 @@ export declare namespace Message {
     caption?: string;
     /** For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption */
     caption_entities?: MessageEntity[];
+    /** True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
   }
   export interface MediaMessage extends CaptionableMessage {
     /** The unique identifier of a media message group this message belongs to */
