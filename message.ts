@@ -1393,3 +1393,42 @@ export interface GameHighScore {
   /** Score */
   score: number;
 }
+
+/** This object describes paid media. */
+export type PaidMedia = PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo;
+
+/** This object represents a preview of paid media. The paid media isn't available before the payment. */
+export interface PaidMediaPreview {
+  /** Type of the paid media, always “preview” */
+  type: "preview";
+  /** Media width as defined by the sender */
+  width?: number;
+  /** Media height as defined by the sender */
+  height?: number;
+  /** Duration of the media in seconds as defined by the sender */
+  duration?: number;
+}
+
+/** This object represents a paid media photo. */
+export interface PaidMediaPhoto {
+  /** Type of the paid media, always “photo” */
+  type: "photo";
+  /** Array of PhotoSize of Photo */
+  photo: PhotoSize[];
+}
+
+/** This object represents a paid media video. */
+export interface PaidMediaVideo {
+  /** Type of the paid media, always “video” */
+  type: "video";
+  /** The video */
+  video: Video;
+}
+
+/** Describes the paid media added to a message. */
+export interface PaidMediaInfo {
+  /** The number of Telegram Stars that must be paid to buy access to the media */
+  star_count: number;
+  /** Information about the paid media */
+  paid_media: PaidMedia[];
+}

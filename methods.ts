@@ -1855,6 +1855,19 @@ export type ApiMethods<F> = {
   }): StarTransactions;
 };
 
+/** This object represents the content of a media message to be sent. It should be one of
+  - InputMediaAnimation
+  - InputMediaDocument
+  - InputMediaAudio
+  - InputMediaPhoto
+  - InputMediaVideo */
+export type InputMedia<F> =
+  | InputMediaAnimation<F>
+  | InputMediaDocument<F>
+  | InputMediaAudio<F>
+  | InputMediaPhoto<F>
+  | InputMediaVideo<F>;
+
 /** This object describes a sticker to be added to a sticker set. */
 export interface InputSticker<F> {
   /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. Animated and video stickers can't be uploaded via HTTP URL. */
