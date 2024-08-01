@@ -581,6 +581,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send point on the map. On success, the sent Message is returned. */
   sendLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -659,6 +661,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send information about a venue. On success, the sent Message is returned. */
   sendVenue(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
