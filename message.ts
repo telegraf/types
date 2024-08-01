@@ -83,6 +83,9 @@ export declare namespace Message {
     /** Message is an audio file, information about the file */
     audio: Audio;
   }
+  export interface PaidMediaMessage extends CaptionableMessage {
+    paid_media: PaidMediaInfo;
+  }
   export interface DocumentMessage extends MediaMessage {
     /** Message is a general file, information about the file */
     document: Document;
@@ -346,7 +349,8 @@ export type CommonMessageBundle =
   | Message.VenueMessage
   | Message.VideoMessage
   | Message.VideoNoteMessage
-  | Message.VoiceMessage;
+  | Message.VoiceMessage
+  | Message.PaidMediaMessage;
 
 /** Helper type that represents a message which occurs in a `reply_to_message` field. */
 type ReplyMessage =
@@ -683,6 +687,10 @@ export interface ExternalReplyVenue extends AbstractExternalReply {
   venue: Venue;
 }
 
+export interface ExternalReplyPaidMedia extends AbstractExternalReply {
+  paid_media: PaidMediaInfo;
+}
+
 /** This object contains information about a message that is being replied to, which may come from another chat or forum topic. */
 export type ExternalReplyInfo =
   | ExternalReplyAnimation
@@ -702,7 +710,8 @@ export type ExternalReplyInfo =
   | ExternalReplyInvoice
   | ExternalReplyLocation
   | ExternalReplyPoll
-  | ExternalReplyVenue;
+  | ExternalReplyVenue
+  | ExternalReplyPaidMedia;
 
 /** Describes reply parameters for the message that is being sent. */
 export interface ReplyParameters {

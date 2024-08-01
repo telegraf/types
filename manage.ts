@@ -101,6 +101,8 @@ export declare namespace Chat {
   /** Internal type representing channel chats. */
   export interface ChannelChat extends AbstractChat, UserNameChat, TitleChat {
     type: "channel";
+    /** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
+    can_send_paid_media: boolean;
   }
 
   // GET CHAT HELPERS

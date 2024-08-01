@@ -517,6 +517,36 @@ export type ApiMethods<F> = {
       | ForceReply;
   }): Message.VideoNoteMessage & Message.BusinessSentMessage;
 
+  /** Use this method to send paid media to channel chats. On success, the sent Message is returned. */
+  sendPaidMedia(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format @channelusername) */
+    chat_id: number | string;
+    /** The number of Telegram Stars that must be paid to buy access to the media */
+    star_count: number;
+    /** A JSON-serialized array describing the media to be sent; up to 10 items */
+    media: InputPaidMedia[];
+    /** Media caption, 0-1024 characters after entities parsing */
+    caption?: string;
+    /** Mode for parsing entities in the media caption. See formatting options for more details. */
+    parse_mode?: ParseMode;
+    /** A JSON-serialized list of special entities that appear in the caption, which can be specified instead of parse_mode */
+    caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
+    /** Sends the message silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the sent message from forwarding and saving */
+    protect_content?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
+    /** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+    reply_markup?:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply;
+  }): Message.PaidMediaMessage & Message.BusinessSentMessage;
+
   /** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned. */
   sendMediaGroup(args: {
     /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -2078,3 +2108,32 @@ export interface RevenueWithdrawalStateFailed {
   /** Type of the state, always “failed” */
   type: "failed";
 }
+
+/** Represents a paid photo media to be sent. */
+export interface InputPaidMediaPhoto {
+  /** Type of the media, must be photo */
+  type: "photo";
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. */
+  media: string;
+}
+
+/** Represents a paid video media to be sent. */
+export interface InputPaidMediaVideo {
+  /** Type of the media, must be video */
+  type: "video";
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass “attach://<file_attach_name>” to upload a new one using multipart/form-data under <file_attach_name> name. */
+  media: string;
+  /**  Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass “attach://<file_attach_name>” if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+  thumbnail?: string; // InputFile or String
+  /** Video width */
+  width?: number;
+  /** Video height */
+  height?: number;
+  /** Video duration in seconds */
+  duration?: number;
+  /** Pass True if the uploaded video is suitable for streaming */
+  supports_streaming?: boolean;
+}
+
+/** Represents a paid media to be sent. */
+export type InputPaidMedia = InputPaidMediaPhoto | InputPaidMediaVideo;
