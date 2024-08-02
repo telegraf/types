@@ -524,7 +524,7 @@ export type ApiMethods<F> = {
     /** The number of Telegram Stars that must be paid to buy access to the media */
     star_count: number;
     /** A JSON-serialized array describing the media to be sent; up to 10 items */
-    media: InputPaidMedia[];
+    media: InputPaidMedia<F>[];
     /** Media caption, 0-1024 characters after entities parsing */
     caption?: string;
     /** Mode for parsing entities in the media caption. See formatting options for more details. */
