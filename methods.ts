@@ -1172,7 +1172,7 @@ export type ApiMethods<F> = {
     chat_id: number | string;
     /** Unique identifier of the target user */
     user_id: number;
-  }): UserChatBoosts[];
+  }): UserChatBoosts;
 
   /** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
   setMyCommands(args: {
