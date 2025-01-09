@@ -107,3 +107,11 @@ export interface PreCheckoutQuery {
   /** Order information provided by the user */
   order_info?: OrderInfo;
 }
+
+/** This object contains information about a paid media purchase. */
+export interface PaidMediaPurchased {
+  /** User who purchased the media */
+  from: User;
+  /** Bot-specified paid media payload */
+  paid_media_payload: string;
+}

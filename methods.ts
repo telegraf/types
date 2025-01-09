@@ -10,7 +10,7 @@ import type {
   BotCommand,
   BusinessConnection,
   ChatAdministratorRights,
-  ChatFromGetChat,
+  ChatFullInfo,
   ChatInviteLink,
   ChatMember,
   ChatMemberAdministrator,
@@ -78,13 +78,13 @@ export type ApiMethods<F> = {
     limit?: number;
     /** Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only. */
     timeout?: number;
-    /** A list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member (default). If not specified, the previous setting will be used.
+    /** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
 
-    Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time. */
+    Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
     allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
   }): Update[];
 
-  /** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a reasonable amount of attempts. Returns True on success.
+  /** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing a JSON-serialized Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
 
   If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
 
@@ -524,6 +524,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send point on the map. On success, the sent Message is returned. */
   sendLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -594,6 +596,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to send information about a venue. On success, the sent Message is returned. */
   sendVenue(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
@@ -1025,7 +1029,7 @@ export type ApiMethods<F> = {
   getChat(args: {
     /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
-  }): ChatFromGetChat;
+  }): ChatFullInfo;
 
   /** Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects. */
   getChatAdministrators(args: {

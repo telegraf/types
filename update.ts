@@ -18,7 +18,11 @@ import type {
   Poll,
   PollAnswer,
 } from "./message.ts";
-import type { PreCheckoutQuery, ShippingQuery } from "./payment.ts";
+import type {
+  PaidMediaPurchased,
+  PreCheckoutQuery,
+  ShippingQuery,
+} from "./payment.ts";
 
 export declare namespace Update {
   /** Internal type holding properties that updates in channels share. */
@@ -55,7 +59,7 @@ export declare namespace Update {
   }
 
   export interface AbstractUpdate {
-    /** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This ID becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
+    /** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
     update_id: number;
   }
   export interface MessageUpdate<M extends Message = Message>
@@ -66,7 +70,7 @@ export declare namespace Update {
   export interface EditedMessageUpdate<
     M extends CommonMessageBundle = CommonMessageBundle,
   > extends AbstractUpdate {
-    /** New version of a message that is known to the bot and was edited */
+    /** New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot. */
     edited_message: Edited & NonChannel & M;
   }
   export interface ChannelPostUpdate<M extends Message = Message>
@@ -77,7 +81,7 @@ export declare namespace Update {
   export interface EditedChannelPostUpdate<
     M extends CommonMessageBundle = CommonMessageBundle,
   > extends AbstractUpdate {
-    /** New version of a channel post that is known to the bot and was edited */
+    /** New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot. */
     edited_channel_post: Edited & Channel & M;
   }
   export interface BusinessConnectionUpdate extends AbstractUpdate {
@@ -97,7 +101,7 @@ export declare namespace Update {
     edited_business_message: Edited & NonChannel & Biz & M;
   }
   export interface DeletedBusinessMessagesUpdate extends AbstractUpdate {
-    /** A connected business account has deleted messages */
+    /** Messages were deleted from a connected business account */
     deleted_business_messages: BusinessMessagesDeleted;
   }
   export interface MessageReactionUpdate extends AbstractUpdate {
@@ -129,8 +133,13 @@ export declare namespace Update {
     /** New incoming pre-checkout query. Contains full information about checkout */
     pre_checkout_query: PreCheckoutQuery;
   }
+
+  export interface PurchasedPaidMediaUpdate extends AbstractUpdate {
+    /** A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat */
+    purchased_paid_media: PaidMediaPurchased;
+  }
   export interface PollUpdate extends AbstractUpdate {
-    /** New poll state. Bots receive only updates about stopped polls and polls, which are sent by the bot */
+    /** New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot */
     poll: Poll;
   }
   export interface PollAnswerUpdate extends AbstractUpdate {
