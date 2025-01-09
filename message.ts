@@ -2,7 +2,7 @@
 import type { Chat, File, User } from "./manage.ts";
 import type { InlineKeyboardMarkup } from "./markup.ts";
 import type { PassportData } from "./passport.ts";
-import type { Invoice, SuccessfulPayment } from "./payment.ts";
+import type { Invoice, RefundedPayment, SuccessfulPayment } from "./payment.ts";
 
 export declare namespace Message {
   export interface ServiceMessage {
@@ -50,6 +50,8 @@ export declare namespace Message {
     author_signature?: string;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
     link_preview_options?: LinkPreviewOptions;
+    /** Unique identifier of the message effect added to the message */
+    effect_id?: string;
     /** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
     reply_markup?: InlineKeyboardMarkup;
   }
@@ -68,6 +70,8 @@ export declare namespace Message {
     caption?: string;
     /** For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption */
     caption_entities?: MessageEntity[];
+    /** True, if the caption must be shown above the message media */
+    show_caption_above_media?: true;
   }
   export interface MediaMessage extends CaptionableMessage {
     /** The unique identifier of a media message group this message belongs to */
@@ -82,6 +86,12 @@ export declare namespace Message {
   export interface DocumentMessage extends MediaMessage {
     /** Message is a general file, information about the file */
     document: Document;
+  }
+
+  // UNSURE: To verify whether PaidMediaMessage inherits from MediaMessage
+  export interface PaidMediaMessage extends CaptionableMessage {
+    /** Message contains paid media; information about the paid media */
+    paid_media: PaidMediaInfo;
   }
   export interface AnimationMessage extends DocumentMessage {
     /** Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set */
@@ -184,12 +194,16 @@ export declare namespace Message {
     pinned_message: Omit<MaybeInaccessibleMessage, "reply_to_message">;
   }
   export interface InvoiceMessage extends ServiceMessage {
-    /** Message is an invoice for a payment, information about the invoice. More about payments » */
+    /** Message is an invoice for a payment, information about the invoice. */
     invoice: Invoice;
   }
   export interface SuccessfulPaymentMessage extends ServiceMessage {
-    /** Message is a service message about a successful payment, information about the payment. More about payments » */
+    /** Message is a service message about a successful payment, information about the payment. */
     successful_payment: SuccessfulPayment;
+  }
+  export interface RefundedPaymentMessage extends ServiceMessage {
+    /** Message is a service message about a refunded payment, information about the payment. */
+    refunded_payment: RefundedPayment;
   }
   export interface UsersSharedMessage extends ServiceMessage {
     /** Service message: a user was shared with the bot */
@@ -218,6 +232,10 @@ export declare namespace Message {
   export interface BoostAddedMessage extends ServiceMessage {
     /** Service message: user boosted the chat */
     boost_added: ChatBoostAdded;
+  }
+  export interface ChatBackgroundSetMessage extends ServiceMessage {
+    /** Service message: chat background set */
+    chat_background_set: ChatBackground;
   }
   export interface ForumTopicCreatedMessage extends ServiceMessage {
     /** Service message: forum topic created */
@@ -349,7 +367,7 @@ export type Message = ServiceMessageBundle | CommonMessageBundle;
 
 /** This object represents a unique message identifier. */
 export interface MessageId {
-  /** Unique message identifier */
+  /** Unique message identifier. In specific instances (e.g., message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent */
   message_id: number;
 }
 
@@ -483,7 +501,7 @@ export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 
 export declare namespace MessageEntity {
   interface AbstractMessageEntity {
-    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag), “cashtag” ($USD), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
+    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
     type: string;
     /** Offset in UTF-16 code units to the start of the entity */
     offset: number;
@@ -561,20 +579,6 @@ export interface AbstractExternalReply {
   link_preview_options?: LinkPreviewOptions;
 }
 
-/** This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button. */
-export interface SharedUser {
-  /** Identifier of the shared user. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so 64-bit integers or double-precision float types are safe for storing these identifiers. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means. */
-  user_id: number;
-  /**First name of the user, if the name was requested by the bot */
-  first_name?: string;
-  /**Last name of the user, if the name was requested by the bot */
-  last_name?: string;
-  /**Username of the user, if the username was requested by the bot */
-  username?: string;
-  /**Available sizes of the chat photo, if the photo was requested by the bot */
-  photo?: PhotoSize[];
-}
-
 /** Properties shared by Animation, Photo, and Video ExternalReplyInfo */
 export interface AbstractExternalReplyMedia {
   /** True, if the message media is covered by a spoiler animation */
@@ -595,6 +599,11 @@ export interface ExternalReplyAudio extends AbstractExternalReply {
 export interface ExternalReplyDocument extends AbstractExternalReply {
   /** Message is a general file, information about the file */
   document: Document;
+}
+
+export interface ExternalReplyPaidMedia extends AbstractExternalReply {
+  /** Message contains paid media; information about the paid media */
+  paid_media: PaidMediaInfo;
 }
 
 export interface ExternalReplyPhoto
@@ -699,15 +708,15 @@ export type ExternalReplyInfo =
 export interface ReplyParameters {
   /** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified */
   message_id: number;
-  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`) */
+  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account. */
   chat_id?: number | string;
-  /** Pass True if the message should be sent even if the specified message to be replied to is not found; can be used only for replies in the same chat and forum topic. */
+  /** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account. */
   allow_sending_without_reply?: boolean;
   /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message. */
   quote?: string;
   /** Mode for parsing entities in the quote. See formatting options for more details. */
-  quote_parse_mode?: string;
-  /** A JSON-serialized list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
+  quote_parse_mode?: ParseMode;
+  /** A list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
   quote_entities?: MessageEntity[];
   /** Position of the quote in the original message in UTF-16 code units */
   quote_position?: number;
@@ -787,17 +796,17 @@ export interface Animation {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Video width as defined by sender */
+  /** Video width as defined by the sender */
   width: number;
-  /** Video height as defined by sender */
+  /** Video height as defined by the sender */
   height: number;
-  /** Duration of the video in seconds as defined by sender */
+  /** Duration of the video in seconds as defined by the sender */
   duration: number;
-  /** Animation thumbnail as defined by sender */
+  /** Animation thumbnail as defined by the sender */
   thumbnail?: PhotoSize;
-  /** Original animation filename as defined by sender */
+  /** Original animation filename as defined by the sender */
   file_name?: string;
-  /** MIME type of the file as defined by sender */
+  /** MIME type of the file as defined by the sender */
   mime_type?: string;
   /** File size in bytes */
   file_size?: number;
@@ -809,15 +818,15 @@ export interface Audio {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Duration of the audio in seconds as defined by sender */
+  /** Duration of the audio in seconds as defined by the sender */
   duration: number;
-  /** Performer of the audio as defined by sender or by audio tags */
+  /** Performer of the audio as defined by the sender or by audio tags */
   performer?: string;
-  /** Title of the audio as defined by sender or by audio tags */
+  /** Title of the audio as defined by the sender or by audio tags */
   title?: string;
-  /** Original filename as defined by sender */
+  /** Original filename as defined by the sender */
   file_name?: string;
-  /** MIME type of the file as defined by sender */
+  /** MIME type of the file as defined by the sender */
   mime_type?: string;
   /** File size in bytes */
   file_size?: number;
@@ -831,14 +840,22 @@ export interface Document {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Document thumbnail as defined by sender */
+  /** Document thumbnail as defined by the sender */
   thumbnail?: PhotoSize;
-  /** Original filename as defined by sender */
+  /** Original filename as defined by the sender */
   file_name?: string;
-  /** MIME type of the file as defined by sender */
+  /** MIME type of the file as defined by the sender */
   mime_type?: string;
   /** File size in bytes */
   file_size?: number;
+}
+
+/** This object represents a story. */
+export interface Story {
+  /** Chat that posted the story */
+  chat: Chat;
+  /** Unique identifier for the story in the chat */
+  id: number;
 }
 
 /** This object represents a video file. */
@@ -847,17 +864,17 @@ export interface Video {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Video width as defined by sender */
+  /** Video width as defined by the sender */
   width: number;
-  /** Video height as defined by sender */
+  /** Video height as defined by the sender */
   height: number;
-  /** Duration of the video in seconds as defined by sender */
+  /** Duration of the video in seconds as defined by the sender */
   duration: number;
   /** Video thumbnail */
   thumbnail?: PhotoSize;
-  /** Original filename as defined by sender */
+  /** Original filename as defined by the sender */
   file_name?: string;
-  /** MIME type of the file as defined by sender */
+  /** MIME type of the file as defined by the sender */
   mime_type?: string;
   /** File size in bytes */
   file_size?: number;
@@ -869,9 +886,9 @@ export interface VideoNote {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Video width and height (diameter of the video message) as defined by sender */
+  /** Video width and height (diameter of the video message) as defined by the sender */
   length: number;
-  /** Duration of the video in seconds as defined by sender */
+  /** Duration of the video in seconds as defined by the sender */
   duration: number;
   /** Video thumbnail */
   thumbnail?: PhotoSize;
@@ -885,13 +902,62 @@ export interface Voice {
   file_id: string;
   /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
   file_unique_id: string;
-  /** Duration of the audio in seconds as defined by sender */
+  /** Duration of the audio in seconds as defined by the sender */
   duration: number;
-  /** MIME type of the file as defined by sender */
+  /** MIME type of the file as defined by the sender */
   mime_type?: string;
   /** File size in bytes */
   file_size?: number;
 }
+
+/** Describes the paid media added to a message. */
+export interface PaidMediaInfo {
+  /** The number of Telegram Stars that must be paid to buy access to the media */
+  star_count: number;
+  /** Information about the paid media */
+  paid_media: PaidMedia[];
+}
+
+declare namespace PaidMedia {
+  /** The paid media isn't available before the payment. */
+  export interface PaidMediaPreview {
+    /** Type of the paid media, always “preview” */
+    type: string;
+    /** Media width as defined by the sender */
+    width?: number;
+    /** Media height as defined by the sender */
+    height?: number;
+    /** Duration of the media in seconds as defined by the sender */
+    duration?: number;
+  }
+
+  /** The paid media is a photo. */
+  export interface PaidMediaPhoto {
+    /** Type of the paid media, always “photo” */
+    type: string;
+    /** The photo */
+    photo: PhotoSize[];
+  }
+
+  /** The paid media is a video. */
+  export interface PaidMediaVideo {
+    /** Type of the paid media, always “video” */
+    type: string;
+    /** The video */
+    video: Video;
+  }
+}
+
+/** This object describes paid media. Currently, it can be one of
+
+- PaidMediaPreview
+- PaidMediaPhoto
+- PaidMediaVideo
+ */
+type PaidMedia =
+  | PaidMedia.PaidMediaPreview
+  | PaidMedia.PaidMediaPhoto
+  | PaidMedia.PaidMediaVideo;
 
 /** This object represents a phone contact. */
 export interface Contact {
@@ -919,8 +985,20 @@ export interface Dice {
 export interface PollOption {
   /** Option text, 1-100 characters */
   text: string;
+  /** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
+  text_entities?: MessageEntity.CustomEmojiMessageEntity[];
   /** Number of users that voted for this option */
   voter_count: number;
+}
+
+/** This object contains information about one answer option in a poll to be sent. */
+export interface InputPollOption {
+  /** Option text, 1-100 characters */
+  text: string;
+  /** Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed */
+  text_parse_mode?: ParseMode;
+  /** A list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode */
+  text_entities?: MessageEntity.CustomEmojiMessageEntity[];
 }
 
 /** This object represents an answer of a user in a non-anonymous poll. */
@@ -944,6 +1022,8 @@ export interface Poll {
   id: string;
   /** Poll question, 1-300 characters */
   question: string;
+  /** Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions */
+  question_entities?: MessageEntity.CustomEmojiMessageEntity[];
   /** List of poll options */
   options: PollOption[];
   /** Total number of users that voted in the poll */
@@ -970,10 +1050,10 @@ export interface Poll {
 
 export declare namespace Location {
   export interface CommonLocation {
-    /** Longitude as defined by sender */
-    longitude: number;
-    /** Latitude as defined by sender */
+    /** Latitude as defined by the sender */
     latitude: number;
+    /** Longitude as defined by the sender */
+    longitude: number;
     /** The radius of uncertainty for the location, measured in meters; 0-1500 */
     horizontal_accuracy?: number;
   }
@@ -1038,6 +1118,112 @@ export interface ChatBoostAdded {
   boost_count: number;
 }
 
+/** The background is filled using the selected color. */
+export interface BackgroundFillSolid {
+  /** Type of the background fill, always “solid” */
+  type: "solid";
+  /** The color of the background fill in the RGB24 format */
+  color: number;
+}
+
+/** The background is a gradient fill. */
+export interface BackgroundFillGradient {
+  /** Type of the background fill, always “gradient” */
+  type: "gradient";
+  /** Top color of the gradient in the RGB24 format */
+  top_color: number;
+  /** Bottom color of the gradient in the RGB24 format */
+  bottom_color: number;
+  /** Clockwise rotation angle of the background fill in degrees; 0-359 */
+  rotation_angle: number;
+}
+
+/** The background is a freeform gradient that rotates after every message in the chat. */
+export interface BackgroundFillFreeformGradient {
+  /** Type of the background fill, always “freeform_gradient” */
+  type: "freeform_gradient";
+  /** A list of the 3 or 4 base colors that are used to generate the freeform gradient in the RGB24 format */
+  colors: number[];
+}
+
+/** This object describes the way a background is filled based on the selected colors. Currently, it can be one of
+
+- BackgroundFillSolid
+- BackgroundFillGradient
+- BackgroundFillFreeformGradient
+*/
+export type BackgroundFill =
+  | BackgroundFillSolid
+  | BackgroundFillGradient
+  | BackgroundFillFreeformGradient;
+
+/** The background is automatically filled based on the selected colors. */
+export interface BackgroundTypeFill {
+  /** Type of the background, always “fill” */
+  type: "fill";
+  /** The background fill */
+  fill: BackgroundFill;
+  /** Dimming of the background in dark themes, as a percentage; 0-100 */
+  dark_theme_dimming: number;
+}
+
+/** The background is a wallpaper in the JPEG format. */
+export interface BackgroundTypeWallpaper {
+  /** Type of the background, always “wallpaper” */
+  type: "wallpaper";
+  /** Document with the wallpaper */
+  document: Document;
+  /** Dimming of the background in dark themes, as a percentage; 0-100 */
+  dark_theme_dimming: number;
+  /** True, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12 */
+  is_blurred: boolean;
+  /** True, if the background moves slightly when the device is tilted */
+  is_moving: boolean;
+}
+
+/** The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user. */
+export interface BackgroundTypePattern {
+  /** Type of the background, always “pattern” */
+  type: "pattern";
+  /** Document with the pattern */
+  document: Document;
+  /** The background fill that is combined with the pattern */
+  fill: BackgroundFill;
+  /** Intensity of the pattern when it is shown above the filled background; 0-100 */
+  intensity: number;
+  /** True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only */
+  is_inverted: boolean;
+  /** True, if the background moves slightly when the device is tilted */
+  is_moving: boolean;
+}
+
+/** The background is taken directly from a built-in chat theme. */
+export interface BackgroundTypeChatTheme {
+  /** Type of the background, always “chat_theme” */
+  type: "chat_theme";
+  /** Name of the chat theme, which is usually an emoji */
+  theme_name: string;
+}
+
+/** This object describes the type of a background. Currently, it can be one of
+
+- BackgroundTypeFill
+- BackgroundTypeWallpaper
+- BackgroundTypePattern
+- BackgroundTypeChatTheme
+*/
+export type BackgroundType =
+  | BackgroundTypeFill
+  | BackgroundTypeWallpaper
+  | BackgroundTypePattern
+  | BackgroundTypeChatTheme;
+
+/** This object represents a chat background. */
+export interface ChatBackground {
+  /** Type of the background */
+  type: BackgroundType;
+}
+
 /** This object represents a service message about a new forum topic created in the chat. */
 export interface ForumTopicCreated {
   /** Name of the topic */
@@ -1068,6 +1254,20 @@ export interface GeneralForumTopicHidden {}
 /** This object represents a service message about General forum topic unhidden in the chat. Currently holds no information. */
 export interface GeneralForumTopicUnhidden {}
 
+/** This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button. **/
+export interface SharedUser {
+  /** Identifier of the shared user. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means. */
+  user_id: number;
+  /** First name of the user, if the name was requested by the bot */
+  first_name?: string;
+  /** Last name of the user, if the name was requested by the bot */
+  last_name?: string;
+  /** Username of the user, if the username was requested by the bot */
+  username?: string;
+  /** Available sizes of the chat photo, if the photo was requested by the bot */
+  photo?: PhotoSize[];
+}
+
 /** This object contains information about the user whose identifier was shared with the bot using a KeyboardButtonRequestUsers button. */
 export interface UsersShared {
   /** Identifier of the request */
@@ -1076,7 +1276,7 @@ export interface UsersShared {
   users: SharedUser[];
 }
 
-/** This object contains information about the chat whose identifier was shared with the bot using a KeyboardButtonRequestChat button. */
+/** This object contains information about a chat that was shared with the bot using a KeyboardButtonRequestChat button. */
 export interface ChatShared {
   /** Identifier of the request */
   request_id: number;
@@ -1121,8 +1321,11 @@ export interface VideoChatParticipantsInvited {
   users: User[];
 }
 
-/** This object represents a service message about the creation of a scheduled giveaway. Currently holds no information. */
-export interface GiveawayCreated {}
+/** This object represents a service message about the creation of a scheduled giveaway. */
+export interface GiveawayCreated {
+  /** The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only */
+  prize_star_count?: number;
+}
 
 /** This object represents a message about a scheduled giveaway. */
 export interface Giveaway {
@@ -1140,7 +1343,9 @@ export interface Giveaway {
   prize_description?: string;
   /** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways. */
   country_codes?: string[];
-  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  /** The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only */
+  prize_star_count?: number;
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only */
   premium_subscription_month_count?: number;
 }
 
@@ -1148,7 +1353,7 @@ export interface Giveaway {
 export interface GiveawayWinners {
   /** The chat that created the giveaway */
   chat: Chat;
-  /** Identifier of the messsage with the giveaway in the chat */
+  /** Identifier of the message with the giveaway in the chat */
   giveaway_message_id: number;
   /** Point in time (Unix timestamp) when winners of the giveaway were selected */
   winners_selection_date: number;
@@ -1158,7 +1363,9 @@ export interface GiveawayWinners {
   winners: User[];
   /** The number of other chats the user had to join in order to be eligible for the giveaway */
   additional_chat_count?: number;
-  /** The number of months the Telegram Premium subscription won from the giveaway will be active for */
+  /** The number of Telegram Stars that were split between giveaway winners; for Telegram Star giveaways only */
+  prize_star_count?: number;
+  /** The number of months the Telegram Premium subscription won from the giveaway will be active for; for Telegram Premium giveaways only */
   premium_subscription_month_count?: number;
   /** Number of undistributed prizes */
   unclaimed_prize_count?: number;
@@ -1168,6 +1375,8 @@ export interface GiveawayWinners {
   was_refunded?: true;
   /** Description of additional giveaway prize */
   prize_description?: string;
+  /** True, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway. */
+  is_star_giveaway?: true;
 }
 
 /** This object represents a service message about the completion of a giveaway without public winners. */
@@ -1186,9 +1395,9 @@ export interface LinkPreviewOptions {
   is_disabled?: boolean;
   /** URL to use for the link preview. If empty, then the first URL found in the message text will be used */
   url?: string;
-  /** True, if the media in the link preview is suppposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
+  /** True, if the media in the link preview is supposed to be shrunk; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
   prefer_small_media?: boolean;
-  /** True, if the media in the link preview is suppposed to be enlarged; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
+  /** True, if the media in the link preview is supposed to be enlarged; ignored if the URL isn't explicitly specified or media size change isn't supported for the preview */
   prefer_large_media?: boolean;
   /** True, if the link preview must be shown above the message text; otherwise, the link preview will be shown below the message text */
   show_above_text?: boolean;
