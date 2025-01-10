@@ -343,13 +343,17 @@ export interface ChatInviteLink {
   member_limit?: number;
   /** Number of pending join requests created using this link */
   pending_join_request_count?: number;
+  /** The number of seconds the subscription will be active for before the next payment */
+  subscription_period?: number;
+  /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat using the link */
+  subscription_price?: number;
 }
 
 /** Represents the rights of an administrator in a chat. */
 export interface ChatAdministratorRights {
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -363,20 +367,20 @@ export interface ChatAdministratorRights {
   can_change_info: boolean;
   /** True, if the user is allowed to invite new users to the chat */
   can_invite_users: boolean;
-  /** True, if the administrator can post in the channel; channels only */
-  can_post_messages?: boolean;
-  /** True, if the administrator can edit messages of other users and can pin messages; channels only */
-  can_edit_messages?: boolean;
-  /** True, if the user is allowed to pin messages; groups and supergroups only */
-  can_pin_messages?: boolean;
   /** True, if the administrator can post stories to the chat */
-  can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users */
-  can_edit_stories?: boolean;
+  can_post_stories: boolean;
+  /** True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
+  can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
-  can_delete_stories?: boolean;
-  /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
-  can_manage_topics?: boolean;
+  can_delete_stories: boolean;
+  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  can_post_messages: boolean;
+  /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
+  can_edit_messages: boolean;
+  /** True, if the user is allowed to pin messages; for groups and supergroups only */
+  can_pin_messages: boolean;
+  /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
+  can_manage_topics: boolean;
 }
 
 /** This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
@@ -417,7 +421,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_be_edited: boolean;
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -431,20 +435,20 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_change_info: boolean;
   /** True, if the user is allowed to invite new users to the chat */
   can_invite_users: boolean;
-  /** True, if the administrator can post in the channel; channels only */
-  can_post_messages?: boolean;
-  /** True, if the administrator can edit messages of other users and can pin messages; channels only */
-  can_edit_messages?: boolean;
-  /** True, if the user is allowed to pin messages; groups and supergroups only */
-  can_pin_messages?: boolean;
   /** True, if the administrator can post stories to the chat */
-  can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users */
-  can_edit_stories?: boolean;
+  can_post_stories: boolean;
+  /** True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
+  can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
-  can_delete_stories?: boolean;
-  /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
-  can_manage_topics?: boolean;
+  can_delete_stories: boolean;
+  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  can_post_messages: boolean;
+  /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
+  can_edit_messages: boolean;
+  /** True, if the user is allowed to pin messages; for groups and supergroups only */
+  can_pin_messages: boolean;
+  /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
+  can_manage_topics: boolean;
   /** Custom title for this user */
   custom_title?: string;
 }
@@ -452,6 +456,8 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 /** Represents a chat member that has no additional privileges or restrictions. */
 export interface ChatMemberMember extends AbstractChatMember {
   status: "member";
+  /** Date when the user's subscription will expire; Unix time */
+  until_date?: number;
 }
 
 /** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
@@ -517,6 +523,8 @@ export interface ChatMemberUpdated {
   new_chat_member: ChatMember;
   /** Chat invite link, which was used by the user to join the chat; for joining by invite link events only. */
   invite_link?: ChatInviteLink;
+  /** True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator */
+  via_join_request?: boolean;
   /** True, if the user joined the chat via a chat folder invite link */
   via_chat_folder_invite_link?: boolean;
 }
@@ -625,7 +633,10 @@ export interface ChatLocation {
  * - ReactionTypeEmoji
  * - ReactionTypeCustomEmoji
  */
-export type ReactionType = ReactionTypeEmoji | ReactionTypeCustomEmoji;
+export type ReactionType =
+  | ReactionTypeEmoji
+  | ReactionTypeCustomEmoji
+  | ReactionTypePaid;
 
 export interface AbstractReactionType {
   /** Type of the reaction */
@@ -647,6 +658,12 @@ export interface ReactionTypeCustomEmoji extends AbstractReactionType {
   type: "custom_emoji";
   /** Custom emoji identifier */
   custom_emoji_id: string;
+}
+
+/** The reaction is paid. */
+export interface ReactionTypePaid extends AbstractReactionType {
+  /** Type of the reaction, always “paid” */
+  type: "paid";
 }
 
 /** Represents a reaction added to a message along with the number of times it was added. */
@@ -762,13 +779,15 @@ export interface ChatBoostSourceGiftCode extends AbstractChatBoostSource {
   user: User;
 }
 
-/** The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription. */
+/** The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways. */
 export interface ChatBoostSourceGiveaway extends AbstractChatBoostSource {
   source: "giveaway";
   /** Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet. */
   giveaway_message_id: number;
-  /** User that won the prize in the giveaway if any. */
+  /** Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only */
   user?: User;
+  /** The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only */
+  prize_star_count?: number;
   /** True, if the giveaway was completed, but there was no user to win the prize */
   is_unclaimed?: true;
 }
@@ -789,7 +808,7 @@ export interface ChatBoost {
 export interface ChatBoostUpdated {
   /** Chat which was boosted */
   chat: Chat;
-  /** Infomation about the chat boost */
+  /** Information about the chat boost */
   boost: ChatBoost;
 }
 
@@ -811,6 +830,32 @@ export interface UserChatBoosts {
   boosts: ChatBoost[];
 }
 
+/** Describes the connection of the bot with a business account. */
+export interface BusinessConnection {
+  /** Unique identifier of the business connection */
+  id: string;
+  /** Business account user that created the business connection */
+  user: User;
+  /** Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
+  user_chat_id: number;
+  /** Date the connection was established in Unix time */
+  date: number;
+  /** True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours */
+  can_reply: boolean;
+  /** True, if the connection is active */
+  is_enabled: boolean;
+}
+
+/** This object is received when messages are deleted from a connected business account. */
+export interface BusinessMessagesDeleted {
+  /** Unique identifier of the business connection */
+  business_connection_id: string;
+  /** Information about a chat in the business account. The bot may not have access to the chat or the corresponding user. */
+  chat: Chat;
+  /** The list of identifiers of deleted messages in the chat of the business account */
+  message_ids: number[];
+}
+
 /** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 
 > The maximum file size to download is 20 MB
@@ -824,4 +869,26 @@ export interface File {
   file_size?: number;
   /** File path. Use `https://api.telegram.org/file/bot<token>/<file_path>` to get the file. */
   file_path?: string;
+}
+
+/** This object represents a gift that can be sent by the bot. */
+export interface Gift {
+  /** Unique identifier of the gift */
+  id: string;
+  /** The sticker that represents the gift */
+  sticker: Sticker;
+  /** The number of Telegram Stars that must be paid to send the sticker */
+  star_count: number;
+  /** The number of Telegram Stars that must be paid to upgrade the gift to a unique one */
+  upgrade_star_count?: number;
+  /** The total number of the gifts of this type that can be sent; for limited gifts only */
+  total_count?: number;
+  /** The number of remaining gifts of this type that can be sent; for limited gifts only */
+  remaining_count?: number;
+}
+
+/** This object represent a list of gifts. */
+export interface Gifts {
+  /** The list of gifts */
+  gifts: Gift[];
 }

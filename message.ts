@@ -70,8 +70,6 @@ export declare namespace Message {
     caption?: string;
     /** For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption */
     caption_entities?: MessageEntity[];
-    /** True, if the caption must be shown above the message media */
-    show_caption_above_media?: true;
   }
   export interface MediaMessage extends CaptionableMessage {
     /** The unique identifier of a media message group this message belongs to */
@@ -96,10 +94,14 @@ export declare namespace Message {
   export interface AnimationMessage extends DocumentMessage {
     /** Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set */
     animation: Animation;
+    /** True, if the caption must be shown above the message media */
+    show_caption_above_media?: true;
   }
   export interface PhotoMessage extends MediaMessage {
     /** Message is a photo, available sizes of the photo */
     photo: PhotoSize[];
+    /** True, if the caption must be shown above the message media */
+    show_caption_above_media?: true;
   }
   export interface StickerMessage extends CommonMessage {
     /** Message is a sticker, information about the sticker */
@@ -112,6 +114,8 @@ export declare namespace Message {
   export interface VideoMessage extends MediaMessage {
     /** Message is a video, information about the video */
     video: Video;
+    /** True, if the caption must be shown above the message media */
+    show_caption_above_media?: true;
   }
   export interface VideoNoteMessage extends CommonMessage {
     /** Message is a video note, information about the video message */
@@ -395,6 +399,14 @@ export interface SentWebAppMessage {
   inline_message_id: string;
 }
 
+/** Describes an inline message to be sent by a user of a Mini App. */
+export interface PreparedInlineMessage {
+  /** Unique identifier of the prepared message */
+  id: string;
+  /** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
+  expiration_date: number;
+}
+
 /** The Bot API supports basic formatting for messages. You can use bold, italic, underlined, strikethrough, spoiler text, block quotations as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly. You can specify text entities directly, or use markdown-style or HTML-style formatting.
 
 Note that Telegram clients will display an **alert** to the user before opening an inline link ('Open this link?' together with the full URL).
@@ -402,10 +414,10 @@ Note that Telegram clients will display an **alert** to the user before opening 
 Message entities can be nested, providing following restrictions are met:
 - If two entities have common characters, then one of them is fully contained inside another.
 - bold, italic, underline, strikethrough, and spoiler entities can contain and can be part of any other entities, except pre and code.
-- blockquote entities can't be nested.
+- blockquote and expandable_blockquote entities can't be nested.
 - All other entities can't contain each other.
 
-Links `tg://user?id=<user_id>` can be used to mention a user by their ID without using a username. Please note:
+Links `tg://user?id=<user_id>` can be used to mention a user by their identifier without using a username. Please note:
 
 - These links will work only if they are used inside an inline link or in an inline keyboard button. For example, they will not work, when used in a message text.
 - Unless the user is a member of the chat where they were mentioned, these mentions are only guaranteed to work if the user has contacted the bot in private in the past or has sent a callback query to the bot via an inline button and doesn't have Forwarded Messages privacy enabled for the bot.
@@ -434,7 +446,15 @@ pre-formatted fixed-width code block written in the Python programming language
 `​`​`
 >Block quotation started
 >Block quotation continued
+>Block quotation continued
+>Block quotation continued
 >The last line of the block quotation
+**>The expandable block quotation started right after the previous block quotation
+>It is separated from the previous block quotation by an empty bold entity
+>Expandable block quotation continued
+>Hidden by default part of the expandable block quotation started
+>Expandable block quotation continued
+>The last line of the expandable block quotation with the expandability mark||
 ```
 Please note:
 
@@ -442,7 +462,7 @@ Please note:
 - Inside `pre` and `code` entities, all '`' and '\' characters must be escaped with a preceding '\' character.
 - Inside the `(...)` part of the inline link and custom emoji definition, all ')' and '\' must be escaped with a preceding '\' character.
 - In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-- In case of ambiguity between `italic` and `underline` entities `__` is always greadily treated from left to right as beginning or end of `underline` entity, so instead of `___italic underline___` use `___italic underline_\r__`, where `\r` is a character with code 13, which will be ignored.
+In case of ambiguity between italic and underline entities __ is always greadily treated from left to right as beginning or end of an underline entity, so instead of ___italic underline___ use ___italic underline_**__, adding an empty bold entity as a separator.
 - A valid emoji must be provided as an alternative value for the custom emoji. The emoji will be shown instead of the custom emoji in places where a custom emoji cannot be displayed (e.g., system notifications) or if the message is forwarded by a non-premium user. It is recommended to use the emoji from the emoji field of the custom emoji sticker.
 - Custom emoji entities can only be used by bots that purchased additional usernames on Fragment.
 
@@ -463,6 +483,7 @@ To use this mode, pass *HTML* in the *parse_mode* field. The following tags are 
 <pre>pre-formatted fixed-width code block</pre>
 <pre><code class="language-python">pre-formatted fixed-width code block written in the Python programming language</code></pre>
 <blockquote>Block quotation started\nBlock quotation continued\nThe last line of the block quotation</blockquote>
+<blockquote expandable>Expandable block quotation started\nExpandable block quotation continued\nExpandable block quotation continued\nHidden by default part of the block quotation started\nExpandable block quotation continued\nThe last line of the block quotation</blockquote>
 ```
 Please note:
 
@@ -494,7 +515,7 @@ pre-formatted fixed-width code block written in the Python programming language
 Please note:
 
 - Entities must not be nested, use parse mode MarkdownV2 instead.
-- There is no way to specify “underline”, “strikethrough”, “spoiler”, “blockquote” and “custom_emoji” entities, use parse mode MarkdownV2 instead.
+There is no way to specify “underline”, “strikethrough”, “spoiler”, “blockquote”, “expandable_blockquote” and “custom_emoji” entities, use parse mode MarkdownV2 instead.
 - To escape characters '_', '*', '`', '[' outside of an entity, prepend the characters '\' before them.
 - Escaping inside entities is not allowed, so entity must be closed first and reopened again: use `_snake_\__case_` for italic `snake_case` and `*2*\**2=4*` for bold `2*2=4`. */
 export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
@@ -954,7 +975,7 @@ declare namespace PaidMedia {
 - PaidMediaPhoto
 - PaidMediaVideo
  */
-type PaidMedia =
+export type PaidMedia =
   | PaidMedia.PaidMediaPreview
   | PaidMedia.PaidMediaPhoto
   | PaidMedia.PaidMediaVideo;

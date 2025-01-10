@@ -18,6 +18,7 @@ import type {
   ChatPermissions,
   File,
   ForumTopic,
+  Gifts,
   ReactionType,
   UserChatBoosts,
   UserFromGetMe,
@@ -33,13 +34,18 @@ import type {
   MessageId,
   ParseMode,
   Poll,
+  PreparedInlineMessage,
   ReplyParameters,
   SentWebAppMessage,
   Sticker,
   StickerSet,
 } from "./message.ts";
 import type { PassportElementError } from "./passport.ts";
-import type { LabeledPrice, ShippingOption } from "./payment.ts";
+import type {
+  LabeledPrice,
+  ShippingOption,
+  StarTransactions,
+} from "./payment.ts";
 import type {
   BotCommandScope,
   BotDescription,
@@ -48,6 +54,7 @@ import type {
   MenuButton,
 } from "./settings.ts";
 import type { Update } from "./update.ts";
+import { InputPollOption } from "./message.ts";
 
 /** Extracts the parameters of a given method name */
 type Params<F, M extends keyof ApiMethods<F>> = Parameters<ApiMethods<F>[M]>;
@@ -151,9 +158,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. A object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -185,7 +196,7 @@ export type ApiMethods<F> = {
     message_thread_id?: number;
     /** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
     from_chat_id: number | string;
-    /** Identifiers of 1-100 messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
+    /** A list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
     message_ids: number[];
     /** Sends the messages silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
@@ -193,7 +204,7 @@ export type ApiMethods<F> = {
     protect_content?: boolean;
   }): MessageId[];
 
-  /** Use this method to copy messages of any kind. Service messages and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
+  /** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
   copyMessage(args: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
@@ -209,13 +220,17 @@ export type ApiMethods<F> = {
     parse_mode?: string;
     /** A list of special entities that appear in the new caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
+    show_caption_above_media?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -223,7 +238,7 @@ export type ApiMethods<F> = {
       | ForceReply;
   }): MessageId;
 
-  /** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
+  /** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
   copyMessages(args: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
@@ -231,7 +246,7 @@ export type ApiMethods<F> = {
     message_thread_id?: number;
     /** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
     from_chat_id: number | string;
-    /** Identifiers of 1-100 messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
+    /** A list of 1-100 identifiers of messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
     message_ids: number[];
     /** Sends the messages silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
@@ -257,15 +272,19 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
-    /** Pass True if the photo needs to be covered with a spoiler animation */
-    has_spoiler?: boolean;
+    /** Pass True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -297,15 +316,19 @@ export type ApiMethods<F> = {
     performer?: string;
     /** Track name */
     title?: string;
-    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
     thumbnail?: F;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -323,7 +346,7 @@ export type ApiMethods<F> = {
     message_thread_id?: number;
     /** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
     document: F | string;
-    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
     thumbnail?: F;
     /** Document caption (may also be used when resending documents by file_id), 0-1024 characters after entities parsing */
     caption?: string;
@@ -337,9 +360,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -363,7 +390,7 @@ export type ApiMethods<F> = {
     width?: number;
     /** Video height */
     height?: number;
-    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
     thumbnail?: F;
     /** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
     caption?: string;
@@ -371,6 +398,8 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
     /** Pass True if the video needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Pass True if the uploaded video is suitable for streaming */
@@ -379,9 +408,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -405,7 +438,7 @@ export type ApiMethods<F> = {
     width?: number;
     /** Animation height */
     height?: number;
-    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
     thumbnail?: F;
     /** Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing */
     caption?: string;
@@ -413,15 +446,21 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
     /** Pass True if the animation needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -429,7 +468,7 @@ export type ApiMethods<F> = {
       | ForceReply;
   }): Message.AnimationMessage & Message.BusinessSentMessage;
 
-  /** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
+  /** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
   sendVoice(args: {
     /** Unique identifier of the business connection on behalf of which the message will be sent */
     business_connection_id?: string;
@@ -451,9 +490,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -476,15 +519,19 @@ export type ApiMethods<F> = {
     duration?: number;
     /** Video width and height, i.e. diameter of the video message */
     length?: number;
-    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+    /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
     thumbnail?: F;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -492,15 +539,51 @@ export type ApiMethods<F> = {
       | ForceReply;
   }): Message.VideoNoteMessage & Message.BusinessSentMessage;
 
+  /** Use this method to send paid media. On success, the sent Message is returned. */
+  sendPaidMedia(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance. */
+    chat_id: number | string;
+    /** The number of Telegram Stars that must be paid to buy access to the media; 1-2500 */
+    star_count: number;
+    /** An array describing the media to be sent; up to 10 items */
+    media: InputPaidMedia<F>[];
+    /** Bot-defined paid media payload, 0-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+    payload?: string;
+    /** Media caption, 0-1024 characters after entities parsing */
+    caption?: string;
+    /** Mode for parsing entities in the media caption. See formatting options for more details. */
+    parse_mode?: ParseMode;
+    /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+    caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media */
+    show_caption_above_media?: boolean;
+    /** Sends the message silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the sent message from forwarding and saving */
+    protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+    reply_markup?:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply;
+  }): Message.PaidMediaMessage & Message.BusinessSentMessage;
+
   /** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Messages that were sent is returned. */
   sendMediaGroup(args: {
     /** Unique identifier of the business connection on behalf of which the message will be sent */
     business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
-    /** An array describing messages to be sent, must include 2-10 items */
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
+    /** An array describing messages to be sent, must include 2-10 items */
     media: ReadonlyArray<
       | InputMediaAudio<F>
       | InputMediaDocument<F>
@@ -511,6 +594,10 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent messages from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
   }): Array<
@@ -536,7 +623,7 @@ export type ApiMethods<F> = {
     longitude: number;
     /** The radius of uncertainty for the location, measured in meters; 0-1500 */
     horizontal_accuracy?: number;
-    /** Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86400. */
+    /** Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
     live_period?: number;
     /** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
     heading?: number;
@@ -546,53 +633,19 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
       | ReplyKeyboardRemove
       | ForceReply;
   }): Message.LocationMessage & Message.BusinessSentMessage;
-
-  /** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
-  editMessageLiveLocation(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-    chat_id?: number | string;
-    /** Required if inline_message_id is not specified. Identifier of the message to edit */
-    message_id?: number;
-    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
-    inline_message_id?: string;
-    /** Latitude of new location */
-    latitude: number;
-    /** Longitude of new location */
-    longitude: number;
-    /** The radius of uncertainty for the location, measured in meters; 0-1500 */
-    horizontal_accuracy?: number;
-    /** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
-    heading?: number;
-    /** The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only. */
-    proximity_alert_radius?: number;
-    /** An object for a new inline keyboard. */
-    reply_markup?: InlineKeyboardMarkup;
-  }):
-    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
-    | true;
-
-  /** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
-  stopMessageLiveLocation(args: {
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-    chat_id?: number | string;
-    /** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
-    message_id?: number;
-    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
-    inline_message_id?: string;
-    /** An object for a new inline keyboard. */
-    reply_markup?: InlineKeyboardMarkup;
-  }):
-    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
-    | true;
 
   /** Use this method to send information about a venue. On success, the sent Message is returned. */
   sendVenue(args: {
@@ -622,9 +675,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -652,9 +709,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -672,8 +733,12 @@ export type ApiMethods<F> = {
     message_thread_id?: number;
     /** Poll question, 1-300 characters */
     question: string;
-    /** A list of answer options, 2-10 strings 1-100 characters each */
-    options: readonly string[];
+    /** Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed */
+    question_parse_mode?: ParseMode;
+    /** A JSON-serialized list of special entities that appear in the poll question. It can be specified instead of question_parse_mode */
+    question_entities?: MessageEntity[];
+    /** A list of answer options, 2-10 answer options */
+    options: readonly InputPollOption[];
     /** True, if the poll needs to be anonymous, defaults to True */
     is_anonymous?: boolean;
     /** Poll type, “quiz” or “regular”, defaults to “regular” */
@@ -686,7 +751,7 @@ export type ApiMethods<F> = {
     explanation?: string;
     /** Mode for parsing entities in the explanation. See formatting options for more details. */
     explanation_parse_mode?: ParseMode;
-    /** A list of special entities that appear in the poll explanation, which can be specified instead of parse_mode */
+    /** A list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode */
     explanation_entities?: MessageEntity[];
     /** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
     open_period?: number;
@@ -698,9 +763,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -722,9 +791,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -742,6 +815,8 @@ export type ApiMethods<F> = {
     business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
+    /** Unique identifier for the target message thread; for supergroups only */
+    message_thread_id?: number;
     /** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
     action:
       | "typing"
@@ -755,17 +830,15 @@ export type ApiMethods<F> = {
       | "find_location"
       | "record_video_note"
       | "upload_video_note";
-    /** Unique identifier for the target message thread; supergroups only */
-    message_thread_id?: number;
   }): true;
 
-  /** Use this method to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. In albums, bots must react to the first message. Returns True on success. */
+  /** Use this method to change the chosen reactions on a message. Service messages can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success. */
   setMessageReaction(args: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
-    /** Identifier of the target message */
+    /** Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead. */
     message_id: number;
-    /** New list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. */
+    /** A list of reaction types to set on the message. Currently, as non-premium users, bots can set up to one reaction per message. A custom emoji reaction can be used if it is either already present on the message or explicitly allowed by chat administrators. Paid reactions can't be used by bots. */
     reaction?: ReactionType[];
     /** Pass True to set the reaction with a big animation */
     is_big?: Boolean;
@@ -780,6 +853,16 @@ export type ApiMethods<F> = {
     /** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
     limit?: number;
   }): UserProfilePhotos;
+
+  /** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success. */
+  setUserEmojiStatus(args: {
+    /** Unique identifier of the target user */
+    user_id: number;
+    /** Custom emoji identifier of the emoji status to set. Pass an empty string to remove the status. */
+    emoji_status_custom_emoji_id?: string;
+    /** Expiration date of the emoji status, if any */
+    emoji_status_expiration_date?: number;
+  }): true;
 
   /** Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
 
@@ -837,12 +920,8 @@ export type ApiMethods<F> = {
     user_id: number;
     /** Pass True if the administrator's presence in the chat is hidden */
     is_anonymous?: boolean;
-    /** Pass True if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
+    /** Pass True if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
     can_manage_chat?: boolean;
-    /** Pass True if the administrator can create channel posts, channels only */
-    can_post_messages?: boolean;
-    /** Pass True if the administrator can edit messages of other users and can pin messages, channels only */
-    can_edit_messages?: boolean;
     /** Pass True if the administrator can delete messages of other users */
     can_delete_messages?: boolean;
     /** Pass True if the administrator can manage video chats */
@@ -855,15 +934,19 @@ export type ApiMethods<F> = {
     can_change_info?: boolean;
     /** Pass True if the administrator can invite new users to the chat */
     can_invite_users?: boolean;
-    /** Pass True if the administrator can pin messages, supergroups only */
-    can_pin_messages?: boolean;
     /** Pass True if the administrator can post stories to the chat */
     can_post_stories?: boolean;
-    /** Pass True if the administrator can edit stories posted by other users */
+    /** Pass True if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
     can_edit_stories?: boolean;
     /** Pass True if the administrator can delete stories posted by other users */
     can_delete_stories?: boolean;
-    /** Pass True if the user is allowed to create, rename, close, and reopen forum topics, supergroups only */
+    /** Pass True if the administrator can post messages in the channel, or access channel statistics; for channels only */
+    can_post_messages?: boolean;
+    /** Pass True if the administrator can edit messages of other users and can pin messages, channels only */
+    can_edit_messages?: boolean;
+    /** Pass True if the administrator can pin messages; supergroups only */
+    can_pin_messages?: boolean;
+    /** Pass True if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
     can_manage_topics?: boolean;
   }): true;
 
@@ -941,6 +1024,28 @@ export type ApiMethods<F> = {
     creates_join_request?: boolean;
   }): ChatInviteLink;
 
+  /** Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
+  createChatSubscriptionInviteLink(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Invite link name; 0-32 characters */
+    name?: string;
+    /** The number of seconds the subscription will be active for before the next payment. Currently, it must always be 2592000 (30 days). */
+    subscription_period: 2592000;
+    /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat; 1-2500 */
+    subscription_price: number;
+  }): ChatInviteLink;
+
+  /** Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object. */
+  editChatSubscriptionInviteLink(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** The invite link to edit */
+    invite_link: string;
+    /** Invite link name; 0-32 characters */
+    name?: string;
+  }): ChatInviteLink;
+
   /** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object. */
   revokeChatInviteLink(args: {
     /** Unique identifier of the target chat or username of the target channel (in the format `@channelusername`) */
@@ -997,6 +1102,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success. */
   pinChatMessage(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be pinned */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of a message to pin */
@@ -1007,9 +1114,11 @@ export type ApiMethods<F> = {
 
   /** Use this method to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns True on success. */
   unpinChatMessage(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be pinned */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
-    /** Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned. */
+    /** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
     message_id?: number;
   }): true;
 
@@ -1025,7 +1134,7 @@ export type ApiMethods<F> = {
     chat_id: number | string;
   }): true;
 
-  /** Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success. */
+  /** Use this method to get up-to-date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success. */
   getChat(args: {
     /** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
     chat_id: number | string;
@@ -1089,7 +1198,7 @@ export type ApiMethods<F> = {
     icon_custom_emoji_id?: string;
   }): ForumTopic;
 
-  /** Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
+  /** Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
   editForumTopic(args: {
     /** Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername) */
     chat_id: number | string;
@@ -1170,7 +1279,6 @@ export type ApiMethods<F> = {
     /** Unique identifier for the target chat or username of the target supergroup (in the format @supergroupusername) */
     chat_id: number | string;
   }): true;
-
   /** Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 
   Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
@@ -1188,20 +1296,6 @@ export type ApiMethods<F> = {
     /** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. */
     cache_time?: number;
   }): true;
-
-  /** Use this method to change the bot's name. Returns True on success. */
-  setMyName(args: {
-    /** New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language. */
-    name?: string;
-    /** A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name. */
-    language_code?: string;
-  }): true;
-
-  /** Use this method to get the current bot name for the given user language. Returns BotName on success. */
-  getMyName(args: {
-    /** A two-letter ISO 639-1 language code or an empty string */
-    language_code?: string;
-  }): BotName;
 
   /** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
   getUserChatBoosts(arg: {
@@ -1241,6 +1335,20 @@ export type ApiMethods<F> = {
     /** A two-letter ISO 639-1 language code or an empty string */
     language_code?: string;
   }): BotCommand[];
+
+  /** Use this method to change the bot's name. Returns True on success. */
+  setMyName(args: {
+    /** New bot name; 0-64 characters. Pass an empty string to remove the dedicated name for the given language. */
+    name?: string;
+    /** A two-letter ISO 639-1 language code. If empty, the name will be shown to all users for whose language there is no dedicated name. */
+    language_code?: string;
+  }): true;
+
+  /** Use this method to get the current bot name for the given user language. Returns BotName on success. */
+  getMyName(args: {
+    /** A two-letter ISO 639-1 language code or an empty string */
+    language_code?: string;
+  }): BotName;
 
   /** Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success. */
   setMyDescription(args: {
@@ -1298,8 +1406,10 @@ export type ApiMethods<F> = {
     for_channels?: boolean;
   }): ChatAdministratorRights;
 
-  /** Use this method to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  /** Use this method to edit text and game messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
   editMessageText(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1320,8 +1430,10 @@ export type ApiMethods<F> = {
     | (Update.Edited & Message.TextMessage & Message.BusinessSentMessage)
     | true;
 
-  /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  /** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
   editMessageCaption(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1334,14 +1446,18 @@ export type ApiMethods<F> = {
     parse_mode?: ParseMode;
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
+    /** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
+    show_caption_above_media?: boolean;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
   }):
     | (Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage)
     | true;
 
-  /** Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  /** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
   editMessageMedia(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1354,8 +1470,54 @@ export type ApiMethods<F> = {
     reply_markup?: InlineKeyboardMarkup;
   }): (Update.Edited & Message & Message.BusinessSentMessage) | true;
 
-  /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  /** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  editMessageLiveLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id?: number | string;
+    /** Required if inline_message_id is not specified. Identifier of the message to edit */
+    message_id?: number;
+    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
+    inline_message_id?: string;
+    /** Latitude of new location */
+    latitude: number;
+    /** Longitude of new location */
+    longitude: number;
+    /** New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged */
+    live_period?: number;
+    /** The radius of uncertainty for the location, measured in meters; 0-1500 */
+    horizontal_accuracy?: number;
+    /** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
+    heading?: number;
+    /** The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only. */
+    proximity_alert_radius?: number;
+    /** An object for a new inline keyboard. */
+    reply_markup?: InlineKeyboardMarkup;
+  }):
+    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
+    | true;
+
+  /** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
+  stopMessageLiveLocation(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id?: number | string;
+    /** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
+    message_id?: number;
+    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
+    inline_message_id?: string;
+    /** An object for a new inline keyboard. */
+    reply_markup?: InlineKeyboardMarkup;
+  }):
+    | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
+    | true;
+
+  /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
   editMessageReplyMarkup(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id?: number | string;
     /** Required if inline_message_id is not specified. Identifier of the message to edit */
@@ -1368,6 +1530,8 @@ export type ApiMethods<F> = {
 
   /** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
   stopPoll(args: {
+    /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+    business_connection_id?: string;
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
     /** Identifier of the original message with the poll */
@@ -1397,7 +1561,7 @@ export type ApiMethods<F> = {
   deleteMessages(args: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
     chat_id: number | string;
-    /** Identifiers of 1-100 messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
+    /** A list of 1-100 identifiers of messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
     message_ids: number[];
   }): true;
 
@@ -1409,7 +1573,7 @@ export type ApiMethods<F> = {
     chat_id: number | string;
     /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
     message_thread_id?: number;
-    /** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP or .TGS sticker using multipart/form-data. Video stickers can only be sent by a file_id. Animated stickers can't be sent via an HTTP URL. */
+    /** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Video and animated stickers can't be sent via an HTTP URL. */
     sticker: F | string;
     /** Emoji associated with the sticker; only for just uploaded stickers */
     emoji?: string;
@@ -1417,9 +1581,13 @@ export type ApiMethods<F> = {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
-    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user. */
+    /** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
     reply_markup?:
       | InlineKeyboardMarkup
       | ReplyKeyboardMarkup
@@ -1435,11 +1603,11 @@ export type ApiMethods<F> = {
 
   /** Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects. */
   getCustomEmojiStickers(args: {
-    /** List of custom emoji identifiers. At most 200 custom emoji identifiers can be specified. */
+    /** A list of custom emoji identifiers. At most 200 custom emoji identifiers can be specified. */
     custom_emoji_ids: string[];
   }): Sticker[];
 
-  /** Use this method to upload a file with a sticker for later use in the createNewStickerSet and addStickerToSet methods (the file can be used multiple times). Returns the uploaded File on success. */
+  /** Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success. */
   uploadStickerFile(args: {
     /** User identifier of sticker file owner */
     user_id: number;
@@ -1494,10 +1662,10 @@ export type ApiMethods<F> = {
     /** User identifier of the sticker set owner */
     user_id: number;
     /** Sticker set name */
-    name: String;
+    name: string;
     /** File identifier of the replaced sticker */
-    old_sticker: String;
-    /** A JSON-serialized object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged. */
+    old_sticker: string;
+    /** An object with information about the added sticker. If exactly the same sticker had already been added to the set, then the set remains unchanged. */
     sticker: InputSticker<F>;
   }): true;
 
@@ -1533,21 +1701,15 @@ export type ApiMethods<F> = {
     title: string;
   }): true;
 
-  /** Use this method to delete a sticker set that was created by the bot. Returns True on success. */
-  deleteStickerSet(args: {
-    /** Sticker set name */
-    name: string;
-  }): true;
-
   /** Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success. */
   setStickerSetThumbnail(args: {
     /** Sticker set name */
     name: string;
     /** User identifier of the sticker set owner */
     user_id: number;
-    /** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animated-sticker-requirements for animated sticker technical requirements), or a WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-sticker-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. More information on Sending Files ». Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
+    /** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
     thumbnail?: F | string;
-    /** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a WEBM video */
+    /** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a .WEBM video */
     format:
       | "static"
       | "animated"
@@ -1560,6 +1722,59 @@ export type ApiMethods<F> = {
     name: string;
     /** Custom emoji identifier of a sticker from the sticker set; pass an empty string to drop the thumbnail and use the first sticker as the thumbnail. */
     custom_emoji_id?: string;
+  }): true;
+
+  /** Use this method to delete a sticker set that was created by the bot. Returns True on success. */
+  deleteStickerSet(args: {
+    /** Sticker set name */
+    name: string;
+  }): true;
+
+  /** Returns the list of gifts that can be sent by the bot to users. Requires no parameters. Returns a Gifts object. */
+  getAvailableGifts(): Gifts;
+
+  /** Sends a gift to the given user. The gift can't be converted to Telegram Stars by the user. Returns True on success. */
+  sendGift(args: {
+    /** Unique identifier of the target user that will receive the gift */
+    user_id: number;
+    /** Identifier of the gift */
+    gift_id: string;
+    /** Pass True to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver */
+    pay_for_upgrade?: boolean;
+    /** Text that will be shown along with the gift; 0-255 characters */
+    text?: string;
+    /** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+    text_parse_mode?: ParseMode;
+    /** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+    text_entities?: MessageEntity[];
+  }): true;
+
+  /** Verifies a user on behalf of the organization which is represented by the bot. Returns True on success. */
+  verifyUser(args: {
+    /** Unique identifier of the target user */
+    user_id: number;
+    /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
+    custom_description?: string;
+  }): true;
+
+  /** Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success. */
+  verifyChat(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
+    custom_description?: string;
+  }): true;
+
+  /** Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+  removeUserVerification(args: {
+    /** Unique identifier of the target user */
+    user_id: number;
+  }): true;
+
+  /** Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+  removeChatVerification(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
   }): true;
 
   /** Use this method to send answers to an inline query. On success, True is returned.
@@ -1589,6 +1804,22 @@ export type ApiMethods<F> = {
     result: InlineQueryResult;
   }): SentWebAppMessage;
 
+  /** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
+  savePreparedInlineMessage(args: {
+    /** Unique identifier of the target user that can use the prepared message */
+    user_id: number;
+    /** A JSON-serialized object describing the message to be sent */
+    result: InlineQueryResult;
+    /** Pass True if the message can be sent to private chats with users */
+    allow_user_chats?: boolean;
+    /** Pass True if the message can be sent to private chats with bots */
+    allow_bot_chats?: boolean;
+    /** Pass True if the message can be sent to group and supergroup chats */
+    allow_group_chats?: boolean;
+    /** Pass True if the message can be sent to channel chats */
+    allow_channel_chats?: boolean;
+  }): PreparedInlineMessage;
+
   /** Use this method to send invoices. On success, the sent Message is returned. */
   sendInvoice(args: {
     /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -1599,15 +1830,15 @@ export type ApiMethods<F> = {
     title: string;
     /** Product description, 1-255 characters */
     description: string;
-    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes. */
+    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
     payload: string;
-    /** Payment provider token, obtained via @BotFather */
+    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
     provider_token: string;
-    /** Three-letter ISO 4217 currency code, see more on currencies */
+    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
     currency: string;
-    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.) */
+    /** Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
     prices: readonly LabeledPrice[];
-    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0 */
+    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
     max_tip_amount?: number;
     /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
     suggested_tip_amounts?: number[];
@@ -1623,24 +1854,28 @@ export type ApiMethods<F> = {
     photo_width?: number;
     /** Photo height */
     photo_height?: number;
-    /** Pass True if you require the user's full name to complete the order */
+    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
     need_name?: boolean;
-    /** Pass True if you require the user's phone number to complete the order */
+    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
     need_phone_number?: boolean;
-    /** Pass True if you require the user's email address to complete the order */
+    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
     need_email?: boolean;
-    /** Pass True if you require the user's shipping address to complete the order */
+    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
     need_shipping_address?: boolean;
-    /** Pass True if the user's phone number should be sent to provider */
+    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
     send_phone_number_to_provider?: boolean;
-    /** Pass True if the user's email address should be sent to provider */
+    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
     send_email_to_provider?: boolean;
-    /** Pass True if the final price depends on the shipping method */
+    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
     is_flexible?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. Ignored for payments in Telegram Stars. */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
@@ -1649,19 +1884,23 @@ export type ApiMethods<F> = {
 
   /** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
   createInvoiceLink(args: {
+    /** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
+    business_connection_id?: string;
     /** Product name, 1-32 characters */
     title: string;
     /** Product description, 1-255 characters */
     description: string;
-    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes. */
+    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
     payload: string;
-    /** Payment provider token, obtained via BotFather */
+    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
     provider_token: string;
-    /** Three-letter ISO 4217 currency code, see more on currencies */
+    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
     currency: string;
-    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.) */
+    /** Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
     prices: LabeledPrice[];
-    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0 */
+    /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
+    subscription_period: 2592000;
+    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
     max_tip_amount?: number;
     /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
     suggested_tip_amounts?: number[];
@@ -1675,19 +1914,19 @@ export type ApiMethods<F> = {
     photo_width?: number;
     /** Photo height */
     photo_height?: number;
-    /** Pass True if you require the user's full name to complete the order */
+    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
     need_name?: boolean;
-    /** Pass True if you require the user's phone number to complete the order */
+    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
     need_phone_number?: boolean;
-    /** Pass True if you require the user's email address to complete the order */
+    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
     need_email?: boolean;
-    /** Pass True if you require the user's shipping address to complete the order */
+    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
     need_shipping_address?: boolean;
-    /** Pass True if the user's phone number should be sent to the provider */
+    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
     send_phone_number_to_provider?: boolean;
-    /** Pass True if the user's email address should be sent to the provider */
+    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
     send_email_to_provider?: boolean;
-    /** Pass True if the final price depends on the shipping method */
+    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
     is_flexible?: boolean;
   }): string;
 
@@ -1699,7 +1938,7 @@ export type ApiMethods<F> = {
     ok: boolean;
     /** Required if ok is True. An array of available shipping options. */
     shipping_options?: readonly ShippingOption[];
-    /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user. */
+    /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable"). Telegram will display this message to the user. */
     error_message?: string;
   }): true;
 
@@ -1711,6 +1950,32 @@ export type ApiMethods<F> = {
     ok: boolean;
     /** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
     error_message?: string;
+  }): true;
+
+  /** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
+  getStarTransactions(args: {
+    /** Number of transactions to skip in the response */
+    offset?: number;
+    /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+    limit?: number;
+  }): StarTransactions;
+
+  /** Refunds a successful payment in Telegram Stars. Returns True on success. */
+  refundStarPayment(args: {
+    /** Identifier of the user whose payment will be refunded */
+    user_id: number;
+    /** Telegram payment identifier */
+    telegram_payment_charge_id: string;
+  }): true;
+
+  /** Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success. */
+  editUserStarSubscription(args: {
+    /** Identifier of the user whose subscription will be edited */
+    user_id: number;
+    /** Telegram payment identifier for the subscription */
+    telegram_payment_charge_id: string;
+    /** Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot. */
+    is_canceled: boolean;
   }): true;
 
   /** Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
@@ -1812,7 +2077,7 @@ export type InputMedia<F> =
 export interface InputMediaPhoto<F> {
   /** Type of the result, must be photo */
   type: "photo";
-  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
   media: F | string;
   /** Caption of the photo to be sent, 0-1024 characters after entities parsing */
   caption?: string;
@@ -1820,6 +2085,8 @@ export interface InputMediaPhoto<F> {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Pass True if the photo needs to be covered with a spoiler animation */
   has_spoiler?: boolean;
 }
@@ -1828,9 +2095,9 @@ export interface InputMediaPhoto<F> {
 export interface InputMediaVideo<F> {
   /** Type of the result, must be video */
   type: "video";
-  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
   media: F | string;
-  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
   thumbnail?: F;
   /** Caption of the video to be sent, 0-1024 characters after entities parsing */
   caption?: string;
@@ -1838,6 +2105,8 @@ export interface InputMediaVideo<F> {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Video width */
   width?: number;
   /** Video height */
@@ -1854,9 +2123,9 @@ export interface InputMediaVideo<F> {
 export interface InputMediaAnimation<F> {
   /** Type of the result, must be animation */
   type: "animation";
-  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
   media: F | string;
-  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
   thumbnail?: F;
   /** Caption of the animation to be sent, 0-1024 characters after entities parsing */
   caption?: string;
@@ -1864,6 +2133,8 @@ export interface InputMediaAnimation<F> {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Animation width */
   width?: number;
   /** Animation height */
@@ -1878,9 +2149,9 @@ export interface InputMediaAnimation<F> {
 export interface InputMediaAudio<F> {
   /** Type of the result, must be audio */
   type: "audio";
-  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
   media: F | string;
-  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
   thumbnail?: F;
   /** Caption of the audio to be sent, 0-1024 characters after entities parsing */
   caption?: string;
@@ -1900,9 +2171,9 @@ export interface InputMediaAudio<F> {
 export interface InputMediaDocument<F> {
   /** Type of the result, must be document */
   type: "document";
-  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
   media: F | string;
-  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded using multipart/form-data. Thumbnails can't be reused and can be only uploaded as a new file, so you can pass "attach://<file_attach_name>" if the thumbnail was uploaded using multipart/form-data under <file_attach_name>. */
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
   thumbnail?: F;
   /** Caption of the document to be sent, 0-1024 characters after entities parsing */
   caption?: string;
@@ -1912,4 +2183,37 @@ export interface InputMediaDocument<F> {
   caption_entities?: MessageEntity[];
   /** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album. */
   disable_content_type_detection?: boolean;
+}
+
+/** This object describes the paid media to be sent. Currently, it can be one of
+- InputPaidMediaPhoto
+- InputPaidMediaVideo */
+export type InputPaidMedia<F> =
+  | InputPaidMediaPhoto<F>
+  | InputPaidMediaVideo<F>;
+
+/** The paid media to send is a photo. */
+export interface InputPaidMediaPhoto<F> {
+  /** Type of the media, must be photo */
+  type: "photo";
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
+  media: F | string;
+}
+
+/** The paid media to send is a video. */
+export interface InputPaidMediaVideo<F> {
+  /** Type of the media, must be video */
+  type: "video";
+  /** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
+  media: F | string;
+  /** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+  thumbnail?: F | string;
+  /** Video width */
+  width?: number;
+  /** Video height */
+  height?: number;
+  /** Video duration in seconds */
+  duration?: number;
+  /** Pass True if the uploaded video is suitable for streaming */
+  supports_streaming?: boolean;
 }
