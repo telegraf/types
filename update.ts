@@ -45,12 +45,6 @@ export declare namespace Update {
   export interface Edited {
     /** Date the message was last edited in Unix time */
     edit_date: number;
-    forward_from?: never;
-    forward_from_chat?: never;
-    forward_from_message_id?: never;
-    forward_signature?: never;
-    forward_sender_name?: never;
-    forward_date?: never;
   }
   /** Internal type holding properties that updates about business messages share. */
   export interface Biz {
