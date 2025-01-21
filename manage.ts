@@ -1,4 +1,4 @@
-import type { Location, Message, PhotoSize } from "./message.ts";
+import type { Location, Message, PhotoSize, Sticker } from "./message.ts";
 
 /** Describes the current status of a webhook. */
 export interface WebhookInfo {
@@ -52,152 +52,63 @@ export interface UserFromGetMe extends User {
   can_read_all_group_messages: boolean;
   /** True, if the bot supports inline queries. Returned only in getMe. */
   supports_inline_queries: boolean;
+  /** True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe. */
+  can_connect_to_business?: boolean;
+  /** True, if the bot has a main Web App. Returned only in getMe. */
+  has_main_web_app?: boolean;
 }
 
 export declare namespace Chat {
-  // ABSTRACT
-  /** Internal type holding properties that all kinds of chats share. */
-  interface AbstractChat {
+  /** Internal type representing private chats. */
+  export interface PrivateChat {
     /** Unique identifier for this chat. */
     id: number;
-    /** Type of chat, can be either “private”, “group”, “supergroup” or “channel” */
-    type: string;
-  }
-
-  // HELPERS
-  /** Internal type holding properties that those chats with user names share. */
-  interface UserNameChat {
+    /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
+    type: "private";
     /** Username, for private chats, supergroups and channels if available */
     username?: string;
-  }
-  /** Internal type holding properties that those chats with titles share. */
-  interface TitleChat {
-    /** Title, for supergroups, channels and group chats */
-    title: string;
-  }
-
-  // ==> CHATS
-  /** Internal type representing private chats. */
-  export interface PrivateChat extends AbstractChat, UserNameChat {
-    type: "private";
     /** First name of the other party in a private chat */
     first_name: string;
     /** Last name of the other party in a private chat */
     last_name?: string;
   }
+
   /** Internal type representing group chats. */
-  export interface GroupChat extends AbstractChat, TitleChat {
+  export interface GroupChat {
+    /** Unique identifier for this chat. */
+    id: number;
+    /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
     type: "group";
+    /** Title, for supergroups, channels and group chats */
+    title: string;
+    /** Username, for private chats, supergroups and channels if available */
+    username?: string;
   }
+
   /** Internal type representing super group chats. */
-  export interface SupergroupChat
-    extends AbstractChat, UserNameChat, TitleChat {
+  export interface SupergroupChat {
+    /** Unique identifier for this chat. */
+    id: number;
+    /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
     type: "supergroup";
+    /** Username, for private chats, supergroups and channels if available */
+    username?: string;
+    /** Title, for supergroups, channels and group chats */
+    title: string;
     /** True, if the supergroup chat is a forum (has topics enabled) */
     is_forum?: true;
   }
+
   /** Internal type representing channel chats. */
-  export interface ChannelChat extends AbstractChat, UserNameChat, TitleChat {
+  export interface ChannelChat {
+    /** Unique identifier for this chat. */
+    id: number;
+    /** Type of the chat, can be either “private”, “group”, “supergroup” or “channel” */
     type: "channel";
-  }
-
-  // GET CHAT HELPERS
-  /** Internal type holding properties that those chats returned from `getChat` share. */
-  interface GetChat {
-    /** Chat photo. Returned only in getChat. */
-    photo?: ChatPhoto;
-    /** The most recent pinned message (by sending date). Returned only in getChat. */
-    pinned_message?: Message;
-    /** The time after which all messages sent to the chat will be automatically deleted; in seconds. Returned only in getChat. */
-    message_auto_delete_time?: number;
-    /** True, if messages from the chat can't be forwarded to other chats. Returned only in getChat. */
-    has_protected_content?: true;
-  }
-  /** Internal type holding properties that private, supergroup, and channel chats returned from `getChat` share. */
-  interface NonGroupGetChat extends GetChat {
-    /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels. Returned only in getChat. */
-    active_usernames?: string[];
-  }
-  /** Internal type holding properties that group, supergroup, and channel chats returned from `getChat` share. */
-  interface NonPrivateGetChat extends GetChat {
-    /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. Returned only in getChat. */
-    available_reactions?: ReactionType[];
-    /** Description, for groups, supergroups and channel chats. Returned only in getChat. */
-    description?: string;
-    /** Primary invite link, for groups, supergroups and channel chats. Returned only in getChat. */
-    invite_link?: string;
-  }
-  /** Internal type holding properties that group and supergroup chats returned from `getChat` share. */
-  interface AnyGroupGetChat extends NonPrivateGetChat {
-    /** Default chat member permissions, for groups and supergroups. Returned only in getChat. */
-    permissions?: ChatPermissions;
-    /** True, if the bot can change the group sticker set. Returned only in getChat. */
-    can_set_sticker_set?: true;
-  }
-  /** Internal type holding properties that private and channel chats returned from `getChat` share. */
-  interface PrivateAndChannelGetChat {
-    /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details. Returned only in getChat. */
-    accent_color_id: number;
-    /** Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background. Returned only in getChat. */
-    background_custom_emoji_id?: string;
-    /** Custom emoji identifier of emoji status of the other party in a private chat. Returned only in getChat. */
-    emoji_status_custom_emoji_id?: string;
-    /** Expiration date of the emoji status of the other party in a private chat in Unix time, if any. Returned only in getChat. */
-    emoji_status_expiration_date?: number;
-  }
-  /** Internal type holding properties that supergroup and channel chats returned from `getChat` share. */
-  interface LargeGetChat extends NonPrivateGetChat {
-    /** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. Returned only in getChat. */
-    linked_chat_id?: number;
-  }
-
-  // ==> GET CHATS
-  /** Internal type representing private chats returned from `getChat`. */
-  export interface PrivateGetChat
-    extends PrivateChat, NonGroupGetChat, PrivateAndChannelGetChat {
-    /** Bio of the other party in a private chat. Returned only in getChat. */
-    bio?: string;
-    /** True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user. Returned only in getChat. */
-    has_private_forwards?: true;
-    /** True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat. Returned only in getChat. */
-    has_restricted_voice_and_video_messages?: true;
-  }
-  /** Internal type representing group chats returned from `getChat`. */
-  export interface GroupGetChat extends GroupChat, AnyGroupGetChat {
-  }
-  /** Internal type representing supergroup chats returned from `getChat`. */
-  export interface SupergroupGetChat
-    extends SupergroupChat, NonGroupGetChat, AnyGroupGetChat, LargeGetChat {
-    /** True, if users need to join the supergroup before they can send messages. Returned only in getChat. */
-    join_to_send_messages?: true;
-    /** True, if all users directly joining the supergroup need to be approved by supergroup administrators. Returned only in getChat. */
-    join_by_request?: true;
-    /** For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds. Returned only in getChat. */
-    slow_mode_delay?: number;
-    /** For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions. Returned only in getChat. */
-    unrestrict_boost_count?: number;
-    /** True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators. Returned only in getChat. */
-    has_aggressive_anti_spam_enabled?: true;
-    /** True, if new chat members will have access to old messages; available only to chat administrators. Returned only in getChat. */
-    has_visible_history?: boolean;
-    /** For supergroups, name of group sticker set. Returned only in getChat. */
-    sticker_set_name?: string;
-    /** For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group. Returned only in getChat. */
-    custom_emoji_sticker_set_name?: string;
-    /** For supergroups, the location to which the supergroup is connected. Returned only in getChat. */
-    location?: ChatLocation;
-  }
-  /** Internal type representing channel chats returned from `getChat`. */
-  export interface ChannelGetChat
-    extends
-      ChannelChat,
-      NonGroupGetChat,
-      LargeGetChat,
-      PrivateAndChannelGetChat {
-    /** Identifier of the accent color for the chat's profile background. See profile accent colors for more details. Returned only in getChat. */
-    profile_accent_color_id?: number;
-    /** Custom emoji identifier of the emoji chosen by the chat for its profile background. Returned only in getChat. */
-    profile_background_custom_emoji_id?: string;
+    /** Title, for supergroups, channels and group chats */
+    title: string;
+    /** Username, for private chats, supergroups and channels if available */
+    username?: string;
   }
 }
 
@@ -208,12 +119,189 @@ export type Chat =
   | Chat.SupergroupChat
   | Chat.ChannelChat;
 
-/** This object represents a Telegram user or bot that was returned by `getChat`. */
-export type ChatFromGetChat =
-  | Chat.PrivateGetChat
-  | Chat.GroupGetChat
-  | Chat.SupergroupGetChat
-  | Chat.ChannelGetChat;
+declare namespace ChatFullInfo {
+  /** Internal type representing private chats returned from `getChat`. */
+  export interface PrivateChat extends Chat.PrivateChat {
+    /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+    accent_color_id: number;
+    /** The maximum number of reactions that can be set on a message in the chat */
+    max_reaction_count: number;
+    /** Chat photo */
+    photo?: ChatPhoto;
+    /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+    active_usernames?: string[];
+    /** For private chats, the date of birth of the user */
+    birthdate?: Birthdate;
+    /** For private chats with business accounts, the intro of the business */
+    business_intro?: BusinessIntro;
+    /** For private chats with business accounts, the location of the business */
+    business_location?: BusinessLocation;
+    /** For private chats with business accounts, the opening hours of the business */
+    business_opening_hours?: BusinessOpeningHours;
+    /** For private chats, the personal channel of the user */
+    personal_chat?: ChatFullInfo.ChannelChat;
+    /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
+    available_reactions?: ReactionType[];
+    /** Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background */
+    background_custom_emoji_id?: string;
+    /** Identifier of the accent color for the chat's profile background. See profile accent colors for more details. */
+    profile_accent_color_id?: number;
+    /** Custom emoji identifier of the emoji chosen by the chat for its profile background */
+    profile_background_custom_emoji_id?: string;
+    /** Custom emoji identifier of emoji status of the other party in a private chat */
+    emoji_status_custom_emoji_id?: string;
+    /** Expiration date of the emoji status of the other party in a private chat in Unix time, if any */
+    emoji_status_expiration_date?: number;
+    /** Bio of the other party in a private chat */
+    bio?: string;
+    /** True, if privacy settings of the other party in the private chat allows to use tg://user?id=<user_id> links only in chats with the user */
+    has_private_forwards?: true;
+    /** True, if the privacy settings of the other party restrict sending voice and video note messages in the private chat */
+    has_restricted_voice_and_video_messages?: true;
+    /** The most recent pinned message (by sending date) */
+    pinned_message?: Message;
+    /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
+    message_auto_delete_time?: number;
+    /** True, if messages from the chat can't be forwarded to other chats */
+    has_protected_content?: true;
+  }
+  /** Internal type representing group chats returned from `getChat`. */
+  export interface GroupChat extends Chat.GroupChat {
+    /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+    accent_color_id: number;
+    /** The maximum number of reactions that can be set on a message in the chat */
+    max_reaction_count: number;
+    /** Chat photo */
+    photo?: ChatPhoto;
+    /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+    active_usernames?: string[];
+    /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
+    available_reactions?: ReactionType[];
+    /** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
+    background_custom_emoji_id?: string;
+    /** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+    profile_accent_color_id?: number;
+    /** Custom emoji identifier of the emoji chosen by the chat for its profile background */
+    profile_background_custom_emoji_id?: string;
+    /** Custom emoji identifier of the emoji status of the chat or the other party in a private chat */
+    emoji_status_custom_emoji_id?: string;
+    /** Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any */
+    emoji_status_expiration_date?: number;
+    /** Description, for groups, supergroups and channel chats */
+    description?: string;
+    /** Primary invite link, for groups, supergroups and channel chats */
+    invite_link?: string;
+    /** The most recent pinned message (by sending date) */
+    pinned_message?: Message;
+    /** Default chat member permissions, for groups and supergroups */
+    permissions?: ChatPermissions;
+    /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
+    message_auto_delete_time?: number;
+    /** True, if non-administrators can only get the list of bots and administrators in the chat */
+    has_hidden_members?: true;
+    /** True, if messages from the chat can't be forwarded to other chats */
+    has_protected_content?: true;
+    /** True, if new chat members will have access to old messages; available only to chat administrators */
+    has_visible_history?: true;
+    /** True, if the bot can change the group sticker set */
+    can_set_sticker_set?: true;
+  }
+  /** Internal type representing supergroup chats returned from `getChat`. */
+  export interface SupergroupChat extends Chat.SupergroupChat {
+    /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+    accent_color_id: number;
+    /** The maximum number of reactions that can be set on a message in the chat */
+    max_reaction_count: number;
+    /** Chat photo */
+    photo?: ChatPhoto;
+    /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+    active_usernames?: string[];
+    /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
+    available_reactions?: ReactionType[];
+    /** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
+    background_custom_emoji_id?: string;
+    /** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+    profile_accent_color_id?: number;
+    /** Custom emoji identifier of the emoji chosen by the chat for its profile background */
+    profile_background_custom_emoji_id?: string;
+    /** True, if users need to join the supergroup before they can send messages */
+    join_to_send_messages?: true;
+    /** True, if all users directly joining the supergroup need to be approved by supergroup administrators */
+    join_by_request?: true;
+    /** Description, for groups, supergroups and channel chats */
+    description?: string;
+    /** Primary invite link, for groups, supergroups and channel chats */
+    invite_link?: string;
+    /** The most recent pinned message (by sending date) */
+    pinned_message?: Message;
+    /** Default chat member permissions, for groups and supergroups */
+    permissions?: ChatPermissions;
+    /** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
+    can_send_paid_media?: true;
+    /** For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds */
+    slow_mode_delay?: number;
+    /** For supergroups, the minimum number of boosts that a non-administrator user needs to add in order to ignore slow mode and chat permissions */
+    unrestrict_boost_count?: number;
+    /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
+    message_auto_delete_time?: number;
+    /** True, if aggressive anti-spam checks are enabled in the supergroup. The field is only available to chat administrators */
+    has_aggressive_anti_spam_enabled?: true;
+    /** True, if non-administrators can only get the list of bots and administrators in the chat */
+    has_hidden_members?: true;
+    /** True, if messages from the chat can't be forwarded to other chats */
+    has_protected_content?: true;
+    /** True, if new chat members will have access to old messages; available only to chat administrators */
+    has_visible_history?: true;
+    /** For supergroups, name of group sticker set */
+    sticker_set_name?: string;
+    /** True, if the bot can change the group sticker set */
+    can_set_sticker_set?: true;
+    /** For supergroups, the name of the group's custom emoji sticker set. Custom emoji from this set can be used by all users and bots in the group */
+    custom_emoji_sticker_set_name?: string;
+    /** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats */
+    linked_chat_id?: number;
+    /** For supergroups, the location to which the supergroup is connected */
+    location?: ChatLocation;
+  }
+  /** Internal type representing channel chats returned from `getChat`. */
+  export interface ChannelChat extends Chat.ChannelChat {
+    /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+    accent_color_id: number;
+    /** The maximum number of reactions that can be set on a message in the chat */
+    max_reaction_count: number;
+    /** Chat photo */
+    photo?: ChatPhoto;
+    /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+    active_usernames?: string[];
+    /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
+    available_reactions?: ReactionType[];
+    /** Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background */
+    background_custom_emoji_id?: string;
+    /** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+    profile_accent_color_id?: number;
+    /** Custom emoji identifier of the emoji chosen by the chat for its profile background */
+    profile_background_custom_emoji_id?: string;
+    /** Description, for groups, supergroups and channel chats */
+    description?: string;
+    /** Primary invite link, for groups, supergroups and channel chats */
+    invite_link?: string;
+    /** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
+    can_send_paid_media?: true;
+    /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
+    message_auto_delete_time?: number;
+    /** True, if messages from the chat can't be forwarded to other chats */
+    has_protected_content?: true;
+    /** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. */
+    linked_chat_id?: number;
+  }
+}
+
+/** This object contains full information about a chat. */
+export type ChatFullInfo =
+  | ChatFullInfo.PrivateChat
+  | ChatFullInfo.GroupChat
+  | ChatFullInfo.SupergroupChat
+  | ChatFullInfo.ChannelChat;
 
 /** This object represent a user's profile pictures. */
 export interface UserProfilePhotos {
@@ -255,13 +343,17 @@ export interface ChatInviteLink {
   member_limit?: number;
   /** Number of pending join requests created using this link */
   pending_join_request_count?: number;
+  /** The number of seconds the subscription will be active for before the next payment */
+  subscription_period?: number;
+  /** The amount of Telegram Stars a user must pay initially and after each subsequent subscription period to be a member of the chat using the link */
+  subscription_price?: number;
 }
 
 /** Represents the rights of an administrator in a chat. */
 export interface ChatAdministratorRights {
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -275,20 +367,20 @@ export interface ChatAdministratorRights {
   can_change_info: boolean;
   /** True, if the user is allowed to invite new users to the chat */
   can_invite_users: boolean;
-  /** True, if the administrator can post in the channel; channels only */
-  can_post_messages?: boolean;
-  /** True, if the administrator can edit messages of other users and can pin messages; channels only */
-  can_edit_messages?: boolean;
-  /** True, if the user is allowed to pin messages; groups and supergroups only */
-  can_pin_messages?: boolean;
   /** True, if the administrator can post stories to the chat */
-  can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users */
-  can_edit_stories?: boolean;
+  can_post_stories: boolean;
+  /** True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
+  can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
-  can_delete_stories?: boolean;
-  /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
-  can_manage_topics?: boolean;
+  can_delete_stories: boolean;
+  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  can_post_messages: boolean;
+  /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
+  can_edit_messages: boolean;
+  /** True, if the user is allowed to pin messages; for groups and supergroups only */
+  can_pin_messages: boolean;
+  /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
+  can_manage_topics: boolean;
 }
 
 /** This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
@@ -329,7 +421,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_be_edited: boolean;
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -343,20 +435,20 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_change_info: boolean;
   /** True, if the user is allowed to invite new users to the chat */
   can_invite_users: boolean;
-  /** True, if the administrator can post in the channel; channels only */
-  can_post_messages?: boolean;
-  /** True, if the administrator can edit messages of other users and can pin messages; channels only */
-  can_edit_messages?: boolean;
-  /** True, if the user is allowed to pin messages; groups and supergroups only */
-  can_pin_messages?: boolean;
   /** True, if the administrator can post stories to the chat */
-  can_post_stories?: boolean;
-  /** True, if the administrator can edit stories posted by other users */
-  can_edit_stories?: boolean;
+  can_post_stories: boolean;
+  /** True, if the administrator can edit stories posted by other users, post stories to the chat page, pin chat stories, and access the chat's story archive */
+  can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
-  can_delete_stories?: boolean;
-  /** True, if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
-  can_manage_topics?: boolean;
+  can_delete_stories: boolean;
+  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  can_post_messages: boolean;
+  /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
+  can_edit_messages: boolean;
+  /** True, if the user is allowed to pin messages; for groups and supergroups only */
+  can_pin_messages: boolean;
+  /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
+  can_manage_topics: boolean;
   /** Custom title for this user */
   custom_title?: string;
 }
@@ -364,6 +456,8 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 /** Represents a chat member that has no additional privileges or restrictions. */
 export interface ChatMemberMember extends AbstractChatMember {
   status: "member";
+  /** Date when the user's subscription will expire; Unix time */
+  until_date?: number;
 }
 
 /** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
@@ -429,6 +523,8 @@ export interface ChatMemberUpdated {
   new_chat_member: ChatMember;
   /** Chat invite link, which was used by the user to join the chat; for joining by invite link events only. */
   invite_link?: ChatInviteLink;
+  /** True, if the user joined the chat after sending a direct join request without using an invite link and being approved by an administrator */
+  via_join_request?: boolean;
   /** True, if the user joined the chat via a chat folder invite link */
   via_chat_folder_invite_link?: boolean;
 }
@@ -481,6 +577,50 @@ export interface ChatPermissions {
   can_manage_topics?: boolean;
 }
 
+/** Describes the birthdate of a user. */
+export interface Birthdate {
+  /** Day of the user's birth; 1-31 */
+  day: number;
+  /** Month of the user's birth; 1-12 */
+  month: number;
+  /** Optional. Year of the user's birth */
+  year?: number;
+}
+
+/** Contains information about the start page settings of a Telegram Business account. */
+export interface BusinessIntro {
+  /** Title text of the business intro */
+  title?: string;
+  /** Message text of the business intro */
+  message?: string;
+  /** Sticker of the business intro */
+  sticker?: Sticker;
+}
+
+/** Contains information about the location of a Telegram Business account. */
+export interface BusinessLocation {
+  /** Address of the business */
+  address: string;
+  /** Optional. Location of the business */
+  location?: Location;
+}
+
+/** Describes an interval of time during which a business is open. */
+export interface BusinessOpeningHoursInterval {
+  /** The minute's sequence number in a week, starting on Monday, marking the start of the time interval during which the business is open; 0 - 7 * 24 * 60 */
+  opening_minute: number;
+  /** The minute's sequence number in a week, starting on Monday, marking the end of the time interval during which the business is open; 0 - 8 * 24 * 60 */
+  closing_minute: number;
+}
+
+/** Describes the opening hours of a business. */
+export interface BusinessOpeningHours {
+  /** Unique name of the time zone for which the opening hours are defined */
+  time_zone_name: string;
+  /** List of time intervals describing business opening hours */
+  opening_hours: BusinessOpeningHoursInterval[];
+}
+
 /** Represents a location to which a chat is connected. */
 export interface ChatLocation {
   /** The location to which the supergroup is connected. Can't be a live location. */
@@ -493,7 +633,10 @@ export interface ChatLocation {
  * - ReactionTypeEmoji
  * - ReactionTypeCustomEmoji
  */
-export type ReactionType = ReactionTypeEmoji | ReactionTypeCustomEmoji;
+export type ReactionType =
+  | ReactionTypeEmoji
+  | ReactionTypeCustomEmoji
+  | ReactionTypePaid;
 
 export interface AbstractReactionType {
   /** Type of the reaction */
@@ -517,12 +660,43 @@ export interface ReactionTypeCustomEmoji extends AbstractReactionType {
   custom_emoji_id: string;
 }
 
+/** The reaction is paid. */
+export interface ReactionTypePaid extends AbstractReactionType {
+  /** Type of the reaction, always “paid” */
+  type: "paid";
+}
+
 /** Represents a reaction added to a message along with the number of times it was added. */
 export interface ReactionCount {
   /** Type of the reaction */
   type: ReactionType;
   /** Number of times the reaction was added */
   total_count: number;
+}
+
+/** Describes the connection of the bot with a business account. */
+export interface BusinessConnection {
+  /** Unique identifier of the business connection */
+  id: string;
+  /** Business account user that created the business connection */
+  user: User;
+  /** Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
+  user_chat_id: number;
+  /** Date the connection was established in Unix time */
+  date: number;
+  /** True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours */
+  can_reply: boolean;
+  /** True, if the connection is active */
+  is_enabled: boolean;
+}
+
+export interface BusinessMessagesDeleted {
+  /** Unique identifier of the business connection */
+  business_connection_id: string;
+  /** Information about a chat in the business account. The bot may not have access to the chat or the corresponding user. */
+  chat: Chat;
+  /** The list of identifiers of deleted messages in the chat of the business account */
+  message_ids: number[];
 }
 
 /** This object represents a change of a reaction on a message performed by a user. */
@@ -605,13 +779,15 @@ export interface ChatBoostSourceGiftCode extends AbstractChatBoostSource {
   user: User;
 }
 
-/** The boost was obtained by the creation of a Telegram Premium giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription. */
+/** The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways. */
 export interface ChatBoostSourceGiveaway extends AbstractChatBoostSource {
   source: "giveaway";
   /** Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet. */
   giveaway_message_id: number;
-  /** User that won the prize in the giveaway if any. */
+  /** Optional. User that won the prize in the giveaway if any; for Telegram Premium giveaways only */
   user?: User;
+  /** The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only */
+  prize_star_count?: number;
   /** True, if the giveaway was completed, but there was no user to win the prize */
   is_unclaimed?: true;
 }
@@ -632,7 +808,7 @@ export interface ChatBoost {
 export interface ChatBoostUpdated {
   /** Chat which was boosted */
   chat: Chat;
-  /** Infomation about the chat boost */
+  /** Information about the chat boost */
   boost: ChatBoost;
 }
 
@@ -654,6 +830,32 @@ export interface UserChatBoosts {
   boosts: ChatBoost[];
 }
 
+/** Describes the connection of the bot with a business account. */
+export interface BusinessConnection {
+  /** Unique identifier of the business connection */
+  id: string;
+  /** Business account user that created the business connection */
+  user: User;
+  /** Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
+  user_chat_id: number;
+  /** Date the connection was established in Unix time */
+  date: number;
+  /** True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours */
+  can_reply: boolean;
+  /** True, if the connection is active */
+  is_enabled: boolean;
+}
+
+/** This object is received when messages are deleted from a connected business account. */
+export interface BusinessMessagesDeleted {
+  /** Unique identifier of the business connection */
+  business_connection_id: string;
+  /** Information about a chat in the business account. The bot may not have access to the chat or the corresponding user. */
+  chat: Chat;
+  /** The list of identifiers of deleted messages in the chat of the business account */
+  message_ids: number[];
+}
+
 /** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 
 > The maximum file size to download is 20 MB
@@ -667,4 +869,26 @@ export interface File {
   file_size?: number;
   /** File path. Use `https://api.telegram.org/file/bot<token>/<file_path>` to get the file. */
   file_path?: string;
+}
+
+/** This object represents a gift that can be sent by the bot. */
+export interface Gift {
+  /** Unique identifier of the gift */
+  id: string;
+  /** The sticker that represents the gift */
+  sticker: Sticker;
+  /** The number of Telegram Stars that must be paid to send the sticker */
+  star_count: number;
+  /** The number of Telegram Stars that must be paid to upgrade the gift to a unique one */
+  upgrade_star_count?: number;
+  /** The total number of the gifts of this type that can be sent; for limited gifts only */
+  total_count?: number;
+  /** The number of remaining gifts of this type that can be sent; for limited gifts only */
+  remaining_count?: number;
+}
+
+/** This object represent a list of gifts. */
+export interface Gifts {
+  /** The list of gifts */
+  gifts: Gift[];
 }

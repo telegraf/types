@@ -1,5 +1,7 @@
 import type { ChosenInlineResult, InlineQuery } from "./inline.ts";
 import type {
+  BusinessConnection,
+  BusinessMessagesDeleted,
   Chat,
   ChatBoostRemoved,
   ChatBoostUpdated,
@@ -16,7 +18,11 @@ import type {
   Poll,
   PollAnswer,
 } from "./message.ts";
-import type { PreCheckoutQuery, ShippingQuery } from "./payment.ts";
+import type {
+  PaidMediaPurchased,
+  PreCheckoutQuery,
+  ShippingQuery,
+} from "./payment.ts";
 
 export declare namespace Update {
   /** Internal type holding properties that updates in channels share. */
@@ -39,16 +45,15 @@ export declare namespace Update {
   export interface Edited {
     /** Date the message was last edited in Unix time */
     edit_date: number;
-    forward_from?: never;
-    forward_from_chat?: never;
-    forward_from_message_id?: never;
-    forward_signature?: never;
-    forward_sender_name?: never;
-    forward_date?: never;
+  }
+  /** Internal type holding properties that updates about business messages share. */
+  export interface Biz {
+    /** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
+    business_connection_id: string;
   }
 
   export interface AbstractUpdate {
-    /** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This ID becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
+    /** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
     update_id: number;
   }
   export interface MessageUpdate<M extends Message = Message>
@@ -59,7 +64,7 @@ export declare namespace Update {
   export interface EditedMessageUpdate<
     M extends CommonMessageBundle = CommonMessageBundle,
   > extends AbstractUpdate {
-    /** New version of a message that is known to the bot and was edited */
+    /** New version of a message that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot. */
     edited_message: Edited & NonChannel & M;
   }
   export interface ChannelPostUpdate<M extends Message = Message>
@@ -70,8 +75,28 @@ export declare namespace Update {
   export interface EditedChannelPostUpdate<
     M extends CommonMessageBundle = CommonMessageBundle,
   > extends AbstractUpdate {
-    /** New version of a channel post that is known to the bot and was edited */
+    /** New version of a channel post that is known to the bot and was edited. This update may at times be triggered by changes to message fields that are either unavailable or not actively used by your bot. */
     edited_channel_post: Edited & Channel & M;
+  }
+  export interface BusinessConnectionUpdate extends AbstractUpdate {
+    /** The bot was connected to or disconnected from a business account, or a user edited an existing connection with the bot */
+    business_connection: BusinessConnection;
+  }
+  export interface BusinessMessageUpdate<
+    M extends CommonMessageBundle = CommonMessageBundle,
+  > extends AbstractUpdate {
+    /** New message from a connected business account */
+    business_message: New & NonChannel & Biz & M;
+  }
+  export interface EditedBusinessMessageUpdate<
+    M extends CommonMessageBundle = CommonMessageBundle,
+  > extends AbstractUpdate {
+    /** New version of a message from a connected business account */
+    edited_business_message: Edited & NonChannel & Biz & M;
+  }
+  export interface DeletedBusinessMessagesUpdate extends AbstractUpdate {
+    /** Messages were deleted from a connected business account */
+    deleted_business_messages: BusinessMessagesDeleted;
   }
   export interface MessageReactionUpdate extends AbstractUpdate {
     /** A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `"message_reaction"` in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots. */
@@ -102,8 +127,13 @@ export declare namespace Update {
     /** New incoming pre-checkout query. Contains full information about checkout */
     pre_checkout_query: PreCheckoutQuery;
   }
+
+  export interface PurchasedPaidMediaUpdate extends AbstractUpdate {
+    /** A user purchased paid media with a non-empty payload sent by the bot in a non-channel chat */
+    purchased_paid_media: PaidMediaPurchased;
+  }
   export interface PollUpdate extends AbstractUpdate {
-    /** New poll state. Bots receive only updates about stopped polls and polls, which are sent by the bot */
+    /** New poll state. Bots receive only updates about manually stopped polls and polls, which are sent by the bot */
     poll: Poll;
   }
   export interface PollAnswerUpdate extends AbstractUpdate {
@@ -140,6 +170,10 @@ export type Update =
   | Update.ChatMemberUpdate
   | Update.ChosenInlineResultUpdate
   | Update.EditedChannelPostUpdate
+  | Update.BusinessConnectionUpdate
+  | Update.BusinessMessageUpdate
+  | Update.EditedBusinessMessageUpdate
+  | Update.DeletedBusinessMessagesUpdate
   | Update.MessageReactionUpdate
   | Update.MessageReactionCountUpdate
   | Update.EditedMessageUpdate

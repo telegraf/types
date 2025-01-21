@@ -83,8 +83,6 @@ export interface InlineQueryResultArticle {
   reply_markup?: InlineKeyboardMarkup;
   /** URL of the result */
   url?: string;
-  /** Pass True if you don't want the URL to be shown in the message */
-  hide_url?: boolean;
   /** Short description of the result */
   description?: string;
   /** Url of the thumbnail for the result */
@@ -119,6 +117,8 @@ export interface InlineQueryResultPhoto {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -151,6 +151,8 @@ export interface InlineQueryResultGif {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -183,6 +185,8 @@ export interface InlineQueryResultMpeg4Gif {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
@@ -211,6 +215,8 @@ export interface InlineQueryResultVideo {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Video width */
   video_width?: number;
   /** Video height */
@@ -225,9 +231,7 @@ export interface InlineQueryResultVideo {
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to an MP3 audio file. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultAudio {
   /** Type of the result, must be audio */
   type: "audio";
@@ -253,9 +257,7 @@ export interface InlineQueryResultAudio {
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to a voice recording in an .OGG container encoded with OPUS. By default, this voice recording will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the the voice message. */
 export interface InlineQueryResultVoice {
   /** Type of the result, must be voice */
   type: "voice";
@@ -279,9 +281,7 @@ export interface InlineQueryResultVoice {
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to a file. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file. Currently, only .PDF and .ZIP files can be sent using this method. */
 export interface InlineQueryResultDocument {
   /** Type of the result, must be document */
   type: "document";
@@ -313,9 +313,7 @@ export interface InlineQueryResultDocument {
   thumbnail_height?: number;
 }
 
-/** Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a location on a map. By default, the location will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the location. */
 export interface InlineQueryResultLocation {
   /** Type of the result, must be location */
   type: "location";
@@ -329,7 +327,7 @@ export interface InlineQueryResultLocation {
   title: string;
   /** The radius of uncertainty for the location, measured in meters; 0-1500 */
   horizontal_accuracy?: number;
-  /** Period in seconds for which the location can be updated, should be between 60 and 86400. */
+  /** Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
   live_period?: number;
   /** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
   heading?: number;
@@ -347,9 +345,7 @@ export interface InlineQueryResultLocation {
   thumbnail_height?: number;
 }
 
-/** Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a venue. By default, the venue will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the venue. */
 export interface InlineQueryResultVenue {
   /** Type of the result, must be venue */
   type: "venue";
@@ -383,9 +379,7 @@ export interface InlineQueryResultVenue {
   thumbnail_height?: number;
 }
 
-/** Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a contact with a phone number. By default, this contact will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the contact. */
 export interface InlineQueryResultContact {
   /** Type of the result, must be contact */
   type: "contact";
@@ -411,9 +405,7 @@ export interface InlineQueryResultContact {
   thumbnail_height?: number;
 }
 
-/** Represents a Game.
-
-Note: This will only work in Telegram versions released after October 1, 2016. Older clients will not display any inline results if a game result is among them. */
+/** Represents a Game.  */
 export interface InlineQueryResultGame {
   /** Type of the result, must be game */
   type: "game";
@@ -443,6 +435,8 @@ export interface InlineQueryResultCachedPhoto {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -465,6 +459,8 @@ export interface InlineQueryResultCachedGif {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -487,15 +483,15 @@ export interface InlineQueryResultCachedMpeg4Gif {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker.
-
-Note: This will only work in Telegram versions released after 9 April, 2016 for static stickers and after 06 July, 2019 for animated stickers. Older clients will ignore them. */
+/** Represents a link to a sticker stored on the Telegram servers. By default, this sticker will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the sticker. */
 export interface InlineQueryResultCachedSticker {
   /** Type of the result, must be sticker */
   type: "sticker";
@@ -509,9 +505,7 @@ export interface InlineQueryResultCachedSticker {
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to a file stored on the Telegram servers. By default, this file will be sent by the user with an optional caption. Alternatively, you can use input_message_content to send a message with the specified content instead of the file.  */
 export interface InlineQueryResultCachedDocument {
   /** Type of the result, must be document */
   type: "document";
@@ -553,15 +547,15 @@ export interface InlineQueryResultCachedVideo {
   parse_mode?: ParseMode;
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
+  /** Pass True, if the caption must be shown above the message media */
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video */
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to a voice message stored on the Telegram servers. By default, this voice message will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the voice message. */
 export interface InlineQueryResultCachedVoice {
   /** Type of the result, must be voice */
   type: "voice";
@@ -583,9 +577,7 @@ export interface InlineQueryResultCachedVoice {
   input_message_content?: InputMessageContent;
 }
 
-/** Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio.
-
-Note: This will only work in Telegram versions released after 9 April, 2016. Older clients will ignore them. */
+/** Represents a link to an MP3 audio file stored on the Telegram servers. By default, this audio file will be sent by the user. Alternatively, you can use input_message_content to send a message with the specified content instead of the audio. */
 export interface InlineQueryResultCachedAudio {
   /** Type of the result, must be audio */
   type: "audio";
@@ -639,7 +631,7 @@ export interface InputLocationMessageContent {
   longitude: number;
   /** The radius of uncertainty for the location, measured in meters; 0-1500 */
   horizontal_accuracy?: number;
-  /** Period in seconds for which the location can be updated, should be between 60 and 86400. */
+  /** Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
   live_period?: number;
   /** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
   heading?: number;
@@ -685,15 +677,15 @@ export interface InputInvoiceMessageContent {
   title: string;
   /** Product description, 1-255 characters */
   description: string;
-  /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes. */
+  /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
   payload: string;
-  /** Payment provider token, obtained via BotFather */
-  provider_token: string;
-  /** Three-letter ISO 4217 currency code, see more on currencies */
+  /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
+  provider_token?: string;
+  /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
   currency: string;
-  /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.) */
+  /** Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
   prices: LabeledPrice[];
-  /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0 */
+  /** Optional. The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
   max_tip_amount?: number;
   /** An array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
   suggested_tip_amounts?: number[];
@@ -707,19 +699,19 @@ export interface InputInvoiceMessageContent {
   photo_width?: number;
   /** Photo height */
   photo_height?: number;
-  /** Pass True if you require the user's full name to complete the order */
+  /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
   need_name?: boolean;
-  /** Pass True if you require the user's phone number to complete the order */
+  /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
   need_phone_number?: boolean;
-  /** Pass True if you require the user's email address to complete the order */
+  /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
   need_email?: boolean;
-  /** Pass True if you require the user's shipping address to complete the order */
+  /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
   need_shipping_address?: boolean;
-  /** Pass True if the user's phone number should be sent to provider */
+  /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
   send_phone_number_to_provider?: boolean;
-  /** Pass True if the user's email address should be sent to provider */
+  /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
   send_email_to_provider?: boolean;
-  /** Pass True if the final price depends on the shipping method */
+  /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
   is_flexible?: boolean;
 }
 
