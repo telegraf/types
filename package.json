@@ -1,7 +1,7 @@
 {
   "name": "@telegraf/types",
   "private": false,
-  "version": "8.3.0",
+  "version": "8.3.1",
   "description": "Type declarations for the Telegram API",
   "main": "index.js",
   "repository": {

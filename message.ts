@@ -521,7 +521,7 @@ There is no way to specify “underline”, “strikethrough”, “spoiler”, 
 export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 
 export declare namespace MessageEntity {
-  interface AbstractMessageEntity {
+  interface Abstract {
     /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
     type: string;
     /** Offset in UTF-16 code units to the start of the entity */
@@ -529,39 +529,82 @@ export declare namespace MessageEntity {
     /** Length of the entity in UTF-16 code units */
     length: number;
   }
-  export interface CommonMessageEntity extends AbstractMessageEntity {
-    type:
-      | "mention"
-      | "hashtag"
-      | "cashtag"
-      | "bot_command"
-      | "url"
-      | "email"
-      | "phone_number"
-      | "bold"
-      | "blockquote"
-      | "italic"
-      | "underline"
-      | "strikethrough"
-      | "spoiler"
-      | "code";
+
+  export interface Mention extends Abstract {
+    type: "mention";
   }
-  export interface PreMessageEntity extends AbstractMessageEntity {
+
+  export interface Hashtag extends Abstract {
+    type: "hashtag";
+  }
+
+  export interface Cashtag extends Abstract {
+    type: "cashtag";
+  }
+
+  export interface BotCommand extends Abstract {
+    type: "bot_command";
+  }
+
+  export interface Url extends Abstract {
+    type: "url";
+  }
+
+  export interface Email extends Abstract {
+    type: "email";
+  }
+
+  export interface PhoneNumber extends Abstract {
+    type: "phone_number";
+  }
+
+  export interface Bold extends Abstract {
+    type: "bold";
+  }
+
+  export interface Blockquote extends Abstract {
+    type: "blockquote";
+  }
+
+  export interface ExpandableBlockquote extends Abstract {
+    type: "expandable_blockquote";
+  }
+
+  export interface Italic extends Abstract {
+    type: "italic";
+  }
+
+  export interface Underline extends Abstract {
+    type: "underline";
+  }
+
+  export interface Strikethrough extends Abstract {
+    type: "strikethrough";
+  }
+
+  export interface Spoiler extends Abstract {
+    type: "spoiler";
+  }
+
+  export interface Code extends Abstract {
+    type: "code";
+  }
+  export interface PreMessage extends Abstract {
     type: "pre";
     /** For “pre” only, the programming language of the entity text */
     language?: string;
   }
-  export interface TextLinkMessageEntity extends AbstractMessageEntity {
+  export interface TextLink extends Abstract {
     type: "text_link";
     /** For “text_link” only, URL that will be opened after user taps on the text */
     url: string;
   }
-  export interface TextMentionMessageEntity extends AbstractMessageEntity {
+  export interface TextMention extends Abstract {
     type: "text_mention";
     /** For “text_mention” only, the mentioned user */
     user: User;
   }
-  export interface CustomEmojiMessageEntity extends AbstractMessageEntity {
+  export interface CustomEmoji extends Abstract {
     type: "custom_emoji";
     /** For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker */
     custom_emoji_id: string;
@@ -570,11 +613,25 @@ export declare namespace MessageEntity {
 
 /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
 export type MessageEntity =
-  | MessageEntity.CommonMessageEntity
-  | MessageEntity.CustomEmojiMessageEntity
-  | MessageEntity.PreMessageEntity
-  | MessageEntity.TextLinkMessageEntity
-  | MessageEntity.TextMentionMessageEntity;
+  | MessageEntity.Mention
+  | MessageEntity.Hashtag
+  | MessageEntity.Cashtag
+  | MessageEntity.BotCommand
+  | MessageEntity.Url
+  | MessageEntity.Email
+  | MessageEntity.PhoneNumber
+  | MessageEntity.Bold
+  | MessageEntity.Blockquote
+  | MessageEntity.ExpandableBlockquote
+  | MessageEntity.Italic
+  | MessageEntity.Underline
+  | MessageEntity.Strikethrough
+  | MessageEntity.Spoiler
+  | MessageEntity.Code
+  | MessageEntity.PreMessage
+  | MessageEntity.TextLink
+  | MessageEntity.TextMention
+  | MessageEntity.CustomEmoji;
 
 /** This object contains information about the quoted part of a message that is replied to by the given message. */
 export interface TextQuote {
@@ -1007,7 +1064,7 @@ export interface PollOption {
   /** Option text, 1-100 characters */
   text: string;
   /** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
-  text_entities?: MessageEntity.CustomEmojiMessageEntity[];
+  text_entities?: MessageEntity.CustomEmoji[];
   /** Number of users that voted for this option */
   voter_count: number;
 }
@@ -1019,7 +1076,7 @@ export interface InputPollOption {
   /** Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed */
   text_parse_mode?: ParseMode;
   /** A list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode */
-  text_entities?: MessageEntity.CustomEmojiMessageEntity[];
+  text_entities?: MessageEntity.CustomEmoji[];
 }
 
 /** This object represents an answer of a user in a non-anonymous poll. */
@@ -1044,7 +1101,7 @@ export interface Poll {
   /** Poll question, 1-300 characters */
   question: string;
   /** Special entities that appear in the question. Currently, only custom emoji entities are allowed in poll questions */
-  question_entities?: MessageEntity.CustomEmojiMessageEntity[];
+  question_entities?: MessageEntity.CustomEmoji[];
   /** List of poll options */
   options: PollOption[];
   /** Total number of users that voted in the poll */
