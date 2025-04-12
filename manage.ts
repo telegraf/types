@@ -1,4 +1,10 @@
-import type { Location, Message, PhotoSize, Sticker } from "./message.ts";
+import type {
+  Location,
+  Message,
+  MessageEntity,
+  PhotoSize,
+  Sticker,
+} from "./message.ts";
 
 /** Describes the current status of a webhook. */
 export interface WebhookInfo {
@@ -160,6 +166,8 @@ declare namespace ChatFullInfo {
     has_restricted_voice_and_video_messages?: true;
     /** The most recent pinned message (by sending date) */
     pinned_message?: Message;
+    /** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
+    accepted_gift_types?: AcceptedGiftTypes[];
     /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
     message_auto_delete_time?: number;
     /** True, if messages from the chat can't be forwarded to other chats */
@@ -195,6 +203,8 @@ declare namespace ChatFullInfo {
     pinned_message?: Message;
     /** Default chat member permissions, for groups and supergroups */
     permissions?: ChatPermissions;
+    /** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
+    accepted_gift_types?: AcceptedGiftTypes[];
     /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
     message_auto_delete_time?: number;
     /** True, if non-administrators can only get the list of bots and administrators in the chat */
@@ -236,6 +246,8 @@ declare namespace ChatFullInfo {
     pinned_message?: Message;
     /** Default chat member permissions, for groups and supergroups */
     permissions?: ChatPermissions;
+    /** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
+    accepted_gift_types?: AcceptedGiftTypes[];
     /** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
     can_send_paid_media?: true;
     /** For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds */
@@ -285,6 +297,10 @@ declare namespace ChatFullInfo {
     description?: string;
     /** Primary invite link, for groups, supergroups and channel chats */
     invite_link?: string;
+    /** The most recent pinned message (by sending date) */
+    pinned_message?: Message;
+    /** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
+    accepted_gift_types?: AcceptedGiftTypes[];
     /** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
     can_send_paid_media?: true;
     /** The time after which all messages sent to the chat will be automatically deleted; in seconds */
@@ -621,6 +637,102 @@ export interface BusinessOpeningHours {
   opening_hours: BusinessOpeningHoursInterval[];
 }
 
+/** Describes the position of a clickable area within a story. */
+export interface StoryAreaPosition {
+  /** The abscissa of the area's center, as a percentage of the media width */
+  x_percentage: number;
+  /** The ordinate of the area's center, as a percentage of the media height */
+  y_percentage: number;
+  /** The width of the area's rectangle, as a percentage of the media width */
+  width_percentage: number;
+  /** The height of the area's rectangle, as a percentage of the media height */
+  height_percentage: number;
+  /** The clockwise rotation angle of the rectangle, in degrees; 0-360 */
+  rotation_angle: number;
+  /** The radius of the rectangle corner rounding, as a percentage of the media width */
+  corner_radius_percentage: number;
+}
+
+/** Describes the physical address of a location. */
+export interface LocationAddress {
+  /** The two-letter ISO 3166-1 alpha-2 country code of the country where the location is located */
+  country_code: string;
+  /** State of the location */
+  state?: string;
+  /** City of the location */
+  city?: string;
+  /** Street address of the location */
+  street?: string;
+}
+
+/** Describes the type of a clickable area on a story. Currently, it can be one of */
+export type StoryAreaType =
+  | StoryAreaTypeLocation
+  | StoryAreaTypeSuggestedReaction
+  | StoryAreaTypeLink
+  | StoryAreaTypeWeather
+  | StoryAreaTypeUniqueGift;
+
+/** Describes a story area pointing to a location. Currently, a story can have up to 10 location areas. */
+export interface StoryAreaTypeLocation {
+  /** Type of the area, always “location” */
+  type: "location";
+  /** Location latitude in degrees */
+  latitude: number;
+  /** Location longitude in degrees */
+  longitude: number;
+  /** Address of the location */
+  address?: LocationAddress;
+}
+
+/** Describes a story area pointing to a suggested reaction. Currently, a story can have up to 5 suggested reaction areas. */
+export interface StoryAreaTypeSuggestedReaction {
+  /** Type of the area, always “suggested_reaction” */
+  type: "suggested_reaction";
+  /** Type of the reaction */
+  reaction_type: ReactionType;
+  /** Pass True if the reaction area has a dark background */
+  is_dark?: boolean;
+  /** Pass True if reaction area corner is flipped */
+  is_flipped?: boolean;
+}
+
+/** Describes a story area pointing to an HTTP or tg:// link. Currently, a story can have up to 3 link areas. */
+export interface StoryAreaTypeLink {
+  /** Type of the area, always “link” */
+  type: "link";
+  /** HTTP or tg:// URL to be opened when the area is clicked */
+  url: string;
+}
+
+/** Describes a story area containing weather information. Currently, a story can have up to 3 weather areas. */
+export interface StoryAreaTypeWeather {
+  /** Type of the area, always “weather” */
+  type: "weather";
+  /** Temperature, in degree Celsius */
+  temperature: number;
+  /** Emoji representing the weather */
+  emoji: string;
+  /** A color of the area background in the ARGB format */
+  background_color: number;
+}
+
+/** Describes a story area pointing to a unique gift. Currently, a story can have at most 1 unique gift area. */
+export interface StoryAreaTypeUniqueGift {
+  /** Type of the area, always “unique_gift” */
+  type: "unique_gift";
+  /** Unique name of the gift */
+  name: string;
+}
+
+/** Describes a clickable area on a story media. */
+export interface StoryArea {
+  /** Position of the area */
+  position: StoryAreaPosition;
+  /** Type of the area */
+  type: StoryAreaType;
+}
+
 /** Represents a location to which a chat is connected. */
 export interface ChatLocation {
   /** The location to which the supergroup is connected. Can't be a live location. */
@@ -674,6 +786,38 @@ export interface ReactionCount {
   total_count: number;
 }
 
+/** Represents the rights of a business bot. */
+export interface BusinessBotRights {
+  /** True, if the bot can send and edit messages in the private chats that had incoming messages in the last 24 hours */
+  can_reply?: true;
+  /** True, if the bot can mark incoming private messages as read */
+  can_read_messages?: true;
+  /** True, if the bot can delete messages sent by the bot */
+  can_delete_outgoing_messages?: true;
+  /** True, if the bot can delete all private messages in managed chats */
+  can_delete_all_messages?: true;
+  /** True, if the bot can edit the first and last name of the business account */
+  can_edit_name?: true;
+  /** True, if the bot can edit the bio of the business account */
+  can_edit_bio?: true;
+  /** True, if the bot can edit the profile photo of the business account */
+  can_edit_profile_photo?: true;
+  /** True, if the bot can edit the username of the business account */
+  can_edit_username?: true;
+  /** True, if the bot can change the privacy settings pertaining to gifts for the business account */
+  can_change_gift_settings?: true;
+  /** True, if the bot can view gifts and the amount of Telegram Stars owned by the business account */
+  can_view_gifts_and_stars?: true;
+  /** True, if the bot can convert regular gifts owned by the business account to Telegram Stars */
+  can_convert_gifts_to_stars?: true;
+  /** True, if the bot can transfer and upgrade gifts owned by the business account */
+  can_transfer_and_upgrade_gifts?: true;
+  /** True, if the bot can transfer Telegram Stars received by the business account to its own account, or use them to upgrade and transfer gifts */
+  can_transfer_stars?: true;
+  /** True, if the bot can post, edit and delete stories on behalf of the business account */
+  can_manage_stories?: true;
+}
+
 /** Describes the connection of the bot with a business account. */
 export interface BusinessConnection {
   /** Unique identifier of the business connection */
@@ -684,8 +828,8 @@ export interface BusinessConnection {
   user_chat_id: number;
   /** Date the connection was established in Unix time */
   date: number;
-  /** True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours */
-  can_reply: boolean;
+  /** Rights of the business bot */
+  rights?: BusinessBotRights;
   /** True, if the connection is active */
   is_enabled: boolean;
 }
@@ -891,4 +1035,147 @@ export interface Gift {
 export interface Gifts {
   /** The list of gifts */
   gifts: Gift[];
+}
+
+/** This object describes the model of a unique gift. */
+export interface UniqueGiftModel {
+  /** Name of the model */
+  name: string;
+  /** The sticker that represents the unique gift */
+  sticker: Sticker;
+  /** The number of unique gifts that receive this model for every 1000 gifts upgraded */
+  rarity_per_mille: number;
+}
+
+/** This object describes the symbol shown on the pattern of a unique gift. */
+export interface UniqueGiftSymbol {
+  /** Name of the symbol */
+  name: string;
+  /** The sticker that represents the unique gift */
+  sticker: Sticker;
+  /** The number of unique gifts that receive this model for every 1000 gifts upgraded */
+  rarity_per_mille: number;
+}
+
+/** This object describes the colors of the backdrop of a unique gift. */
+export interface UniqueGiftBackdropColors {
+  /** The color in the center of the backdrop in RGB format */
+  center_color: number;
+  /** The color on the edges of the backdrop in RGB format */
+  edge_color: number;
+  /** The color to be applied to the symbol in RGB format */
+  symbol_color: number;
+  /** The color for the text on the backdrop in RGB format */
+  text_color: number;
+}
+
+/** This object describes the backdrop of a unique gift. */
+export interface UniqueGiftBackdrop {
+  /** Name of the backdrop */
+  name: string;
+  /** Colors of the backdrop */
+  colors: UniqueGiftBackdropColors;
+  /** The number of unique gifts that receive this backdrop for every 1000 gifts upgraded */
+  rarity_per_mille: number;
+}
+
+/** This object describes a unique gift that was upgraded from a regular gift. */
+export interface UniqueGift {
+  /** Human-readable name of the regular gift from which this unique gift was upgraded */
+  base_name: string;
+  /** Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas */
+  name: string;
+  /** Unique number of the upgraded gift among gifts upgraded from the same regular gift */
+  number: number;
+  /** Model of the gift */
+  model: UniqueGiftModel;
+  /** Symbol of the gift */
+  symbol: UniqueGiftSymbol;
+  /** Backdrop of the gift */
+  backdrop: UniqueGiftBackdrop;
+}
+
+/** This object describes a gift received and owned by a user or a chat. Currently, it can be one of
+ * - OwnedGiftRegular
+ * - OwnedGiftUnique. */
+export type OwnedGift = OwnedGiftRegular | OwnedGiftUnique;
+
+/** Describes a regular gift owned by a user or a chat. */
+export interface OwnedGiftRegular {
+  /** Type of the gift, always “regular” */
+  type: "regular";
+  /** Information about the regular gift */
+  gift: Gift;
+  /** Unique identifier of the gift for the bot; for gifts received on behalf of business accounts only */
+  owned_gift_id?: string;
+  /** Sender of the gift if it is a known user */
+  sender_user?: User;
+  /** Date the gift was sent in Unix time */
+  send_date: number;
+  /** Text of the message that was added to the gift */
+  text?: string;
+  /** Special entities that appear in the text */
+  entities?: MessageEntity[];
+  /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
+  is_private?: boolean;
+  /** True, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only */
+  is_saved?: boolean;
+  /** True, if the gift can be upgraded to a unique gift; for gifts received on behalf of business accounts only */
+  can_be_upgraded?: boolean;
+  /** True, if the gift was refunded and isn't available anymore */
+  was_refunded?: boolean;
+  /** Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars */
+  convert_star_count?: number;
+  /** Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift */
+  prepaid_upgrade_star_count?: number;
+}
+
+/** Describes a unique gift received and owned by a user or a chat. */
+export interface OwnedGiftUnique {
+  /** Type of the gift, always “unique” */
+  type: "unique";
+  /** Information about the unique gift */
+  gift: UniqueGift;
+  /** Unique identifier of the received gift for the bot; for gifts received on behalf of business accounts only */
+  owned_gift_id?: string;
+  /** Sender of the gift if it is a known user */
+  sender_user?: User;
+  /** Date the gift was sent in Unix time */
+  send_date: number;
+  /** True, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only */
+  is_saved?: boolean;
+  /** True, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only */
+  can_be_transferred?: boolean;
+  /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
+  transfer_star_count?: number;
+}
+
+/** Contains the list of gifts received and owned by a user or a chat. */
+export interface OwnedGifts {
+  /** The total number of gifts owned by the user or the chat */
+  total_count: number;
+  /** The list of gifts */
+  gifts: OwnedGift[];
+  /** Offset for the next request. If empty, then there are no more results */
+  next_offset?: string;
+}
+
+/** This object describes the types of gifts that can be gifted to a user or a chat. */
+export interface AcceptedGiftTypes {
+  /** True, if unlimited regular gifts are accepted */
+  unlimited_gifts: boolean;
+  /** True, if limited regular gifts are accepted */
+  limited_gifts: boolean;
+  /** True, if unique gifts or gifts that can be upgraded to unique for free are accepted */
+  unique_gifts: boolean;
+  /** True, if a Telegram Premium subscription is accepted */
+  premium_subscription: boolean;
+}
+
+/** Describes an amount of Telegram Stars. */
+export interface StarAmount {
+  /** Integer amount of Telegram Stars, rounded to 0; can be negative */
+  amount: number;
+  /** Optional. The number of 1/1000000000 shares of Telegram Stars; from -999999999 to 999999999; can be negative if and only if amount is non-positive */
+  nanostar_amount?: number;
 }

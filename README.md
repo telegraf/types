@@ -1,10 +1,8 @@
-# Types for the Telegram Bot API [![Deno shield](https://img.shields.io/static/v1?label=Built%20for&message=Deno&style=flat-square&logo=deno&labelColor=000&color=fff)](https://deno.land/x/telegraf_types)
+# Types for the Telegram Bot API
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v8.3-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v9.0-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
 
-This project is a fork of [@KnorpelSenf/typegram](https://github.com/KnorpelSenf/typegram), specialised for Telegraf. Typegram is legacy, and now backported from [@grammyjs/types](https://github.com/grammyjs/types).
-
-This fork keeps Telegram Bot API types updated for Telegraf. This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api).
+This project keeps Telegram Bot API types updated for Telegraf. This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api).
 
 It contains zero bytes of executable code.
 
@@ -110,4 +108,4 @@ This project is written for Deno and built for Node. Running `npm prepare` runs 
 
 ## Where do the types come from
 
-They're handwritten. Typegram was started by [@KnorpelSenf](https://github.com/KnorpelSenf), who eventually used it as a starting point for [the grammY types package](https://github.com/grammyjs/types). `@telegraf/types` is based on both packages, and regularly syncs with them and the Bot API.
+They're handwritten. [Typegram](https://github.com/KnorpelSenf/typegram) was started by [@KnorpelSenf](https://github.com/KnorpelSenf), who eventually used it as a starting point for grammY's [types](https://github.com/grammyjs/types) package. `@telegraf/types` started as a fork of Typegram, specialised for Telegraf. It is now independently maintained and updated from the Bot API directly.
