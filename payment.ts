@@ -201,25 +201,65 @@ export type TransactionPartner =
   | TransactionPartnerTelegramApi
   | TransactionPartnerOther;
 
-/** Describes a transaction with a user. */
-export interface TransactionPartnerUser {
-  /** Type of the transaction partner, always “user” */
-  type: "user";
-  /** Information about the user */
-  user: User;
-  /** Information about the affiliate that received a commission via this transaction */
-  affiliate?: AffiliateInfo;
-  /** Bot-specified invoice payload */
-  invoice_payload?: string;
-  /** The duration of the paid subscription */
-  subscription_period?: number;
-  /** Information about the paid media bought by the user */
-  paid_media?: PaidMedia[];
-  /** Bot-specified paid media payload */
-  paid_media_payload?: string;
-  /** The gift sent to the user by the bot */
-  gift?: Gift;
+export declare namespace TransactionPartnerUser {
+  export interface Abstract {
+    /** Type of the transaction partner, always “user” */
+    type: "user";
+    /** Type of the transaction, currently one of “invoice_payment” for payments via invoices, “paid_media_payment” for payments for paid media, “gift_purchase” for gifts sent by the bot, “premium_purchase” for Telegram Premium subscriptions gifted by the bot, “business_account_transfer” for direct transfers from managed business accounts */
+    transaction_type:
+      | "invoice_payment"
+      | "paid_media_payment"
+      | "gift_purchase"
+      | "premium_purchase"
+      | "business_account_transfer";
+    /** Information about the user */
+    user: User;
+  }
+
+  export interface InvoicePayment extends Abstract {
+    transaction_type: "invoice_payment";
+    /** Information about the affiliate that received a commission via this transaction. Can be available only for “invoice_payment” and “paid_media_payment” transactions. */
+    affiliate?: AffiliateInfo;
+    /** Bot-specified invoice payload. Can be available only for “invoice_payment” transactions. */
+    invoice_payload?: string;
+    /** The duration of the paid subscription. Can be available only for “invoice_payment” transactions. */
+    subscription_period?: number;
+  }
+
+  export interface PaidMediaPayment extends Abstract {
+    transaction_type: "paid_media_payment";
+    /** Information about the affiliate that received a commission via this transaction. Can be available only for “invoice_payment” and “paid_media_payment” transactions. */
+    affiliate?: AffiliateInfo;
+    /** Information about the paid media bought by the user; for “paid_media_payment” transactions only */
+    paid_media?: PaidMedia[];
+    /** Bot-specified paid media payload. Can be available only for “paid_media_payment” transactions. */
+    paid_media_payload?: string;
+  }
+
+  export interface GiftPurchase extends Abstract {
+    transaction_type: "gift_purchase";
+    /** The gift sent to the user by the bot; for “gift_purchase” transactions only */
+    gift?: Gift;
+  }
+
+  export interface PremiumPurchase extends Abstract {
+    transaction_type: "premium_purchase";
+    /** Number of months the gifted Telegram Premium subscription will be active for; for “premium_purchase” transactions only */
+    premium_subscription_duration?: number;
+  }
+
+  export interface BusinessAccountTransfer extends Abstract {
+    transaction_type: "business_account_transfer";
+  }
 }
+
+/** Describes a transaction with a user. */
+export type TransactionPartnerUser =
+  | TransactionPartnerUser.InvoicePayment
+  | TransactionPartnerUser.PaidMediaPayment
+  | TransactionPartnerUser.GiftPurchase
+  | TransactionPartnerUser.PremiumPurchase
+  | TransactionPartnerUser.BusinessAccountTransfer;
 
 /** Describes a transaction with a chat. */
 export interface TransactionPartnerChat {

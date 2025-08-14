@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-irregular-whitespace
-import type { Chat, File, User } from "./manage.ts";
+import type { Chat, File, Gift, UniqueGift, User } from "./manage.ts";
 import type { InlineKeyboardMarkup } from "./markup.ts";
 import type { PassportData } from "./passport.ts";
 import type { Invoice, RefundedPayment, SuccessfulPayment } from "./payment.ts";
@@ -48,6 +48,8 @@ export declare namespace Message {
     is_from_offline?: true;
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string;
+    /** The number of Telegram Stars that were paid by the sender of the message to send it */
+    paid_star_count?: number;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
     link_preview_options?: LinkPreviewOptions;
     /** Unique identifier of the message effect added to the message */
@@ -217,6 +219,14 @@ export declare namespace Message {
     /** Service message: a chat was shared with the bot */
     chat_shared: ChatShared;
   }
+  export interface GiftMessage extends ServiceMessage {
+    /** Service message: a regular gift was sent or received */
+    gift: GiftInfo;
+  }
+  export interface UniqueGiftMessage extends ServiceMessage {
+    /** Service message: a unique gift was sent or received */
+    unique_gift: UniqueGiftInfo;
+  }
   export interface ConnectedWebsiteMessage extends ServiceMessage {
     /** The domain name of the website on which the user has logged in. More about Telegram Login » */
     connected_website: string;
@@ -281,6 +291,10 @@ export declare namespace Message {
     /** Service message: a giveaway without public winners was completed */
     giveaway_completed: GiveawayCompleted;
   }
+  export interface PaidMessagePriceChangedMessage extends ServiceMessage {
+    /** Service message: the price for paid messages has changed in the chat */
+    paid_message_price_changed: PaidMessagePriceChanged;
+  }
   export interface VideoChatScheduledMessage extends ServiceMessage {
     /** Service message: video chat scheduled */
     video_chat_scheduled: VideoChatScheduled;
@@ -321,6 +335,8 @@ export type ServiceMessageBundle =
   | Message.SuccessfulPaymentMessage
   | Message.UsersSharedMessage
   | Message.ChatSharedMessage
+  | Message.GiftMessage
+  | Message.UniqueGiftMessage
   | Message.ConnectedWebsiteMessage
   | Message.WriteAccessAllowedMessage
   | Message.PassportDataMessage
@@ -950,6 +966,10 @@ export interface Video {
   duration: number;
   /** Video thumbnail */
   thumbnail?: PhotoSize;
+  /** Available sizes of the cover of the video in the message */
+  cover?: PhotoSize[];
+  /** Timestamp in seconds from which the video will play in the message */
+  start_timestamp?: number;
   /** Original filename as defined by the sender */
   file_name?: string;
   /** MIME type of the file as defined by the sender */
@@ -1368,6 +1388,38 @@ export interface ChatShared {
   photo?: PhotoSize[];
 }
 
+/** Describes a service message about a regular gift that was sent or received. */
+export interface GiftInfo {
+  /** Information about the gift */
+  gift: Gift;
+  /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
+  owned_gift_id?: string;
+  /** Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible */
+  convert_star_count?: number;
+  /** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
+  prepaid_upgrade_star_count?: number;
+  /** True, if the gift can be upgraded to a unique gift */
+  can_be_upgraded?: boolean;
+  /** Text of the message that was added to the gift */
+  text?: string;
+  /** Special entities that appear in the text */
+  entities?: MessageEntity[];
+  /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
+  is_private?: boolean;
+}
+
+/** Describes a service message about a unique gift that was sent or received. */
+export interface UniqueGiftInfo {
+  /** Information about the gift */
+  gift: UniqueGift;
+  /** Origin of the gift. Currently, either “upgrade” or “transfer” */
+  origin: string;
+  /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
+  owned_gift_id?: string;
+  /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
+  transfer_star_count?: number;
+}
+
 /** This object represents a service message about a user allowing a bot to write messages after adding the bot to the attachment menu or launching a Web App from a link. */
 export interface WriteAccessAllowed {
   /** True, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess */
@@ -1465,6 +1517,11 @@ export interface GiveawayCompleted {
   unclaimed_prize_count?: number;
   /** Message with the giveaway that was completed, if it wasn't deleted */
   giveaway_message?: Message;
+}
+
+export interface PaidMessagePriceChanged {
+  /** The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message */
+  paid_message_star_count: number;
 }
 
 /** Describes the options used for link preview generation. */
