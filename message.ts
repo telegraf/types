@@ -1,5 +1,15 @@
 // deno-lint-ignore-file no-irregular-whitespace
-import type { Chat, File, Gift, UniqueGift, User } from "./manage.ts";
+import type {
+  Chat,
+  DirectMessagesTopic,
+  File,
+  Gift,
+  StarAmount,
+  SuggestedPostInfo,
+  SuggestedPostPrice,
+  UniqueGift,
+  User,
+} from "./manage.ts";
 import type { InlineKeyboardMarkup } from "./markup.ts";
 import type { PassportData } from "./passport.ts";
 import type { Invoice, RefundedPayment, SuccessfulPayment } from "./payment.ts";
@@ -11,6 +21,8 @@ export declare namespace Message {
     /** Unique identifier of a message thread or a forum topic to which the message belongs; for supergroups only */
     message_thread_id?: number;
     /** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
+    /** Information about the direct messages chat topic that contains the message */
+    direct_messages_topic?: DirectMessagesTopic;
     from?: User;
     /** Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
     sender_chat?: Chat;
@@ -38,6 +50,8 @@ export declare namespace Message {
     quote?: TextQuote;
     /** For replies to a story, the original story */
     reply_to_story?: Story;
+    /** Identifier of the specific checklist task that is being replied to */
+    reply_to_checklist_task_id?: number;
     /** Bot through which the message was sent */
     via_bot?: User;
     /** Date the message was last edited in Unix time */
@@ -46,12 +60,16 @@ export declare namespace Message {
     has_protected_content?: true;
     /** True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message */
     is_from_offline?: true;
+    /** True, if the message is a paid post. Note that such posts must not be deleted for 24 hours to receive the payment and can't be edited. */
+    is_paid_post?: true;
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string;
     /** The number of Telegram Stars that were paid by the sender of the message to send it */
     paid_star_count?: number;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
     link_preview_options?: LinkPreviewOptions;
+    /** Information about suggested post parameters if the message is a suggested post in a channel direct messages chat. If the message is an approved or declined suggested post, then it can't be edited. */
+    suggested_post_info?: SuggestedPostInfo;
     /** Unique identifier of the message effect added to the message */
     effect_id?: string;
     /** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
@@ -126,6 +144,10 @@ export declare namespace Message {
   export interface VoiceMessage extends CaptionableMessage {
     /** Message is a voice message, information about the file */
     voice: Voice;
+  }
+  export interface ChecklistMessage extends CommonMessage {
+    /** Message is a checklist */
+    checklist: Checklist;
   }
   export interface ContactMessage extends CommonMessage {
     /** Message is a shared contact, information about the contact */
@@ -251,6 +273,18 @@ export declare namespace Message {
     /** Service message: chat background set */
     chat_background_set: ChatBackground;
   }
+  export interface ChecklistTasksDoneMessage extends ServiceMessage {
+    /** Service message: some tasks in a checklist were marked as done or not done */
+    checklist_tasks_done: ChecklistTasksDone;
+  }
+  export interface ChecklistTasksAddedMessage extends ServiceMessage {
+    /** Service message: tasks were added to a checklist */
+    checklist_tasks_added: ChecklistTasksAdded;
+  }
+  export interface DirectMessagePriceChangedMessage extends ServiceMessage {
+    /** Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed */
+    direct_message_price_changed: DirectMessagePriceChanged;
+  }
   export interface ForumTopicCreatedMessage extends ServiceMessage {
     /** Service message: forum topic created */
     forum_topic_created: ForumTopicCreated;
@@ -294,6 +328,26 @@ export declare namespace Message {
   export interface PaidMessagePriceChangedMessage extends ServiceMessage {
     /** Service message: the price for paid messages has changed in the chat */
     paid_message_price_changed: PaidMessagePriceChanged;
+  }
+  export interface SuggestedPostApprovedMessage extends ServiceMessage {
+    /** Service message: a suggested post was approved */
+    suggested_post_approved: SuggestedPostApproved;
+  }
+  export interface SuggestedPostApprovalFailedMessage extends ServiceMessage {
+    /** Service message: approval of a suggested post has failed */
+    suggested_post_approval_failed: SuggestedPostApprovalFailed;
+  }
+  export interface SuggestedPostDeclinedMessage extends ServiceMessage {
+    /** Service message: a suggested post was declined */
+    suggested_post_declined: SuggestedPostDeclined;
+  }
+  export interface SuggestedPostPaidMessage extends ServiceMessage {
+    /** Service message: payment for a suggested post was received */
+    suggested_post_paid: SuggestedPostPaid;
+  }
+  export interface SuggestedPostRefundedMessage extends ServiceMessage {
+    /** Service message: payment for a suggested post was refunded */
+    suggested_post_refunded: SuggestedPostRefunded;
   }
   export interface VideoChatScheduledMessage extends ServiceMessage {
     /** Service message: video chat scheduled */
@@ -478,7 +532,7 @@ Please note:
 - Inside `pre` and `code` entities, all '`' and '\' characters must be escaped with a preceding '\' character.
 - Inside the `(...)` part of the inline link and custom emoji definition, all ')' and '\' must be escaped with a preceding '\' character.
 - In all other places characters '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!' must be escaped with the preceding character '\'.
-In case of ambiguity between italic and underline entities __ is always greadily treated from left to right as beginning or end of an underline entity, so instead of ___italic underline___ use ___italic underline_**__, adding an empty bold entity as a separator.
+In case of ambiguity between italic and underline entities __ is always greedily treated from left to right as beginning or end of an underline entity, so instead of ___italic underline___ use ___italic underline_**__, adding an empty bold entity as a separator.
 - A valid emoji must be provided as an alternative value for the custom emoji. The emoji will be shown instead of the custom emoji in places where a custom emoji cannot be displayed (e.g., system notifications) or if the message is forwarded by a non-premium user. It is recommended to use the emoji from the emoji field of the custom emoji sticker.
 - Custom emoji entities can only be used by bots that purchased additional usernames on Fragment.
 
@@ -802,7 +856,7 @@ export type ExternalReplyInfo =
 export interface ReplyParameters {
   /** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified */
   message_id: number;
-  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account. */
+  /** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats. */
   chat_id?: number | string;
   /** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account. */
   allow_sending_without_reply?: boolean;
@@ -814,6 +868,8 @@ export interface ReplyParameters {
   quote_entities?: MessageEntity[];
   /** Position of the quote in the original message in UTF-16 code units */
   quote_position?: number;
+  /** Identifier of the specific checklist task to be replied to */
+  checklist_task_id?: number;
 }
 
 /** This object describes the origin of a message. It can be one of
@@ -1056,6 +1112,94 @@ export type PaidMedia =
   | PaidMedia.PaidMediaPreview
   | PaidMedia.PaidMediaPhoto
   | PaidMedia.PaidMediaVideo;
+
+/** Describes a task in a checklist. */
+export interface ChecklistTask {
+  /** Unique identifier of the task */
+  id: number;
+  /** Text of the task */
+  text: string;
+  /** Special entities that appear in the task text */
+  text_entities?: MessageEntity[];
+  /** User that completed the task; omitted if the task wasn't completed */
+  completed_by_user?: User;
+  /** Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed */
+  completion_date?: number;
+}
+
+/** Describes a checklist. */
+export interface Checklist {
+  /** Title of the checklist */
+  title: string;
+  /** Special entities that appear in the checklist title */
+  title_entities?: MessageEntity[];
+  /** List of tasks in the checklist */
+  tasks: ChecklistTask[];
+  /** True, if users other than the creator of the list can add tasks to the list */
+  others_can_add_tasks?: true;
+  /** True, if users other than the creator of the list can mark tasks as done or not done */
+  others_can_mark_tasks_as_done?: true;
+}
+
+/** Describes a task to add to a checklist. */
+export interface InputChecklistTask {
+  /** Unique identifier of the task; must be positive and unique among all task identifiers currently present in the checklist */
+  id: number;
+  /** Text of the task; 1-100 characters after entities parsing */
+  text: string;
+  /** Mode for parsing entities in the text. See formatting options for more details. */
+  parse_mode?: ParseMode;
+  /** List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+  text_entities?: (
+    | MessageEntity.Bold
+    | MessageEntity.Italic
+    | MessageEntity.Underline
+    | MessageEntity.Strikethrough
+    | MessageEntity.Spoiler
+    | MessageEntity.CustomEmoji
+  )[];
+}
+
+/** Describes a checklist to create. */
+export interface InputChecklist {
+  /** Title of the checklist; 1-255 characters after entities parsing */
+  title: string;
+  /** Mode for parsing entities in the title. See formatting options for more details. */
+  parse_mode?: ParseMode;
+  /** List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+  title_entities?: (
+    | MessageEntity.Bold
+    | MessageEntity.Italic
+    | MessageEntity.Underline
+    | MessageEntity.Strikethrough
+    | MessageEntity.Spoiler
+    | MessageEntity.CustomEmoji
+  )[];
+  /** List of 1-30 tasks in the checklist */
+  tasks: InputChecklistTask[];
+  /** Pass True if other users can add tasks to the checklist */
+  others_can_add_tasks?: boolean;
+  /** Pass True if other users can mark tasks as done or not done in the checklist */
+  others_can_mark_tasks_as_done?: boolean;
+}
+
+/** Describes a service message about checklist tasks marked as done or not done. */
+export interface ChecklistTasksDone {
+  /** Message containing the checklist whose tasks were marked as done or not done. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  checklist_message?: Message;
+  /** Identifiers of the tasks that were marked as done */
+  marked_as_done_task_ids?: number[];
+  /** Identifiers of the tasks that were marked as not done */
+  marked_as_not_done_task_ids?: number[];
+}
+
+/** Describes a service message about tasks added to a checklist. */
+export interface ChecklistTasksAdded {
+  /** Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  checklist_message?: Message;
+  /** List of tasks added to the checklist */
+  tasks: ChecklistTask[];
+}
 
 /** This object represents a phone contact. */
 export interface Contact {
@@ -1412,12 +1556,16 @@ export interface GiftInfo {
 export interface UniqueGiftInfo {
   /** Information about the gift */
   gift: UniqueGift;
-  /** Origin of the gift. Currently, either “upgrade” or “transfer” */
-  origin: string;
+  /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
+  origin: "upgrade" | "transfer" | "resale";
+  /** For gifts bought from other users, the price paid for the gift */
+  last_resale_star_count?: number;
   /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
   owned_gift_id?: string;
   /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
   transfer_star_count?: number;
+  /** Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now */
+  next_transfer_date?: number;
 }
 
 /** This object represents a service message about a user allowing a bot to write messages after adding the bot to the attachment menu or launching a Web App from a link. */
@@ -1509,6 +1657,65 @@ export interface GiveawayWinners {
   is_star_giveaway?: true;
 }
 
+export interface PaidMessagePriceChanged {
+  /** The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message */
+  paid_message_star_count: number;
+}
+
+/** Describes a service message about a change in the price of direct messages sent to a channel chat. */
+export interface DirectMessagePriceChanged {
+  /** True, if direct messages are enabled for the channel chat; false otherwise */
+  are_direct_messages_enabled: boolean;
+  /** The new number of Telegram Stars that must be paid by users for each direct message sent to the channel. Does not apply to users who have been exempted by administrators. Defaults to 0. */
+  direct_message_star_count: number;
+}
+
+/** Describes a service message about the approval of a suggested post. */
+export interface SuggestedPostApproved {
+  /** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  suggested_post_message?: Message;
+  /** Amount paid for the post */
+  price?: SuggestedPostPrice;
+  /** Date when the post will be published */
+  send_date: number;
+}
+
+/** Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval. */
+export interface SuggestedPostApprovalFailed {
+  /** Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  suggested_post_message?: Message;
+  /** Expected price of the post */
+  price?: SuggestedPostPrice;
+}
+
+/** Describes a service message about the rejection of a suggested post. */
+export interface SuggestedPostDeclined {
+  /** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  suggested_post_message?: Message;
+  /** Comment with which the post was declined */
+  comment?: string;
+}
+
+/** Describes a service message about a successful payment for a suggested post. */
+export interface SuggestedPostPaid {
+  /** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  suggested_post_message?: Message;
+  /** Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins */
+  currency: string;
+  /** The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only */
+  amount?: number;
+  /** The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only */
+  star_amount?: StarAmount;
+}
+
+/** Describes a service message about a payment refund for a suggested post. */
+export interface SuggestedPostRefunded {
+  /** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+  suggested_post_message?: Message;
+  /** Reason for the refund. Currently, one of “post_deleted” if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or “payment_refunded” if the payer refunded their payment. */
+  reason: "post_deleted" | "payment_refunded";
+}
+
 /** This object represents a service message about the completion of a giveaway without public winners. */
 export interface GiveawayCompleted {
   /** Number of winners in the giveaway */
@@ -1518,12 +1725,6 @@ export interface GiveawayCompleted {
   /** Message with the giveaway that was completed, if it wasn't deleted */
   giveaway_message?: Message;
 }
-
-export interface PaidMessagePriceChanged {
-  /** The new number of Telegram Stars that must be paid by non-administrator users of the supergroup chat for each sent message */
-  paid_message_star_count: number;
-}
-
 /** Describes the options used for link preview generation. */
 export interface LinkPreviewOptions {
   /** True, if the link preview is disabled */

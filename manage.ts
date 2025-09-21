@@ -103,6 +103,8 @@ export declare namespace Chat {
     title: string;
     /** True, if the supergroup chat is a forum (has topics enabled) */
     is_forum?: true;
+    /** True, if the chat is the direct messages chat of a channel */
+    is_direct_messages?: true;
   }
 
   /** Internal type representing channel chats. */
@@ -226,6 +228,8 @@ declare namespace ChatFullInfo {
     photo?: ChatPhoto;
     /** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
     active_usernames?: string[];
+    /** Information about the corresponding channel chat; for direct messages chats only */
+    parent_chat?: Chat.ChannelChat;
     /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
     available_reactions?: ReactionType[];
     /** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
@@ -319,6 +323,40 @@ export type ChatFullInfo =
   | ChatFullInfo.SupergroupChat
   | ChatFullInfo.ChannelChat;
 
+/** Describes the price of a suggested post. */
+export interface SuggestedPostPrice {
+  /** Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins */
+  currency: string;
+  /** The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000. */
+  amount: number;
+}
+
+/** Contains information about a suggested post. */
+export interface SuggestedPostInfo {
+  /** State of the suggested post. Currently, it can be one of “pending”, “approved”, “declined”. */
+  state: "pending" | "approved" | "declined";
+  /** Proposed price of the post. If the field is omitted, then the post is unpaid. */
+  price?: SuggestedPostPrice;
+  /** Proposed send date of the post. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user or administrator who approves it. */
+  send_date?: number;
+}
+
+/** Contains parameters of a post that is being suggested by the bot. */
+export interface SuggestedPostParameters {
+  /** Proposed price for the post. If the field is omitted, then the post is unpaid. */
+  price?: SuggestedPostPrice;
+  /** Proposed send date of the post. If specified, then the date must be between 300 second and 2678400 seconds (30 days) in the future. If the field is omitted, then the post can be published at any time within 30 days at the sole discretion of the user who approves it. */
+  send_date?: number;
+}
+
+/** Describes a topic of a direct messages chat. */
+export interface DirectMessagesTopic {
+  /** Unique identifier of the topic */
+  topic_id: number;
+  /** Information about the user that created the topic. Currently, it is always present */
+  user: User;
+}
+
 /** This object represent a user's profile pictures. */
 export interface UserProfilePhotos {
   /** Total number of profile pictures the target user has */
@@ -369,7 +407,7 @@ export interface ChatInviteLink {
 export interface ChatAdministratorRights {
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -389,7 +427,7 @@ export interface ChatAdministratorRights {
   can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories: boolean;
-  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  /** True, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
   can_post_messages: boolean;
   /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
   can_edit_messages: boolean;
@@ -397,6 +435,8 @@ export interface ChatAdministratorRights {
   can_pin_messages: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
   can_manage_topics: boolean;
+  /** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
+  can_manage_direct_messages: boolean;
 }
 
 /** This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
@@ -437,7 +477,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_be_edited: boolean;
   /** True, if the user's presence in the chat is hidden */
   is_anonymous: boolean;
-  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages and ignore slow mode. Implied by any other administrator privilege. */
+  /** True, if the administrator can access the chat event log, get boost list, see hidden supergroup and channel members, report spam messages, ignore slow mode, and send messages to the chat without paying Telegram Stars. Implied by any other administrator privilege. */
   can_manage_chat: boolean;
   /** True, if the administrator can delete messages of other users */
   can_delete_messages: boolean;
@@ -457,7 +497,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_edit_stories: boolean;
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories: boolean;
-  /** True, if the administrator can post messages in the channel, or access channel statistics; for channels only */
+  /** True, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
   can_post_messages: boolean;
   /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
   can_edit_messages: boolean;
@@ -465,6 +505,8 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   can_pin_messages: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
   can_manage_topics: boolean;
+  /** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
+  can_manage_direct_messages: boolean;
   /** Custom title for this user */
   custom_title?: string;
 }
@@ -495,7 +537,7 @@ export interface ChatMemberRestricted extends AbstractChatMember {
   can_send_video_notes: boolean;
   /** True, if the user is allowed to send voice notes */
   can_send_voice_notes: boolean;
-  /** True, if the user is allowed to send polls */
+  /** True, if the user is allowed to send polls and checklists */
   can_send_polls: boolean;
   /** True, if the user is allowed to send animations, games, stickers and use inline bots */
   can_send_other_messages: boolean;
@@ -577,7 +619,7 @@ export interface ChatPermissions {
   can_send_video_notes?: boolean;
   /** True, if the user is allowed to send voice notes */
   can_send_voice_notes?: boolean;
-  /** True, if the user is allowed to send polls */
+  /** True, if the user is allowed to send polls and checklists */
   can_send_polls?: boolean;
   /** True, if the user is allowed to send animations, games, stickers and use inline bots */
   can_send_other_messages?: boolean;
@@ -756,7 +798,7 @@ export interface AbstractReactionType {
 }
 
 // deno-fmt-ignore
-export type TelegramEmoji = "👍" | "👎" | "❤" | "🔥" | "🥰" | "👏" | "😁" | "🤔" | "🤯" | "😱" | "🤬" | "😢" | "🎉" | "🤩" | "🤮" | "💩" | "🙏" | "👌" | "🕊" | "🤡" | "🥱" | "🥴" | "😍" | "🐳" | "❤‍🔥" | "🌚" | "🌭" | "💯" | "🤣" | "⚡" | "🍌" | "🏆" | "💔" | "🤨" | "😐" | "🍓" | "🍾" | "💋" | "🖕" | "😈" | "😴" | "😭" | "🤓" | "👻" | "👨‍💻" | "👀" | "🎃" | "🙈" | "😇" | "😨" | "🤝" | "✍" | "🤗" | "🫡" | "🎅" | "🎄" | "☃" | "💅" | "🤪" | "🗿" | "🆒" | "💘" | "🙉" | "🦄" | "😘" | "💊" | "🙊" | "😎" | "👾" | "🤷‍♂" | "🤷" | "🤷‍♀" | "😡";
+export type TelegramEmoji = "❤" | "👍" | "👎" | "🔥" | "🥰" | "👏" | "😁" | "🤔" | "🤯" | "😱" | "🤬" | "😢" | "🎉" | "🤩" | "🤮" | "💩" | "🙏" | "👌" | "🕊" | "🤡" | "🥱" | "🥴" | "😍" | "🐳" | "❤‍🔥" | "🌚" | "🌭" | "💯" | "🤣" | "⚡" | "🍌" | "🏆" | "💔" | "🤨" | "😐" | "🍓" | "🍾" | "💋" | "🖕" | "😈" | "😴" | "😭" | "🤓" | "👻" | "👨‍💻" | "👀" | "🎃" | "🙈" | "😇" | "😨" | "🤝" | "✍" | "🤗" | "🫡" | "🎅" | "🎄" | "☃" | "💅" | "🤪" | "🗿" | "🆒" | "💘" | "🙉" | "🦄" | "😘" | "💊" | "🙊" | "😎" | "👾" | "🤷‍♂" | "🤷" | "🤷‍♀" | "😡";
 
 /** The reaction is based on an emoji. */
 export interface ReactionTypeEmoji extends AbstractReactionType {
@@ -1029,6 +1071,8 @@ export interface Gift {
   total_count?: number;
   /** The number of remaining gifts of this type that can be sent; for limited gifts only */
   remaining_count?: number;
+  /** Information about the chat that published the gift */
+  publisher_chat?: Chat;
 }
 
 /** This object represent a list of gifts. */
@@ -1093,6 +1137,8 @@ export interface UniqueGift {
   symbol: UniqueGiftSymbol;
   /** Backdrop of the gift */
   backdrop: UniqueGiftBackdrop;
+  /** Information about the chat that published the gift */
+  publisher_chat?: Chat;
 }
 
 /** This object describes a gift received and owned by a user or a chat. Currently, it can be one of
@@ -1148,6 +1194,8 @@ export interface OwnedGiftUnique {
   can_be_transferred?: boolean;
   /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
   transfer_star_count?: number;
+  /** Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now */
+  next_transfer_date?: number;
 }
 
 /** Contains the list of gifts received and owned by a user or a chat. */
