@@ -118,7 +118,7 @@ export interface InlineQueryResultPhoto {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -152,7 +152,7 @@ export interface InlineQueryResultGif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -186,7 +186,7 @@ export interface InlineQueryResultMpeg4Gif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
@@ -216,7 +216,7 @@ export interface InlineQueryResultVideo {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Video width */
   video_width?: number;
   /** Video height */
@@ -436,7 +436,7 @@ export interface InlineQueryResultCachedPhoto {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -460,7 +460,7 @@ export interface InlineQueryResultCachedGif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -484,7 +484,7 @@ export interface InlineQueryResultCachedMpeg4Gif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
@@ -548,7 +548,7 @@ export interface InlineQueryResultCachedVideo {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video */

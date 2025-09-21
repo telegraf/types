@@ -244,7 +244,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the new caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -302,7 +302,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -444,7 +444,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** Pass True if the video needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Pass True if the uploaded video is suitable for streaming */
@@ -496,7 +496,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** Pass True if the animation needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
@@ -621,7 +621,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -1808,7 +1808,7 @@ export type ApiMethods<F> = {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
-    show_caption_above_media?: boolean;
+    show_caption_above_media?: true;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
   }):
@@ -2194,7 +2194,7 @@ export type ApiMethods<F> = {
     /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
     payload: string;
     /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
-    provider_token: string;
+    provider_token?: string;
     /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
     currency: string;
     /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
@@ -2256,7 +2256,7 @@ export type ApiMethods<F> = {
     /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
     payload: string;
     /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
-    provider_token: string;
+    provider_token?: string;
     /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
     currency: string;
     /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
@@ -2452,7 +2452,7 @@ export interface InputMediaPhoto<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Pass True if the photo needs to be covered with a spoiler animation */
   has_spoiler?: boolean;
 }
@@ -2476,7 +2476,7 @@ export interface InputMediaVideo<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Video width */
   width?: number;
   /** Video height */
@@ -2504,7 +2504,7 @@ export interface InputMediaAnimation<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: boolean;
+  show_caption_above_media?: true;
   /** Animation width */
   width?: number;
   /** Animation height */
