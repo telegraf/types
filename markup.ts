@@ -11,6 +11,10 @@ export declare namespace InlineKeyboardButton {
   interface AbstractInlineKeyboardButton {
     /** Label text on the button */
     text: string;
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string;
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: "danger" | "success" | "primary";
   }
   export interface UrlButton extends AbstractInlineKeyboardButton {
     /** HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings. */
@@ -62,7 +66,7 @@ export declare namespace InlineKeyboardButton {
   }
 }
 
-/** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
+/** This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. */
 export type InlineKeyboardButton =
   | InlineKeyboardButton.CallbackButton
   | InlineKeyboardButton.GameButton
@@ -162,11 +166,15 @@ Example: A user requests to change the bot's language, bot replies to the reques
   selective?: boolean;
 }
 
-/** This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
+/** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
 export declare namespace KeyboardButton {
   interface Common {
-    /** Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed */
+    /** Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed */
     text: string;
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string;
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: "danger" | "success" | "primary";
   }
   export interface RequestUsers extends Common {
     /** If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only. */
