@@ -18,7 +18,7 @@ export declare namespace Message {
   export interface ServiceMessage {
     /** Unique message identifier inside this chat */
     message_id: number;
-    /** Unique identifier of a message thread or a forum topic to which the message belongs; for supergroups only */
+    /** Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only */
     message_thread_id?: number;
     /** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
     /** Information about the direct messages chat topic that contains the message */
@@ -30,7 +30,7 @@ export declare namespace Message {
     date: number;
     /** Chat the message belongs to */
     chat: Chat;
-    /** True, if the message is sent to a forum topic */
+    /** True, if the message is sent to a topic in a forum supergroup or a private chat with the bot */
     is_topic_message?: boolean;
   }
   export interface CommonMessage extends ServiceMessage {
@@ -249,6 +249,10 @@ export declare namespace Message {
     /** Service message: a unique gift was sent or received */
     unique_gift: UniqueGiftInfo;
   }
+  export interface GiftUpgradeSentMessage extends ServiceMessage {
+    /** Service message: upgrade of a gift was purchased after the gift was sent */
+    gift_upgrade_sent: GiftInfo;
+  }
   export interface ConnectedWebsiteMessage extends ServiceMessage {
     /** The domain name of the website on which the user has logged in. More about Telegram Login » */
     connected_website: string;
@@ -391,6 +395,7 @@ export type ServiceMessageBundle =
   | Message.ChatSharedMessage
   | Message.GiftMessage
   | Message.UniqueGiftMessage
+  | Message.GiftUpgradeSentMessage
   | Message.ConnectedWebsiteMessage
   | Message.WriteAccessAllowedMessage
   | Message.PassportDataMessage
@@ -1121,8 +1126,10 @@ export interface ChecklistTask {
   text: string;
   /** Special entities that appear in the task text */
   text_entities?: MessageEntity[];
-  /** User that completed the task; omitted if the task wasn't completed */
+  /** User that completed the task; omitted if the task wasn't completed by a user */
   completed_by_user?: User;
+  /** Chat that completed the task; omitted if the task wasn't completed by a chat */
+  completed_by_chat?: Chat;
   /** Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed */
   completion_date?: number;
 }
@@ -1474,6 +1481,8 @@ export interface ForumTopicCreated {
   icon_color: number;
   /** Unique identifier of the custom emoji shown as the topic icon */
   icon_custom_emoji_id?: string;
+  /** True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot */
+  is_name_implicit?: true;
 }
 
 /** This object represents a service message about an edited forum topic. */
@@ -1540,8 +1549,10 @@ export interface GiftInfo {
   owned_gift_id?: string;
   /** Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible */
   convert_star_count?: number;
-  /** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
+  /** Number of Telegram Stars that were prepaid for the ability to upgrade the gift */
   prepaid_upgrade_star_count?: number;
+  /** True, if the gift's upgrade was purchased after the gift was sent */
+  is_upgrade_separate?: true;
   /** True, if the gift can be upgraded to a unique gift */
   can_be_upgraded?: boolean;
   /** Text of the message that was added to the gift */
@@ -1550,16 +1561,20 @@ export interface GiftInfo {
   entities?: MessageEntity[];
   /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
   is_private?: boolean;
+  /** Unique number reserved for this gift when upgraded. See the number field in UniqueGift */
+  unique_gift_number?: number;
 }
 
 /** Describes a service message about a unique gift that was sent or received. */
 export interface UniqueGiftInfo {
   /** Information about the gift */
   gift: UniqueGift;
-  /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
-  origin: "upgrade" | "transfer" | "resale";
-  /** For gifts bought from other users, the price paid for the gift */
-  last_resale_star_count?: number;
+  /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers */
+  origin: "upgrade" | "transfer" | "resale" | "gifted_upgrade" | "offer";
+  /** For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins. */
+  last_resale_currency?: "XTR" | "TON";
+  /** For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins */
+  last_resale_amount?: number;
   /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
   owned_gift_id?: string;
   /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
