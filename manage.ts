@@ -1,4 +1,5 @@
 import type {
+  Audio,
   Location,
   Message,
   MessageEntity,
@@ -64,6 +65,8 @@ export interface UserFromGetMe extends User {
   has_main_web_app?: boolean;
   /** True, if the bot has forum topic mode enabled in private chats. Returned only in getMe. */
   has_topics_enabled?: boolean;
+  /** True, if the bot allows users to create and delete topics in private chats. Returned only in getMe. */
+  allows_users_to_create_topics?: boolean;
 }
 
 export declare namespace Chat {
@@ -152,6 +155,8 @@ declare namespace ChatFullInfo {
     personal_chat?: ChatFullInfo.ChannelChat;
     /** For private chats, the rating of the user if any */
     rating?: UserRating;
+    /** For private chats, the first audio added to the profile of the user */
+    first_profile_audio?: Audio;
     /** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
     available_reactions?: ReactionType[];
     /** Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background */
@@ -383,6 +388,14 @@ export interface UserProfilePhotos {
   total_count: number;
   /** Requested profile pictures (in up to 4 sizes each) */
   photos: PhotoSize[][];
+}
+
+/** This object represents the audios displayed on a user's profile. */
+export interface UserProfileAudios {
+  /** Total number of profile audios for the target user */
+  total_count: number;
+  /** Requested profile audios */
+  audios: Audio[];
 }
 
 /** This object represents a chat photo. */
@@ -1044,6 +1057,18 @@ export interface ChatBoostRemoved {
   source: ChatBoostSource;
 }
 
+/** Describes a service message about the chat owner leaving the chat. */
+export interface ChatOwnerLeft {
+  /** The user which will be the new owner of the chat if the previous owner does not return to the chat */
+  new_owner?: User;
+}
+
+/** Describes a service message about an ownership change in the chat. */
+export interface ChatOwnerChanged {
+  /** The new owner of the chat */
+  new_owner: User;
+}
+
 /** This object represents a list of boosts added to a chat by a user. */
 export interface UserChatBoosts {
   /** The list of boosts added to the chat by the user */
@@ -1145,6 +1170,8 @@ export interface UniqueGiftModel {
   sticker: Sticker;
   /** The number of unique gifts that receive this model for every 1000 gifts upgraded */
   rarity_per_mille: number;
+  /** Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”. */
+  rarity?: "uncommon" | "rare" | "epic" | "legendary";
 }
 
 /** This object describes the symbol shown on the pattern of a unique gift. */
@@ -1213,6 +1240,8 @@ export interface UniqueGift {
   backdrop: UniqueGiftBackdrop;
   /** True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers */
   is_premium?: true;
+  /** True, if the gift was used to craft another gift and isn't available anymore */
+  is_burned?: true;
   /** True, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram */
   is_from_blockchain?: true;
   /** The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only */

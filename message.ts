@@ -1,5 +1,7 @@
 // deno-lint-ignore-file no-irregular-whitespace
 import type {
+  ChatOwnerChanged,
+  ChatOwnerLeft,
   Chat,
   DirectMessagesTopic,
   File,
@@ -180,6 +182,14 @@ export declare namespace Message {
   export interface LeftChatMemberMessage extends ServiceMessage {
     /** A member was removed from the group, information about them (this member may be the bot itself) */
     left_chat_member: User;
+  }
+  export interface ChatOwnerLeftMessage extends ServiceMessage {
+    /** Service message: chat owner has left */
+    chat_owner_left: ChatOwnerLeft;
+  }
+  export interface ChatOwnerChangedMessage extends ServiceMessage {
+    /** Service message: chat owner has changed */
+    chat_owner_changed: ChatOwnerChanged;
   }
   export interface NewChatTitleMessage extends ServiceMessage {
     /** A chat title was changed to this value */
@@ -379,6 +389,8 @@ export declare namespace Message {
 export type ServiceMessageBundle =
   | Message.NewChatMembersMessage
   | Message.LeftChatMemberMessage
+  | Message.ChatOwnerLeftMessage
+  | Message.ChatOwnerChangedMessage
   | Message.NewChatTitleMessage
   | Message.NewChatPhotoMessage
   | Message.DeleteChatPhotoMessage
@@ -1013,6 +1025,22 @@ export interface Story {
   id: number;
 }
 
+/** This object represents a video file of a specific quality. */
+export interface VideoQuality {
+  /** Identifier for this file, which can be used to download or reuse the file */
+  file_id: string;
+  /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+  file_unique_id: string;
+  /** Video width */
+  width: number;
+  /** Video height */
+  height: number;
+  /** Codec that was used to encode the video, for example, “h264”, “h265”, or “av01” */
+  codec: string;
+  /** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+  file_size?: number;
+}
+
 /** This object represents a video file. */
 export interface Video {
   /** Identifier for this file, which can be used to download or reuse the file */
@@ -1031,6 +1059,8 @@ export interface Video {
   cover?: PhotoSize[];
   /** Timestamp in seconds from which the video will play in the message */
   start_timestamp?: number;
+  /** List of available qualities of the video */
+  qualities?: VideoQuality[];
   /** Original filename as defined by the sender */
   file_name?: string;
   /** MIME type of the file as defined by the sender */
