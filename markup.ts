@@ -11,6 +11,10 @@ export declare namespace InlineKeyboardButton {
   interface AbstractInlineKeyboardButton {
     /** Label text on the button */
     text: string;
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string;
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: "danger" | "success" | "primary";
   }
   export interface UrlButton extends AbstractInlineKeyboardButton {
     /** HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings. */
@@ -62,7 +66,7 @@ export declare namespace InlineKeyboardButton {
   }
 }
 
-/** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
+/** This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. */
 export type InlineKeyboardButton =
   | InlineKeyboardButton.CallbackButton
   | InlineKeyboardButton.GameButton
@@ -162,42 +166,60 @@ Example: A user requests to change the bot's language, bot replies to the reques
   selective?: boolean;
 }
 
-/** This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
+/** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
 export declare namespace KeyboardButton {
-  interface Common {
-    /** Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed */
+  export interface Common {
+    /** Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed */
     text: string;
+    /** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+    icon_custom_emoji_id?: string;
+    /** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+    style?: "danger" | "success" | "primary";
   }
+  export interface CommonButton extends Common {}
   export interface RequestUsers extends Common {
     /** If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only. */
     request_users: KeyboardButtonRequestUsers;
   }
+  export interface RequestUsersButton extends RequestUsers {}
   export interface RequestChat extends Common {
     /** If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat_shared” service message. Available in private chats only. */
     request_chat: KeyboardButtonRequestChat;
   }
+  export interface RequestChatButton extends RequestChat {}
+  export interface RequestManagedBot extends Common {
+    /** If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available in private chats only. */
+    request_managed_bot: KeyboardButtonRequestManagedBot;
+  }
+  export interface RequestManagedBotButton extends RequestManagedBot {}
   export interface RequestContact extends Common {
     /** If True, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only. */
     request_contact: boolean;
   }
+  export interface RequestContactButton extends RequestContact {}
   export interface RequestLocation extends Common {
     /** If True, the user's current location will be sent when the button is pressed. Available in private chats only. */
     request_location: boolean;
   }
+  export interface RequestLocationButton extends RequestLocation {}
   export interface RequestPoll extends Common {
     /** If specified, the user will be asked to create a poll and send it to the bot when the button is pressed. Available in private chats only. */
     request_poll: KeyboardButtonPollType;
   }
+  export interface RequestPollButton extends RequestPoll {}
   export interface WebApp extends Common {
     /** If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a “web_app_data” service message. Available in private chats only. */
     web_app: WebAppInfo;
   }
+  export interface WebAppButton extends WebApp {}
 }
 
-/** This object represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_user, request_chat, request_contact, request_location, and request_poll are mutually exclusive. */
+/** This object represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The fields web_app, request_users, request_chat, request_managed_bot, request_contact, request_location, and request_poll are mutually exclusive. */
 export type KeyboardButton =
+  | KeyboardButton.Common
   | KeyboardButton.RequestUsers
   | KeyboardButton.RequestChat
+  | KeyboardButton.RequestManagedBot
   | KeyboardButton.RequestPoll
   | KeyboardButton.RequestContact
   | KeyboardButton.RequestLocation
@@ -286,4 +308,20 @@ export interface KeyboardButtonRequestChat {
   request_username?: boolean;
   /** Pass True to request the chat's photo */
   request_photo?: boolean;
+}
+
+/** This object defines the parameters for the creation of a managed bot. */
+export interface KeyboardButtonRequestManagedBot {
+  /** Signed 32-bit identifier of the request. Must be unique within the message */
+  request_id: number;
+  /** Suggested name for the bot */
+  suggested_name?: string;
+  /** Suggested username for the bot */
+  suggested_username?: string;
+}
+
+/** Describes a keyboard button to be used by a user of a Mini App. */
+export interface PreparedKeyboardButton {
+  /** Unique identifier of the keyboard button */
+  id: string;
 }

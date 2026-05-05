@@ -1,7 +1,7 @@
 {
   "name": "@telegraf/types",
   "private": false,
-  "version": "9.2.1",
+  "version": "9.6.0",
   "description": "Type declarations for the Telegram API",
   "main": "index.js",
   "repository": {
@@ -31,6 +31,6 @@
     "index.js"
   ],
   "devDependencies": {
-    "deno-bin": "^2.1.6"
+    "deno-bin": "^2.2.7"
   }
 }

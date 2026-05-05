@@ -1,9 +1,12 @@
 // deno-lint-ignore-file no-irregular-whitespace
 import type {
   Chat,
+  ChatOwnerChanged,
+  ChatOwnerLeft,
   DirectMessagesTopic,
   File,
   Gift,
+  ManagedBotCreated,
   StarAmount,
   SuggestedPostInfo,
   SuggestedPostPrice,
@@ -18,7 +21,7 @@ export declare namespace Message {
   export interface ServiceMessage {
     /** Unique message identifier inside this chat */
     message_id: number;
-    /** Unique identifier of a message thread or a forum topic to which the message belongs; for supergroups only */
+    /** Unique identifier of a message thread or forum topic to which the message belongs; for supergroups and private chats only */
     message_thread_id?: number;
     /** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
     /** Information about the direct messages chat topic that contains the message */
@@ -30,7 +33,7 @@ export declare namespace Message {
     date: number;
     /** Chat the message belongs to */
     chat: Chat;
-    /** True, if the message is sent to a forum topic */
+    /** True, if the message is sent to a topic in a forum supergroup or a private chat with the bot */
     is_topic_message?: boolean;
   }
   export interface CommonMessage extends ServiceMessage {
@@ -52,6 +55,8 @@ export declare namespace Message {
     reply_to_story?: Story;
     /** Identifier of the specific checklist task that is being replied to */
     reply_to_checklist_task_id?: number;
+    /** Persistent identifier of the specific poll option that is being replied to */
+    reply_to_poll_option_id?: string;
     /** Bot through which the message was sent */
     via_bot?: User;
     /** Date the message was last edited in Unix time */
@@ -64,6 +69,8 @@ export declare namespace Message {
     is_paid_post?: true;
     /** Signature of the post author for messages in channels, or the custom title of an anonymous group administrator */
     author_signature?: string;
+    /** Tag of the sender of the message in the chat */
+    sender_tag?: string;
     /** The number of Telegram Stars that were paid by the sender of the message to send it */
     paid_star_count?: number;
     /** Options used for link preview generation for the message, if it is a text message and link preview options were changed */
@@ -181,6 +188,14 @@ export declare namespace Message {
     /** A member was removed from the group, information about them (this member may be the bot itself) */
     left_chat_member: User;
   }
+  export interface ChatOwnerLeftMessage extends ServiceMessage {
+    /** Service message: chat owner has left */
+    chat_owner_left: ChatOwnerLeft;
+  }
+  export interface ChatOwnerChangedMessage extends ServiceMessage {
+    /** Service message: chat owner has changed */
+    chat_owner_changed: ChatOwnerChanged;
+  }
   export interface NewChatTitleMessage extends ServiceMessage {
     /** A chat title was changed to this value */
     new_chat_title: string;
@@ -241,6 +256,10 @@ export declare namespace Message {
     /** Service message: a chat was shared with the bot */
     chat_shared: ChatShared;
   }
+  export interface ManagedBotCreatedMessage extends ServiceMessage {
+    /** Service message: a managed bot was created */
+    managed_bot_created: ManagedBotCreated;
+  }
   export interface GiftMessage extends ServiceMessage {
     /** Service message: a regular gift was sent or received */
     gift: GiftInfo;
@@ -248,6 +267,10 @@ export declare namespace Message {
   export interface UniqueGiftMessage extends ServiceMessage {
     /** Service message: a unique gift was sent or received */
     unique_gift: UniqueGiftInfo;
+  }
+  export interface GiftUpgradeSentMessage extends ServiceMessage {
+    /** Service message: upgrade of a gift was purchased after the gift was sent */
+    gift_upgrade_sent: GiftInfo;
   }
   export interface ConnectedWebsiteMessage extends ServiceMessage {
     /** The domain name of the website on which the user has logged in. More about Telegram Login » */
@@ -280,6 +303,14 @@ export declare namespace Message {
   export interface ChecklistTasksAddedMessage extends ServiceMessage {
     /** Service message: tasks were added to a checklist */
     checklist_tasks_added: ChecklistTasksAdded;
+  }
+  export interface PollOptionAddedMessage extends ServiceMessage {
+    /** Service message: an option was added to a poll */
+    poll_option_added: PollOptionAdded;
+  }
+  export interface PollOptionDeletedMessage extends ServiceMessage {
+    /** Service message: an option was deleted from a poll */
+    poll_option_deleted: PollOptionDeleted;
   }
   export interface DirectMessagePriceChangedMessage extends ServiceMessage {
     /** Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed */
@@ -375,6 +406,8 @@ export declare namespace Message {
 export type ServiceMessageBundle =
   | Message.NewChatMembersMessage
   | Message.LeftChatMemberMessage
+  | Message.ChatOwnerLeftMessage
+  | Message.ChatOwnerChangedMessage
   | Message.NewChatTitleMessage
   | Message.NewChatPhotoMessage
   | Message.DeleteChatPhotoMessage
@@ -389,13 +422,17 @@ export type ServiceMessageBundle =
   | Message.SuccessfulPaymentMessage
   | Message.UsersSharedMessage
   | Message.ChatSharedMessage
+  | Message.ManagedBotCreatedMessage
   | Message.GiftMessage
   | Message.UniqueGiftMessage
+  | Message.GiftUpgradeSentMessage
   | Message.ConnectedWebsiteMessage
   | Message.WriteAccessAllowedMessage
   | Message.PassportDataMessage
   | Message.ProximityAlertTriggeredMessage
   | Message.BoostAddedMessage
+  | Message.PollOptionAddedMessage
+  | Message.PollOptionDeletedMessage
   | Message.ForumTopicCreatedMessage
   | Message.ForumTopicEditedMessage
   | Message.ForumTopicClosedMessage
@@ -592,7 +629,7 @@ export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 
 export declare namespace MessageEntity {
   interface Abstract {
-    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
+    /** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time) */
     type: string;
     /** Offset in UTF-16 code units to the start of the entity */
     offset: number;
@@ -679,6 +716,13 @@ export declare namespace MessageEntity {
     /** For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker */
     custom_emoji_id: string;
   }
+  export interface DateTime extends Abstract {
+    type: "date_time";
+    /** Unix time associated with the entity */
+    unix_time?: number;
+    /** String that defines the formatting of the date and time */
+    date_time_format?: string;
+  }
 }
 
 /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
@@ -701,13 +745,14 @@ export type MessageEntity =
   | MessageEntity.PreMessage
   | MessageEntity.TextLink
   | MessageEntity.TextMention
-  | MessageEntity.CustomEmoji;
+  | MessageEntity.CustomEmoji
+  | MessageEntity.DateTime;
 
 /** This object contains information about the quoted part of a message that is replied to by the given message. */
 export interface TextQuote {
   /** Text of the quoted part of a message that is replied to by the given message */
   text: string;
-  /** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes. */
+  /** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are kept in quotes. */
   entities?: MessageEntity[];
   /** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
   position: number;
@@ -860,7 +905,7 @@ export interface ReplyParameters {
   chat_id?: number | string;
   /** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account. */
   allow_sending_without_reply?: boolean;
-  /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message. */
+  /** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities. The message will fail to send if the quote isn't found in the original message. */
   quote?: string;
   /** Mode for parsing entities in the quote. See formatting options for more details. */
   quote_parse_mode?: ParseMode;
@@ -870,6 +915,8 @@ export interface ReplyParameters {
   quote_position?: number;
   /** Identifier of the specific checklist task to be replied to */
   checklist_task_id?: number;
+  /** Persistent identifier of the specific poll option to be replied to */
+  poll_option_id?: string;
 }
 
 /** This object describes the origin of a message. It can be one of
@@ -1008,6 +1055,22 @@ export interface Story {
   id: number;
 }
 
+/** This object represents a video file of a specific quality. */
+export interface VideoQuality {
+  /** Identifier for this file, which can be used to download or reuse the file */
+  file_id: string;
+  /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+  file_unique_id: string;
+  /** Video width */
+  width: number;
+  /** Video height */
+  height: number;
+  /** Codec that was used to encode the video, for example, “h264”, “h265”, or “av01” */
+  codec: string;
+  /** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+  file_size?: number;
+}
+
 /** This object represents a video file. */
 export interface Video {
   /** Identifier for this file, which can be used to download or reuse the file */
@@ -1026,6 +1089,8 @@ export interface Video {
   cover?: PhotoSize[];
   /** Timestamp in seconds from which the video will play in the message */
   start_timestamp?: number;
+  /** List of available qualities of the video */
+  qualities?: VideoQuality[];
   /** Original filename as defined by the sender */
   file_name?: string;
   /** MIME type of the file as defined by the sender */
@@ -1121,8 +1186,10 @@ export interface ChecklistTask {
   text: string;
   /** Special entities that appear in the task text */
   text_entities?: MessageEntity[];
-  /** User that completed the task; omitted if the task wasn't completed */
+  /** User that completed the task; omitted if the task wasn't completed by a user */
   completed_by_user?: User;
+  /** Chat that completed the task; omitted if the task wasn't completed by a chat */
+  completed_by_chat?: Chat;
   /** Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed */
   completion_date?: number;
 }
@@ -1149,7 +1216,7 @@ export interface InputChecklistTask {
   text: string;
   /** Mode for parsing entities in the text. See formatting options for more details. */
   parse_mode?: ParseMode;
-  /** List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+  /** List of special entities that appear in the text, which can be specified instead of parse_mode. */
   text_entities?: (
     | MessageEntity.Bold
     | MessageEntity.Italic
@@ -1157,6 +1224,7 @@ export interface InputChecklistTask {
     | MessageEntity.Strikethrough
     | MessageEntity.Spoiler
     | MessageEntity.CustomEmoji
+    | MessageEntity.DateTime
   )[];
 }
 
@@ -1166,7 +1234,7 @@ export interface InputChecklist {
   title: string;
   /** Mode for parsing entities in the title. See formatting options for more details. */
   parse_mode?: ParseMode;
-  /** List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+  /** List of special entities that appear in the title, which can be specified instead of parse_mode. */
   title_entities?: (
     | MessageEntity.Bold
     | MessageEntity.Italic
@@ -1174,6 +1242,7 @@ export interface InputChecklist {
     | MessageEntity.Strikethrough
     | MessageEntity.Spoiler
     | MessageEntity.CustomEmoji
+    | MessageEntity.DateTime
   )[];
   /** List of 1-30 tasks in the checklist */
   tasks: InputChecklistTask[];
@@ -1225,12 +1294,20 @@ export interface Dice {
 
 /** This object contains information about one answer option in a poll. */
 export interface PollOption {
+  /** Unique identifier of the option, persistent on option addition and deletion */
+  persistent_id: string;
   /** Option text, 1-100 characters */
   text: string;
   /** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
   text_entities?: MessageEntity.CustomEmoji[];
-  /** Number of users that voted for this option */
+  /** Number of users that voted for this option; may be 0 if unknown */
   voter_count: number;
+  /** User who added the option */
+  added_by_user?: User;
+  /** Chat that added the option */
+  added_by_chat?: Chat;
+  /** Point in time when the option was added */
+  addition_date?: number;
 }
 
 /** This object contains information about one answer option in a poll to be sent. */
@@ -1256,6 +1333,8 @@ export interface PollAnswer {
   user?: User;
   /** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
   option_ids: number[];
+  /** Persistent identifiers of chosen answer options. May be empty if the vote was retracted. */
+  option_persistent_ids: string[];
 }
 
 /** This object contains information about a poll. */
@@ -1278,8 +1357,10 @@ export interface Poll {
   type: "regular" | "quiz";
   /** True, if the poll allows multiple answers */
   allows_multiple_answers: boolean;
-  /** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
-  correct_option_id?: number;
+  /** True, if the poll allows to change the chosen answer options */
+  allows_revoting: boolean;
+  /** 0-based identifiers of the correct answer options. */
+  correct_option_ids?: number[];
   /** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters */
   explanation?: string;
   /** Special entities like usernames, URLs, bot commands, etc. that appear in the explanation */
@@ -1288,6 +1369,34 @@ export interface Poll {
   open_period?: number;
   /** Point in time (Unix timestamp) when the poll will be automatically closed */
   close_date?: number;
+  /** Description of the poll; for polls inside the Message object only */
+  description?: string;
+  /** Special entities that appear in the poll description */
+  description_entities?: MessageEntity[];
+}
+
+/** Describes a service message about an option added to a poll. */
+export interface PollOptionAdded {
+  /** Message containing the poll to which the option was added, if known */
+  poll_message?: MaybeInaccessibleMessage;
+  /** Unique identifier of the added option */
+  option_persistent_id: string;
+  /** Option text */
+  option_text: string;
+  /** Special entities that appear in the option text */
+  option_text_entities?: MessageEntity[];
+}
+
+/** Describes a service message about an option deleted from a poll. */
+export interface PollOptionDeleted {
+  /** Message containing the poll from which the option was deleted, if known */
+  poll_message?: MaybeInaccessibleMessage;
+  /** Unique identifier of the deleted option */
+  option_persistent_id: string;
+  /** Option text */
+  option_text: string;
+  /** Special entities that appear in the option text */
+  option_text_entities?: MessageEntity[];
 }
 
 export declare namespace Location {
@@ -1474,6 +1583,8 @@ export interface ForumTopicCreated {
   icon_color: number;
   /** Unique identifier of the custom emoji shown as the topic icon */
   icon_custom_emoji_id?: string;
+  /** True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot */
+  is_name_implicit?: true;
 }
 
 /** This object represents a service message about an edited forum topic. */
@@ -1540,8 +1651,10 @@ export interface GiftInfo {
   owned_gift_id?: string;
   /** Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible */
   convert_star_count?: number;
-  /** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
+  /** Number of Telegram Stars that were prepaid for the ability to upgrade the gift */
   prepaid_upgrade_star_count?: number;
+  /** True, if the gift's upgrade was purchased after the gift was sent */
+  is_upgrade_separate?: true;
   /** True, if the gift can be upgraded to a unique gift */
   can_be_upgraded?: boolean;
   /** Text of the message that was added to the gift */
@@ -1550,16 +1663,20 @@ export interface GiftInfo {
   entities?: MessageEntity[];
   /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
   is_private?: boolean;
+  /** Unique number reserved for this gift when upgraded. See the number field in UniqueGift */
+  unique_gift_number?: number;
 }
 
 /** Describes a service message about a unique gift that was sent or received. */
 export interface UniqueGiftInfo {
   /** Information about the gift */
   gift: UniqueGift;
-  /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
-  origin: "upgrade" | "transfer" | "resale";
-  /** For gifts bought from other users, the price paid for the gift */
-  last_resale_star_count?: number;
+  /** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers */
+  origin: "upgrade" | "transfer" | "resale" | "gifted_upgrade" | "offer";
+  /** For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins. */
+  last_resale_currency?: "XTR" | "TON";
+  /** For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanotoncoins */
+  last_resale_amount?: number;
   /** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
   owned_gift_id?: string;
   /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */

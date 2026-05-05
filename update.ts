@@ -7,6 +7,7 @@ import type {
   ChatBoostUpdated,
   ChatJoinRequest,
   ChatMemberUpdated,
+  ManagedBotUpdated,
   MessageReactionCountUpdated,
   MessageReactionUpdated,
   User,
@@ -160,6 +161,10 @@ export declare namespace Update {
     /** A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates. */
     removed_chat_boost: ChatBoostRemoved;
   }
+  export interface ManagedBotUpdate extends AbstractUpdate {
+    /** A new bot was created to be managed by the bot, or token or owner of a managed bot was changed */
+    managed_bot: ManagedBotUpdated;
+  }
 }
 
 /** This object represents an incoming update.
@@ -186,4 +191,5 @@ export type Update =
   | Update.ShippingQueryUpdate
   | Update.ChatJoinRequestUpdate
   | Update.ChatBoostUpdate
-  | Update.RemovedChatBoostUpdate;
+  | Update.RemovedChatBoostUpdate
+  | Update.ManagedBotUpdate;
