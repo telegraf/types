@@ -164,6 +164,65 @@ export type Update =
   | Update.ChatBoostUpdate
   | Update.RemovedChatBoostUpdate;
 
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
+
+  Notes
+  1. This method will not work if an outgoing webhook is set up.
+  2. In order to avoid getting duplicate updates, recalculate offset after each server response. */
+  getUpdates(args?: {
+    /** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will forgotten. */
+    offset?: number;
+    /** Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+    limit?: number;
+    /** Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only. */
+    timeout?: number;
+    /** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
+
+    Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
+    allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
+  }): Update[];
+
+  /** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
+
+  If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
+
+  Notes
+  1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.
+  2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.
+  3. Ports currently supported for Webhooks: 443, 80, 88, 8443.
+
+  If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks. */
+  setWebhook(args: {
+    /** HTTPS URL to send updates to. Use an empty string to remove webhook integration */
+    url: string;
+    /** Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details. */
+    certificate?: F;
+    /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
+    ip_address?: string;
+    /** The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput. */
+    max_connections?: number;
+    /** A list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member (default). If not specified, the previous setting will be used.
+
+    Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time. */
+    allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
+    /** Pass True to drop all pending updates */
+    drop_pending_updates?: boolean;
+    /** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
+    secret_token?: string;
+  }): true;
+
+  /** Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns True on success. */
+  deleteWebhook(args?: {
+    /** Pass True to drop all pending updates */
+    drop_pending_updates?: boolean;
+  }): true;
+
+  /** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
+  getWebhookInfo(): WebhookInfo;
+}
+
 /** Describes the current status of a webhook. */
 export interface WebhookInfo {
   /** Webhook URL, may be empty if webhook is not set up */
@@ -3780,66 +3839,8 @@ export interface InputStoryContentVideo<F> {
   is_animation?: boolean;
 }
 
-type UnionKeys<T> = T extends T ? keyof T : never;
-
-/** Wrapper type to bundle all methods of the Telegram Bot API */
-export type ApiMethods<F> = {
-  /** Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
-
-  Notes
-  1. This method will not work if an outgoing webhook is set up.
-  2. In order to avoid getting duplicate updates, recalculate offset after each server response. */
-  getUpdates(args?: {
-    /** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will forgotten. */
-    offset?: number;
-    /** Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
-    limit?: number;
-    /** Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only. */
-    timeout?: number;
-    /** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
-
-    Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
-    allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
-  }): Update[];
-
-  /** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
-
-  If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
-
-  Notes
-  1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.
-  2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.
-  3. Ports currently supported for Webhooks: 443, 80, 88, 8443.
-
-  If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks. */
-  setWebhook(args: {
-    /** HTTPS URL to send updates to. Use an empty string to remove webhook integration */
-    url: string;
-    /** Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details. */
-    certificate?: F;
-    /** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
-    ip_address?: string;
-    /** The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput. */
-    max_connections?: number;
-    /** A list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member (default). If not specified, the previous setting will be used.
-
-    Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time. */
-    allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
-    /** Pass True to drop all pending updates */
-    drop_pending_updates?: boolean;
-    /** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
-    secret_token?: string;
-  }): true;
-
-  /** Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns True on success. */
-  deleteWebhook(args?: {
-    /** Pass True to drop all pending updates */
-    drop_pending_updates?: boolean;
-  }): true;
-
-  /** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
-  getWebhookInfo(): WebhookInfo;
-
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
   /** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object. */
   getMe(): UserFromGetMe;
 
@@ -5672,7 +5673,85 @@ export type ApiMethods<F> = {
     /** A list of 1-100 identifiers of messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
     message_ids: number[];
   }): true;
+}
 
+/** This object represents a sticker. */
+export interface Sticker {
+  /** Identifier for this file, which can be used to download or reuse the file */
+  file_id: string;
+  /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+  file_unique_id: string;
+  /** Type of the sticker, currently one of “regular”, “mask”, “custom_emoji”. The type of the sticker is independent from its format, which is determined by the fields is_animated and is_video. */
+  type: "regular" | "mask" | "custom_emoji";
+  /** Sticker width */
+  width: number;
+  /** Sticker height */
+  height: number;
+  /** True, if the sticker is animated */
+  is_animated: boolean;
+  /** True, if the sticker is a video sticker */
+  is_video: boolean;
+  /** Sticker thumbnail in the .WEBP or .JPG format */
+  thumbnail?: PhotoSize;
+  /** Emoji associated with the sticker */
+  emoji?: string;
+  /** Name of the sticker set to which the sticker belongs */
+  set_name?: string;
+  /** For premium regular stickers, premium animation for the sticker */
+  premium_animation?: File;
+  /** For mask stickers, the position where the mask should be placed */
+  mask_position?: MaskPosition;
+  /** For custom emoji stickers, unique identifier of the custom emoji */
+  custom_emoji_id?: string;
+  /** File size in bytes */
+  file_size?: number;
+}
+
+/** This object represents a sticker set. */
+export interface StickerSet {
+  /** Sticker set name */
+  name: string;
+  /** Sticker set title */
+  title: string;
+  /** Type of stickers in the set, currently one of “regular”, “mask”, “custom_emoji” */
+  sticker_type: "regular" | "mask" | "custom_emoji";
+  /** List of all set stickers */
+  stickers: Sticker[];
+  /** Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format */
+  thumbnail?: PhotoSize;
+}
+
+/** This object describes the position on faces where a mask should be placed by default. */
+export interface MaskPosition {
+  /** The part of the face relative to which the mask should be placed. One of “forehead”, “eyes”, “mouth”, or “chin”. */
+  point: "forehead" | "eyes" | "mouth" | "chin";
+  /** Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position. */
+  x_shift: number;
+  /** Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position. */
+  y_shift: number;
+  /** Mask scaling coefficient. For example, 2.0 means double size. */
+  scale: number;
+}
+
+/** This object describes a sticker to be added to a sticker set. */
+export interface InputSticker<F> {
+  /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Animated and video stickers can't be uploaded via HTTP URL. */
+  sticker: F | string;
+  /** Format of the added sticker, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, “video” for a WEBM video */
+  format:
+    | "static"
+    | "animated"
+    | "video";
+  /** List of 1-20 emoji associated with the sticker */
+  emoji_list: string[];
+  /** Position where the mask should be placed on faces. For “mask” stickers only. */
+  mask_position?: MaskPosition;
+  /** List of 0-20 search keywords for the sticker with total length of up to 64 characters. For “regular” and “custom_emoji” stickers only. */
+  keywords?: string[];
+}
+
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
   /** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
   sendSticker(args: {
     /** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -5841,7 +5920,26 @@ export type ApiMethods<F> = {
     /** Sticker set name */
     name: string;
   }): true;
+}
 
+/** This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results. */
+export interface InlineQuery {
+  /** Unique identifier for this query */
+  id: string;
+  /** Sender */
+  from: User;
+  /** Text of the query (up to 256 characters) */
+  query: string;
+  /** Offset of the results to be returned, can be controlled by the bot */
+  offset: string;
+  /** Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat */
+  chat_type?: "sender" | Chat["type"];
+  /** Sender location, only for bots that request user location */
+  location?: Location;
+}
+
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
   /** Use this method to send answers to an inline query. On success, True is returned.
   No more than 50 results per query are allowed.
 
@@ -5860,363 +5958,6 @@ export type ApiMethods<F> = {
     /** An object describing a button to be shown above inline query results */
     button?: InlineQueryResultsButton;
   }): true;
-
-  /** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
-  answerWebAppQuery(args: {
-    /** Unique identifier for the query to be answered */
-    web_app_query_id: string;
-    /** An object describing the message to be sent */
-    result: InlineQueryResult;
-  }): SentWebAppMessage;
-
-  /** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
-  savePreparedInlineMessage(args: {
-    /** Unique identifier of the target user that can use the prepared message */
-    user_id: number;
-    /** An object describing the message to be sent */
-    result: InlineQueryResult;
-    /** Pass True if the message can be sent to private chats with users */
-    allow_user_chats?: boolean;
-    /** Pass True if the message can be sent to private chats with bots */
-    allow_bot_chats?: boolean;
-    /** Pass True if the message can be sent to group and supergroup chats */
-    allow_group_chats?: boolean;
-    /** Pass True if the message can be sent to channel chats */
-    allow_channel_chats?: boolean;
-  }): PreparedInlineMessage;
-
-  /** Use this method to send invoices. On success, the sent Message is returned. */
-  sendInvoice(args: {
-    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-    chat_id: number | string;
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
-    message_thread_id?: number;
-    /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
-    direct_messages_topic_id?: number;
-    /** Product name, 1-32 characters */
-    title: string;
-    /** Product description, 1-255 characters */
-    description: string;
-    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
-    payload: string;
-    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
-    provider_token?: string;
-    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
-    currency: string;
-    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
-    prices: readonly LabeledPrice[];
-    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
-    max_tip_amount?: number;
-    /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
-    suggested_tip_amounts?: number[];
-    /** Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter */
-    start_parameter?: string;
-    /** Data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
-    provider_data?: string;
-    /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for. */
-    photo_url?: string;
-    /** Photo size in bytes */
-    photo_size?: number;
-    /** Photo width */
-    photo_width?: number;
-    /** Photo height */
-    photo_height?: number;
-    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
-    need_name?: boolean;
-    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
-    need_phone_number?: boolean;
-    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
-    need_email?: boolean;
-    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
-    need_shipping_address?: boolean;
-    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
-    send_phone_number_to_provider?: boolean;
-    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
-    send_email_to_provider?: boolean;
-    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
-    is_flexible?: boolean;
-    /** Sends the message silently. Users will receive a notification with no sound. */
-    disable_notification?: boolean;
-    /** Protects the contents of the sent message from forwarding and saving */
-    protect_content?: boolean;
-    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. Ignored for payments in Telegram Stars. */
-    allow_paid_broadcast?: boolean;
-    /** Unique identifier of the message effect to be added to the message; for private chats only */
-    message_effect_id?: string;
-    /** A object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
-    suggested_post_parameters?: SuggestedPostParameters;
-    /** Description of the message to reply to */
-    reply_parameters?: ReplyParameters;
-    /** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
-    reply_markup?: InlineKeyboardMarkup;
-  }): Message.InvoiceMessage & Message.BusinessSentMessage;
-
-  /** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
-  createInvoiceLink(args: {
-    /** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
-    business_connection_id?: string;
-    /** Product name, 1-32 characters */
-    title: string;
-    /** Product description, 1-255 characters */
-    description: string;
-    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
-    payload: string;
-    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
-    provider_token?: string;
-    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
-    currency: string;
-    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
-    prices: LabeledPrice[];
-    /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
-    subscription_period: 2592000;
-    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
-    max_tip_amount?: number;
-    /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
-    suggested_tip_amounts?: number[];
-    /** Data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
-    provider_data?: string;
-    /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. */
-    photo_url?: string;
-    /** Photo size in bytes */
-    photo_size?: number;
-    /** Photo width */
-    photo_width?: number;
-    /** Photo height */
-    photo_height?: number;
-    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
-    need_name?: boolean;
-    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
-    need_phone_number?: boolean;
-    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
-    need_email?: boolean;
-    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
-    need_shipping_address?: boolean;
-    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
-    send_phone_number_to_provider?: boolean;
-    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
-    send_email_to_provider?: boolean;
-    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
-    is_flexible?: boolean;
-  }): string;
-
-  /** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
-  answerShippingQuery(args: {
-    /** Unique identifier for the query to be answered */
-    shipping_query_id: string;
-    /** Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible) */
-    ok: boolean;
-    /** Required if ok is True. An array of available shipping options. */
-    shipping_options?: readonly ShippingOption[];
-    /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable"). Telegram will display this message to the user. */
-    error_message?: string;
-  }): true;
-
-  /** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
-  answerPreCheckoutQuery(args: {
-    /** Unique identifier for the query to be answered */
-    pre_checkout_query_id: string;
-    /** Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems. */
-    ok: boolean;
-    /** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
-    error_message?: string;
-  }): true;
-
-  /** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
-  getMyStarBalance(): StarAmount;
-
-  /** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
-  getStarTransactions(args: {
-    /** Number of transactions to skip in the response */
-    offset?: number;
-    /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
-    limit?: number;
-  }): StarTransactions;
-
-  /** Refunds a successful payment in Telegram Stars. Returns True on success. */
-  refundStarPayment(args: {
-    /** Identifier of the user whose payment will be refunded */
-    user_id: number;
-    /** Telegram payment identifier */
-    telegram_payment_charge_id: string;
-  }): true;
-
-  /** Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success. */
-  editUserStarSubscription(args: {
-    /** Identifier of the user whose subscription will be edited */
-    user_id: number;
-    /** Telegram payment identifier for the subscription */
-    telegram_payment_charge_id: string;
-    /** Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot. */
-    is_canceled: boolean;
-  }): true;
-
-  /** Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
-
-  Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues. */
-  setPassportDataErrors(args: {
-    /** User identifier */
-    user_id: number;
-    /** An array describing the errors */
-    errors: readonly PassportElementError[];
-  }): true;
-
-  /** Use this method to send a game. On success, the sent Message is returned. */
-  sendGame(args: {
-    /** Unique identifier of the business connection on behalf of which the message will be sent */
-    business_connection_id?: string;
-    /** Unique identifier for the target chat */
-    chat_id: number;
-    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
-    message_thread_id?: number;
-    /** Short name of the game, serves as the unique identifier for the game. Set up your games via BotFather. */
-    game_short_name: string;
-    /** Sends the message silently. Users will receive a notification with no sound. */
-    disable_notification?: boolean;
-    /** Protects the contents of the sent message from forwarding and saving */
-    protect_content?: boolean;
-    /** Description of the message to reply to */
-    reply_parameters?: ReplyParameters;
-    /** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
-    reply_markup?: InlineKeyboardMarkup;
-  }): Message.GameMessage & Message.BusinessSentMessage;
-
-  /** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
-  setGameScore(args: {
-    /** User identifier */
-    user_id: number;
-    /** New score, must be non-negative */
-    score: number;
-    /** Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters */
-    force?: boolean;
-    /** Pass True if the game message should not be automatically edited to include the current scoreboard */
-    disable_edit_message?: boolean;
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat */
-    chat_id?: number;
-    /** Required if inline_message_id is not specified. Identifier of the sent message */
-    message_id?: number;
-    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
-    inline_message_id?: string;
-  }):
-    | (Update.Edited & Message.GameMessage & Message.BusinessSentMessage)
-    | true;
-
-  /** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
-
-  This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
-  getGameHighScores(args: {
-    /** Target user id */
-    user_id: number;
-    /** Required if inline_message_id is not specified. Unique identifier for the target chat */
-    chat_id?: number;
-    /** Required if inline_message_id is not specified. Identifier of the sent message */
-    message_id?: number;
-    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
-    inline_message_id?: string;
-  }): GameHighScore[];
-};
-
-/** Extracts the parameters of a given method name */
-type Params<F, M extends keyof ApiMethods<F>> = Parameters<ApiMethods<F>[M]>;
-
-/** Utility type providing the argument type for the given method name or `{}` if the method does not take any parameters */
-export type Opts<F> = {
-  [M in keyof ApiMethods<F>]: Params<F, M>[0] extends undefined ? {}
-    : NonNullable<Params<F, M>[0]>;
-};
-
-export type Ret<F> = {
-  [M in keyof ApiMethods<F>]: ReturnType<ApiMethods<F>[M]>;
-};
-
-/** This object represents a sticker. */
-export interface Sticker {
-  /** Identifier for this file, which can be used to download or reuse the file */
-  file_id: string;
-  /** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
-  file_unique_id: string;
-  /** Type of the sticker, currently one of “regular”, “mask”, “custom_emoji”. The type of the sticker is independent from its format, which is determined by the fields is_animated and is_video. */
-  type: "regular" | "mask" | "custom_emoji";
-  /** Sticker width */
-  width: number;
-  /** Sticker height */
-  height: number;
-  /** True, if the sticker is animated */
-  is_animated: boolean;
-  /** True, if the sticker is a video sticker */
-  is_video: boolean;
-  /** Sticker thumbnail in the .WEBP or .JPG format */
-  thumbnail?: PhotoSize;
-  /** Emoji associated with the sticker */
-  emoji?: string;
-  /** Name of the sticker set to which the sticker belongs */
-  set_name?: string;
-  /** For premium regular stickers, premium animation for the sticker */
-  premium_animation?: File;
-  /** For mask stickers, the position where the mask should be placed */
-  mask_position?: MaskPosition;
-  /** For custom emoji stickers, unique identifier of the custom emoji */
-  custom_emoji_id?: string;
-  /** File size in bytes */
-  file_size?: number;
-}
-
-/** This object represents a sticker set. */
-export interface StickerSet {
-  /** Sticker set name */
-  name: string;
-  /** Sticker set title */
-  title: string;
-  /** Type of stickers in the set, currently one of “regular”, “mask”, “custom_emoji” */
-  sticker_type: "regular" | "mask" | "custom_emoji";
-  /** List of all set stickers */
-  stickers: Sticker[];
-  /** Sticker set thumbnail in the .WEBP, .TGS, or .WEBM format */
-  thumbnail?: PhotoSize;
-}
-
-/** This object describes the position on faces where a mask should be placed by default. */
-export interface MaskPosition {
-  /** The part of the face relative to which the mask should be placed. One of “forehead”, “eyes”, “mouth”, or “chin”. */
-  point: "forehead" | "eyes" | "mouth" | "chin";
-  /** Shift by X-axis measured in widths of the mask scaled to the face size, from left to right. For example, choosing -1.0 will place mask just to the left of the default mask position. */
-  x_shift: number;
-  /** Shift by Y-axis measured in heights of the mask scaled to the face size, from top to bottom. For example, 1.0 will place the mask just below the default mask position. */
-  y_shift: number;
-  /** Mask scaling coefficient. For example, 2.0 means double size. */
-  scale: number;
-}
-
-/** This object describes a sticker to be added to a sticker set. */
-export interface InputSticker<F> {
-  /** The added sticker. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Animated and video stickers can't be uploaded via HTTP URL. */
-  sticker: F | string;
-  /** Format of the added sticker, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, “video” for a WEBM video */
-  format:
-    | "static"
-    | "animated"
-    | "video";
-  /** List of 1-20 emoji associated with the sticker */
-  emoji_list: string[];
-  /** Position where the mask should be placed on faces. For “mask” stickers only. */
-  mask_position?: MaskPosition;
-  /** List of 0-20 search keywords for the sticker with total length of up to 64 characters. For “regular” and “custom_emoji” stickers only. */
-  keywords?: string[];
-}
-
-/** This object represents an incoming inline query. When the user sends an empty query, your bot could return some default or trending results. */
-export interface InlineQuery {
-  /** Unique identifier for this query */
-  id: string;
-  /** Sender */
-  from: User;
-  /** Text of the query (up to 256 characters) */
-  query: string;
-  /** Offset of the results to be returned, can be controlled by the bot */
-  offset: string;
-  /** Type of the chat from which the inline query was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. The chat type should be always known for requests sent from official clients and most third-party clients, unless the request was sent from a secret chat */
-  chat_type?: "sender" | Chat["type"];
-  /** Sender location, only for bots that request user location */
-  location?: Location;
 }
 
 export interface AbstractInlineQueryResultsButton {
@@ -6950,10 +6691,40 @@ export interface ChosenInlineResult {
   query: string;
 }
 
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
+  answerWebAppQuery(args: {
+    /** Unique identifier for the query to be answered */
+    web_app_query_id: string;
+    /** An object describing the message to be sent */
+    result: InlineQueryResult;
+  }): SentWebAppMessage;
+}
+
 /** Describes an inline message sent by a Web App on behalf of a user. */
 export interface SentWebAppMessage {
   /** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
   inline_message_id: string;
+}
+
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
+  savePreparedInlineMessage(args: {
+    /** Unique identifier of the target user that can use the prepared message */
+    user_id: number;
+    /** An object describing the message to be sent */
+    result: InlineQueryResult;
+    /** Pass True if the message can be sent to private chats with users */
+    allow_user_chats?: boolean;
+    /** Pass True if the message can be sent to private chats with bots */
+    allow_bot_chats?: boolean;
+    /** Pass True if the message can be sent to group and supergroup chats */
+    allow_group_chats?: boolean;
+    /** Pass True if the message can be sent to channel chats */
+    allow_channel_chats?: boolean;
+  }): PreparedInlineMessage;
 }
 
 /** Describes an inline message to be sent by a user of a Mini App. */
@@ -6962,6 +6733,174 @@ export interface PreparedInlineMessage {
   id: string;
   /** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
   expiration_date: number;
+}
+
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Use this method to send invoices. On success, the sent Message is returned. */
+  sendInvoice(args: {
+    /** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+    chat_id: number | string;
+    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    message_thread_id?: number;
+    /** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+    direct_messages_topic_id?: number;
+    /** Product name, 1-32 characters */
+    title: string;
+    /** Product description, 1-255 characters */
+    description: string;
+    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+    payload: string;
+    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
+    provider_token?: string;
+    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+    currency: string;
+    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+    prices: readonly LabeledPrice[];
+    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+    max_tip_amount?: number;
+    /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
+    suggested_tip_amounts?: number[];
+    /** Unique deep-linking parameter. If left empty, forwarded copies of the sent message will have a Pay button, allowing multiple users to pay directly from the forwarded message, using the same invoice. If non-empty, forwarded copies of the sent message will have a URL button with a deep link to the bot (instead of a Pay button), with the value used as the start parameter */
+    start_parameter?: string;
+    /** Data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
+    provider_data?: string;
+    /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for. */
+    photo_url?: string;
+    /** Photo size in bytes */
+    photo_size?: number;
+    /** Photo width */
+    photo_width?: number;
+    /** Photo height */
+    photo_height?: number;
+    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+    need_name?: boolean;
+    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+    need_phone_number?: boolean;
+    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+    need_email?: boolean;
+    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+    need_shipping_address?: boolean;
+    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+    send_phone_number_to_provider?: boolean;
+    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+    send_email_to_provider?: boolean;
+    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+    is_flexible?: boolean;
+    /** Sends the message silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the sent message from forwarding and saving */
+    protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. Ignored for payments in Telegram Stars. */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
+    /** A object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+    suggested_post_parameters?: SuggestedPostParameters;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
+    /** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
+    reply_markup?: InlineKeyboardMarkup;
+  }): Message.InvoiceMessage & Message.BusinessSentMessage;
+
+  /** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
+  createInvoiceLink(args: {
+    /** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
+    business_connection_id?: string;
+    /** Product name, 1-32 characters */
+    title: string;
+    /** Product description, 1-255 characters */
+    description: string;
+    /** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
+    payload: string;
+    /** Payment provider token, obtained via @BotFather. Pass an empty string for payments in Telegram Stars. */
+    provider_token?: string;
+    /** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+    currency: string;
+    /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+    prices: LabeledPrice[];
+    /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
+    subscription_period: 2592000;
+    /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+    max_tip_amount?: number;
+    /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
+    suggested_tip_amounts?: number[];
+    /** Data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider. */
+    provider_data?: string;
+    /** URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. */
+    photo_url?: string;
+    /** Photo size in bytes */
+    photo_size?: number;
+    /** Photo width */
+    photo_width?: number;
+    /** Photo height */
+    photo_height?: number;
+    /** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+    need_name?: boolean;
+    /** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+    need_phone_number?: boolean;
+    /** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+    need_email?: boolean;
+    /** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+    need_shipping_address?: boolean;
+    /** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+    send_phone_number_to_provider?: boolean;
+    /** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+    send_email_to_provider?: boolean;
+    /** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+    is_flexible?: boolean;
+  }): string;
+
+  /** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
+  answerShippingQuery(args: {
+    /** Unique identifier for the query to be answered */
+    shipping_query_id: string;
+    /** Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible) */
+    ok: boolean;
+    /** Required if ok is True. An array of available shipping options. */
+    shipping_options?: readonly ShippingOption[];
+    /** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable"). Telegram will display this message to the user. */
+    error_message?: string;
+  }): true;
+
+  /** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
+  answerPreCheckoutQuery(args: {
+    /** Unique identifier for the query to be answered */
+    pre_checkout_query_id: string;
+    /** Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems. */
+    ok: boolean;
+    /** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
+    error_message?: string;
+  }): true;
+
+  /** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
+  getMyStarBalance(): StarAmount;
+
+  /** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
+  getStarTransactions(args: {
+    /** Number of transactions to skip in the response */
+    offset?: number;
+    /** The maximum number of transactions to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+    limit?: number;
+  }): StarTransactions;
+
+  /** Refunds a successful payment in Telegram Stars. Returns True on success. */
+  refundStarPayment(args: {
+    /** Identifier of the user whose payment will be refunded */
+    user_id: number;
+    /** Telegram payment identifier */
+    telegram_payment_charge_id: string;
+  }): true;
+
+  /** Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success. */
+  editUserStarSubscription(args: {
+    /** Identifier of the user whose subscription will be edited */
+    user_id: number;
+    /** Telegram payment identifier for the subscription */
+    telegram_payment_charge_id: string;
+    /** Pass True to cancel extension of the user subscription; the subscription must be active up to the end of the current subscription period. Pass False to allow the user to re-enable a subscription that was previously canceled by the bot. */
+    is_canceled: boolean;
+  }): true;
 }
 
 /** This object represents a portion of the price for goods or services. */
@@ -7361,6 +7300,19 @@ export interface EncryptedCredentials {
   secret: string;
 }
 
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
+
+  Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues. */
+  setPassportDataErrors(args: {
+    /** User identifier */
+    user_id: number;
+    /** An array describing the errors */
+    errors: readonly PassportElementError[];
+  }): true;
+}
+
 /** This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
 - PassportElementErrorDataField
 - PassportElementErrorFrontSide
@@ -7527,6 +7479,29 @@ export interface PassportElementErrorUnspecified {
   message: string;
 }
 
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Use this method to send a game. On success, the sent Message is returned. */
+  sendGame(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id?: string;
+    /** Unique identifier for the target chat */
+    chat_id: number;
+    /** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+    message_thread_id?: number;
+    /** Short name of the game, serves as the unique identifier for the game. Set up your games via BotFather. */
+    game_short_name: string;
+    /** Sends the message silently. Users will receive a notification with no sound. */
+    disable_notification?: boolean;
+    /** Protects the contents of the sent message from forwarding and saving */
+    protect_content?: boolean;
+    /** Description of the message to reply to */
+    reply_parameters?: ReplyParameters;
+    /** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
+    reply_markup?: InlineKeyboardMarkup;
+  }): Message.GameMessage & Message.BusinessSentMessage;
+}
+
 /** This object represents a game. Use BotFather to create and edit games, their short names will act as unique identifiers. */
 export interface Game {
   /** Title of the game */
@@ -7546,6 +7521,43 @@ export interface Game {
 /** A placeholder, currently holds no information. Use BotFather to set up your game. */
 export interface CallbackGame {}
 
+// Methods in documentation order; merged and published as `ApiMethods`.
+interface MethodDeclarations<F> {
+  /** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
+  setGameScore(args: {
+    /** User identifier */
+    user_id: number;
+    /** New score, must be non-negative */
+    score: number;
+    /** Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters */
+    force?: boolean;
+    /** Pass True if the game message should not be automatically edited to include the current scoreboard */
+    disable_edit_message?: boolean;
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat */
+    chat_id?: number;
+    /** Required if inline_message_id is not specified. Identifier of the sent message */
+    message_id?: number;
+    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
+    inline_message_id?: string;
+  }):
+    | (Update.Edited & Message.GameMessage & Message.BusinessSentMessage)
+    | true;
+
+  /** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
+
+  This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
+  getGameHighScores(args: {
+    /** Target user id */
+    user_id: number;
+    /** Required if inline_message_id is not specified. Unique identifier for the target chat */
+    chat_id?: number;
+    /** Required if inline_message_id is not specified. Identifier of the sent message */
+    message_id?: number;
+    /** Required if chat_id and message_id are not specified. Identifier of the inline message */
+    inline_message_id?: string;
+  }): GameHighScore[];
+}
+
 /** This object represents one row of the high scores table for a game. */
 export interface GameHighScore {
   /** Position in high score table for the game */
@@ -7555,3 +7567,23 @@ export interface GameHighScore {
   /** Score */
   score: number;
 }
+
+type UnionKeys<T> = T extends T ? keyof T : never;
+
+/** Wrapper type to bundle all methods of the Telegram Bot API */
+export type ApiMethods<F> = {
+  [K in keyof MethodDeclarations<F>]: MethodDeclarations<F>[K];
+};
+
+/** Extracts the parameters of a given method name */
+type Params<F, M extends keyof ApiMethods<F>> = Parameters<ApiMethods<F>[M]>;
+
+/** Utility type providing the argument type for the given method name or `{}` if the method does not take any parameters */
+export type Opts<F> = {
+  [M in keyof ApiMethods<F>]: Params<F, M>[0] extends undefined ? {}
+    : NonNullable<Params<F, M>[0]>;
+};
+
+export type Ret<F> = {
+  [M in keyof ApiMethods<F>]: ReturnType<ApiMethods<F>[M]>;
+};
