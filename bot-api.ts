@@ -1312,6 +1312,11 @@ export interface ExternalReplyVoice extends AbstractExternalReply {
   voice: Voice;
 }
 
+export interface ExternalReplyChecklist extends AbstractExternalReply {
+  /** Message is a checklist */
+  checklist: Checklist;
+}
+
 export interface ExternalReplyContact extends AbstractExternalReply {
   /** Message is a shared contact, information about the contact */
   contact: Contact;
@@ -1362,13 +1367,14 @@ export type ExternalReplyInfo =
   | ExternalReplyAnimation
   | ExternalReplyAudio
   | ExternalReplyDocument
+  | ExternalReplyPaidMedia
   | ExternalReplyPhoto
   | ExternalReplySticker
   | ExternalReplyStory
   | ExternalReplyVideo
   | ExternalReplyVideoNote
   | ExternalReplyVoice
-  | ExternalReplyPaidMedia
+  | ExternalReplyChecklist
   | ExternalReplyContact
   | ExternalReplyDice
   | ExternalReplyGame
@@ -2209,8 +2215,6 @@ export interface GiveawayWinners {
   was_refunded?: true;
   /** Description of additional giveaway prize */
   prize_description?: string;
-  /** True, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway. */
-  is_star_giveaway?: true;
 }
 
 /** This object represents a service message about the completion of a giveaway without public winners. */
@@ -2221,6 +2225,8 @@ export interface GiveawayCompleted {
   unclaimed_prize_count?: number;
   /** Message with the giveaway that was completed, if it wasn't deleted */
   giveaway_message?: Message;
+  /** True, if the giveaway is a Telegram Star giveaway. Otherwise, currently, the giveaway is a Telegram Premium giveaway. */
+  is_star_giveaway?: true;
 }
 
 /** Describes the options used for link preview generation. */
@@ -2354,9 +2360,9 @@ export declare namespace KeyboardButton {
 export type KeyboardButton =
   | KeyboardButton.RequestUsers
   | KeyboardButton.RequestChat
-  | KeyboardButton.RequestPoll
   | KeyboardButton.RequestContact
   | KeyboardButton.RequestLocation
+  | KeyboardButton.RequestPoll
   | KeyboardButton.WebApp
   | string;
 
@@ -2483,16 +2489,16 @@ export declare namespace InlineKeyboardButton {
 
 /** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
 export type InlineKeyboardButton =
+  | InlineKeyboardButton.UrlButton
   | InlineKeyboardButton.CallbackButton
-  | InlineKeyboardButton.CopyTextButton
-  | InlineKeyboardButton.GameButton
+  | InlineKeyboardButton.WebAppButton
   | InlineKeyboardButton.LoginButton
-  | InlineKeyboardButton.PayButton
   | InlineKeyboardButton.SwitchInlineButton
   | InlineKeyboardButton.SwitchInlineCurrentChatButton
   | InlineKeyboardButton.SwitchInlineChosenChatButton
-  | InlineKeyboardButton.UrlButton
-  | InlineKeyboardButton.WebAppButton;
+  | InlineKeyboardButton.CopyTextButton
+  | InlineKeyboardButton.GameButton
+  | InlineKeyboardButton.PayButton;
 
 /** This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in.
 Telegram apps support these buttons as of version 5.7. */
@@ -3531,7 +3537,7 @@ export interface BusinessBotRights {
   /** True, if the bot can mark incoming private messages as read */
   can_read_messages?: true;
   /** True, if the bot can delete messages sent by the bot */
-  can_delete_outgoing_messages?: true;
+  can_delete_sent_messages?: true;
   /** True, if the bot can delete all private messages in managed chats */
   can_delete_all_messages?: true;
   /** True, if the bot can edit the first and last name of the business account */
@@ -3568,22 +3574,6 @@ export interface BusinessConnection {
   date: number;
   /** Rights of the business bot */
   rights?: BusinessBotRights;
-  /** True, if the connection is active */
-  is_enabled: boolean;
-}
-
-/** Describes the connection of the bot with a business account. */
-export interface BusinessConnection {
-  /** Unique identifier of the business connection */
-  id: string;
-  /** Business account user that created the business connection */
-  user: User;
-  /** Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
-  user_chat_id: number;
-  /** Date the connection was established in Unix time */
-  date: number;
-  /** True, if the bot can act on behalf of the business account in chats that were active in the last 24 hours */
-  can_reply: boolean;
   /** True, if the connection is active */
   is_enabled: boolean;
 }
@@ -4022,6 +4012,8 @@ interface MethodDeclarations<F> {
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
     show_caption_above_media?: true;
+    /** Pass True if the photo needs to be covered with a spoiler animation */
+    has_spoiler?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -5617,6 +5609,20 @@ interface MethodDeclarations<F> {
     | (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage)
     | true;
 
+  /** Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned. */
+  editMessageChecklist(args: {
+    /** Unique identifier of the business connection on behalf of which the message will be sent */
+    business_connection_id: string;
+    /** Unique identifier for the target chat */
+    chat_id: number;
+    /** Unique identifier for the target message */
+    message_id: number;
+    /** A JSON-serialized object for the new checklist */
+    checklist: InputChecklist;
+    /** A JSON-serialized object for the new inline keyboard for the message */
+    reply_markup?: InlineKeyboardMarkup;
+  }): Update.Edited & Message.ChecklistMessage & Message.BusinessSentMessage;
+
   /** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
   editMessageReplyMarkup(args: {
     /** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -5717,6 +5723,8 @@ export interface Sticker {
   mask_position?: MaskPosition;
   /** For custom emoji stickers, unique identifier of the custom emoji */
   custom_emoji_id?: string;
+  /** True, if the sticker must be repainted to a text color in messages, the color of the Telegram Premium badge in emoji status, white color on chat photos, or another appropriate color in other places */
+  needs_repainting?: true;
   /** File size in bytes */
   file_size?: number;
 }
@@ -7509,6 +7517,10 @@ interface MethodDeclarations<F> {
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
     protect_content?: boolean;
+    /** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+    allow_paid_broadcast?: boolean;
+    /** Unique identifier of the message effect to be added to the message; for private chats only */
+    message_effect_id?: string;
     /** Description of the message to reply to */
     reply_parameters?: ReplyParameters;
     /** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */

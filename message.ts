@@ -27,6 +27,7 @@ export type {
   Document,
   ExternalReplyAnimation,
   ExternalReplyAudio,
+  ExternalReplyChecklist,
   ExternalReplyContact,
   ExternalReplyDice,
   ExternalReplyDocument,
