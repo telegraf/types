@@ -16,6 +16,7 @@ export type {
   ChatAdministratorRights,
   ChatBoost,
   ChatBoostRemoved,
+  ChatBoostSource,
   ChatBoostSourceGiftCode,
   ChatBoostSourceGiveaway,
   ChatBoostSourcePremium,

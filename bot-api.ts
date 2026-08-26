@@ -141,10 +141,9 @@ export declare namespace Update {
 /** This object represents an incoming update.
 At most one of the optional parameters can be present in any given update. */
 export type Update =
-  | Update.CallbackQueryUpdate
+  | Update.MessageUpdate
+  | Update.EditedMessageUpdate
   | Update.ChannelPostUpdate
-  | Update.ChatMemberUpdate
-  | Update.ChosenInlineResultUpdate
   | Update.EditedChannelPostUpdate
   | Update.BusinessConnectionUpdate
   | Update.BusinessMessageUpdate
@@ -152,14 +151,16 @@ export type Update =
   | Update.DeletedBusinessMessagesUpdate
   | Update.MessageReactionUpdate
   | Update.MessageReactionCountUpdate
-  | Update.EditedMessageUpdate
   | Update.InlineQueryUpdate
-  | Update.MessageUpdate
-  | Update.MyChatMemberUpdate
-  | Update.PreCheckoutQueryUpdate
-  | Update.PollAnswerUpdate
-  | Update.PollUpdate
+  | Update.ChosenInlineResultUpdate
+  | Update.CallbackQueryUpdate
   | Update.ShippingQueryUpdate
+  | Update.PreCheckoutQueryUpdate
+  | Update.PurchasedPaidMediaUpdate
+  | Update.PollUpdate
+  | Update.PollAnswerUpdate
+  | Update.MyChatMemberUpdate
+  | Update.ChatMemberUpdate
   | Update.ChatJoinRequestUpdate
   | Update.ChatBoostUpdate
   | Update.RemovedChatBoostUpdate;
@@ -344,7 +345,7 @@ export type Chat =
   | Chat.SupergroupChat
   | Chat.ChannelChat;
 
-declare namespace ChatFullInfo {
+export declare namespace ChatFullInfo {
   /** Internal type representing private chats returned from `getChat`. */
   export interface PrivateChat extends Chat.PrivateChat {
     /** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
@@ -556,6 +557,7 @@ export type ServiceMessageBundle =
   | Message.PinnedMessageMessage
   | Message.InvoiceMessage
   | Message.SuccessfulPaymentMessage
+  | Message.RefundedPaymentMessage
   | Message.UsersSharedMessage
   | Message.ChatSharedMessage
   | Message.GiftMessage
@@ -565,6 +567,16 @@ export type ServiceMessageBundle =
   | Message.PassportDataMessage
   | Message.ProximityAlertTriggeredMessage
   | Message.BoostAddedMessage
+  | Message.ChatBackgroundSetMessage
+  | Message.ChecklistTasksDoneMessage
+  | Message.ChecklistTasksAddedMessage
+  | Message.DirectMessagePriceChangedMessage
+  | Message.PaidMessagePriceChangedMessage
+  | Message.SuggestedPostApprovedMessage
+  | Message.SuggestedPostApprovalFailedMessage
+  | Message.SuggestedPostDeclinedMessage
+  | Message.SuggestedPostPaidMessage
+  | Message.SuggestedPostRefundedMessage
   | Message.ForumTopicCreatedMessage
   | Message.ForumTopicEditedMessage
   | Message.ForumTopicClosedMessage
@@ -585,11 +597,13 @@ export type ServiceMessageBundle =
 export type CommonMessageBundle =
   | Message.AnimationMessage
   | Message.AudioMessage
+  | Message.ChecklistMessage
   | Message.ContactMessage
   | Message.DiceMessage
   | Message.DocumentMessage
   | Message.GameMessage
   | Message.LocationMessage
+  | Message.PaidMediaMessage
   | Message.PhotoMessage
   | Message.PollMessage
   | Message.StickerMessage
@@ -1354,6 +1368,7 @@ export type ExternalReplyInfo =
   | ExternalReplyVideo
   | ExternalReplyVideoNote
   | ExternalReplyVoice
+  | ExternalReplyPaidMedia
   | ExternalReplyContact
   | ExternalReplyDice
   | ExternalReplyGame
@@ -1398,7 +1413,7 @@ export interface AbstractMessageOrigin {
 - MessageOriginChat
 - MessageOriginChannel
  */
-type MessageOrigin =
+export type MessageOrigin =
   | MessageOriginUser
   | MessageOriginHiddenUser
   | MessageOriginChat
@@ -1592,36 +1607,6 @@ export interface PaidMediaInfo {
   paid_media: PaidMedia[];
 }
 
-declare namespace PaidMedia {
-  /** The paid media isn't available before the payment. */
-  export interface PaidMediaPreview {
-    /** Type of the paid media, always “preview” */
-    type: string;
-    /** Media width as defined by the sender */
-    width?: number;
-    /** Media height as defined by the sender */
-    height?: number;
-    /** Duration of the media in seconds as defined by the sender */
-    duration?: number;
-  }
-
-  /** The paid media is a photo. */
-  export interface PaidMediaPhoto {
-    /** Type of the paid media, always “photo” */
-    type: string;
-    /** The photo */
-    photo: PhotoSize[];
-  }
-
-  /** The paid media is a video. */
-  export interface PaidMediaVideo {
-    /** Type of the paid media, always “video” */
-    type: string;
-    /** The video */
-    video: Video;
-  }
-}
-
 /** This object describes paid media. Currently, it can be one of
 
 - PaidMediaPreview
@@ -1629,9 +1614,37 @@ declare namespace PaidMedia {
 - PaidMediaVideo
  */
 export type PaidMedia =
-  | PaidMedia.PaidMediaPreview
-  | PaidMedia.PaidMediaPhoto
-  | PaidMedia.PaidMediaVideo;
+  | PaidMediaPreview
+  | PaidMediaPhoto
+  | PaidMediaVideo;
+
+/** The paid media isn't available before the payment. */
+export interface PaidMediaPreview {
+  /** Type of the paid media, always “preview” */
+  type: string;
+  /** Media width as defined by the sender */
+  width?: number;
+  /** Media height as defined by the sender */
+  height?: number;
+  /** Duration of the media in seconds as defined by the sender */
+  duration?: number;
+}
+
+/** The paid media is a photo. */
+export interface PaidMediaPhoto {
+  /** Type of the paid media, always “photo” */
+  type: string;
+  /** The photo */
+  photo: PhotoSize[];
+}
+
+/** The paid media is a video. */
+export interface PaidMediaVideo {
+  /** Type of the paid media, always “video” */
+  type: string;
+  /** The video */
+  video: Video;
+}
 
 /** This object represents a phone contact. */
 export interface Contact {
@@ -2471,6 +2484,7 @@ export declare namespace InlineKeyboardButton {
 /** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
 export type InlineKeyboardButton =
   | InlineKeyboardButton.CallbackButton
+  | InlineKeyboardButton.CopyTextButton
   | InlineKeyboardButton.GameButton
   | InlineKeyboardButton.LoginButton
   | InlineKeyboardButton.PayButton
@@ -3440,7 +3454,7 @@ export interface AbstractChatBoostSource {
 - ChatBoostSourceGiftCode
 - ChatBoostSourceGiveaway
 */
-type ChatBoostSource =
+export type ChatBoostSource =
   | ChatBoostSourcePremium
   | ChatBoostSourceGiftCode
   | ChatBoostSourceGiveaway;
