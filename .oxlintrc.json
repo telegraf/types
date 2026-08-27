@@ -1,8 +1,8 @@
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "rules": {
-    "no-irregular-whitespace": "off",
-    "no-empty-interface": "off",
-    "no-unused-vars": ["warn", { "varsIgnorePattern": "^F$" }]
-  }
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"rules": {
+		"no-irregular-whitespace": "off",
+		"no-empty-interface": "off",
+		"no-unused-vars": ["warn", { "varsIgnorePattern": "^F$" }]
+	}
 }

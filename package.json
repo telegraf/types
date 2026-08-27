@@ -1,45 +1,45 @@
 {
-  "name": "@telegraf/types",
-  "private": false,
-  "version": "9.2.1",
-  "description": "Type declarations for the Telegram API",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/telegraf/types.git"
-  },
-  "keywords": [
-    "telegram",
-    "telegraf",
-    "bot",
-    "api",
-    "types",
-    "typings"
-  ],
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "lint": "oxlint",
-    "fmt": "oxfmt",
-    "fmt:check": "oxfmt --check",
-    "dev": "bun run fmt && bun run lint && bun run check",
-    "clean": "bun -e \"import{readdirSync,rmSync}from'node:fs';let n=0;for(const f of readdirSync('.'))if(f.endsWith('.d.ts')){rmSync(f);n++}console.log('removed '+n+' .d.ts')\"",
-    "prepare": "tsc -p tsconfig.json"
-  },
-  "author": "Telegraf contributors",
-  "types": "index.d.ts",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/telegraf/types/issues"
-  },
-  "homepage": "https://github.com/telegraf/types#readme",
-  "files": [
-    "*.d.ts",
-    "index.js"
-  ],
-  "devDependencies": {
-    "oxfmt": "^0.65.0",
-    "oxlint": "^1.80.0",
-    "typescript": "5.9.3"
-  }
+	"name": "@telegraf/types",
+	"private": false,
+	"version": "9.2.1",
+	"description": "Type declarations for the Telegram API",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/telegraf/types.git"
+	},
+	"keywords": [
+		"telegram",
+		"telegraf",
+		"bot",
+		"api",
+		"types",
+		"typings"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"check": "tsc -p tsconfig.json --noEmit",
+		"lint": "oxlint",
+		"fmt": "oxfmt",
+		"fmt:check": "oxfmt --check",
+		"dev": "bun run fmt && bun run lint && bun run check",
+		"clean": "bun -e \"import{readdirSync,rmSync}from'node:fs';let n=0;for(const f of readdirSync('.'))if(f.endsWith('.d.ts')){rmSync(f);n++}console.log('removed '+n+' .d.ts')\"",
+		"prepare": "tsc -p tsconfig.json"
+	},
+	"author": "Telegraf contributors",
+	"types": "index.d.ts",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/telegraf/types/issues"
+	},
+	"homepage": "https://github.com/telegraf/types#readme",
+	"files": [
+		"*.d.ts",
+		"index.js"
+	],
+	"devDependencies": {
+		"oxfmt": "^0.65.0",
+		"oxlint": "^1.80.0",
+		"typescript": "5.9.3"
+	}
 }

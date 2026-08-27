@@ -1,29 +1,29 @@
 {
-  "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
-    "newLine": "lf",
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedParameters": true,
-    "strict": true,
+	"compilerOptions": {
+		"forceConsistentCasingInFileNames": true,
+		"newLine": "lf",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUnusedParameters": true,
+		"strict": true,
 
-    // The published artifact is the emitted .d.ts set — `files` in package.json ships
-    // "*.d.ts" and index.js, nothing else. There is no runtime code to emit.
-    "declaration": true,
-    "emitDeclarationOnly": true,
+		// The published artifact is the emitted .d.ts set — `files` in package.json ships
+		// "*.d.ts" and index.js, nothing else. There is no runtime code to emit.
+		"declaration": true,
+		"emitDeclarationOnly": true,
 
-    // node16 resolution maps a "./x.js" specifier to ./x.ts at compile time and leaves the
-    // ".js" untouched in the emitted declarations — which is exactly what consumers need,
-    // and is why deno2node is no longer required. It was only ever here to rewrite Deno's
-    // ".ts" specifiers to ".js" on the way out.
-    //
-    // This also lifts the TypeScript 5.x pin: the previous "moduleResolution": "node"
-    // (i.e. node10) was removed in TypeScript 7.
-    "module": "node16",
-    "moduleResolution": "node16",
+		// node16 resolution maps a "./x.js" specifier to ./x.ts at compile time and leaves the
+		// ".js" untouched in the emitted declarations — which is exactly what consumers need,
+		// and is why deno2node is no longer required. It was only ever here to rewrite Deno's
+		// ".ts" specifiers to ".js" on the way out.
+		//
+		// This also lifts the TypeScript 5.x pin: the previous "moduleResolution": "node"
+		// (i.e. node10) was removed in TypeScript 7.
+		"module": "node16",
+		"moduleResolution": "node16",
 
-    "skipLibCheck": true,
-    "target": "es2019"
-  },
-  "include": ["*.ts"]
+		"skipLibCheck": true,
+		"target": "es2019"
+	},
+	"include": ["*.ts"]
 }
