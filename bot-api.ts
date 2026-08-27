@@ -227,7 +227,7 @@ interface MethodDeclarations<F> {
 /** Describes the current status of a webhook. */
 export interface WebhookInfo {
   /** Webhook URL, may be empty if webhook is not set up */
-  url?: string;
+  url: string;
   /** True, if a custom certificate was provided for webhook certificate checks */
   has_custom_certificate: boolean;
   /** Number of updates awaiting delivery */
@@ -1970,9 +1970,9 @@ export interface BackgroundTypeWallpaper {
   /** Dimming of the background in dark themes, as a percentage; 0-100 */
   dark_theme_dimming: number;
   /** True, if the wallpaper is downscaled to fit in a 450x450 square and then box-blurred with radius 12 */
-  is_blurred: boolean;
+  is_blurred?: true;
   /** True, if the background moves slightly when the device is tilted */
-  is_moving: boolean;
+  is_moving?: true;
 }
 
 /** The background is a .PNG or .TGV (gzipped subset of SVG with MIME type “application/x-tgwallpattern”) pattern to be combined with the background fill chosen by the user. */
@@ -1986,9 +1986,9 @@ export interface BackgroundTypePattern {
   /** Intensity of the pattern when it is shown above the filled background; 0-100 */
   intensity: number;
   /** True, if the background fill must be applied only to the pattern itself. All other pixels are black in this case. For dark themes only */
-  is_inverted: boolean;
+  is_inverted?: true;
   /** True, if the background moves slightly when the device is tilted */
-  is_moving: boolean;
+  is_moving?: true;
 }
 
 /** The background is taken directly from a built-in chat theme. */
@@ -2112,7 +2112,7 @@ export interface DirectMessagePriceChanged {
   /** True, if direct messages are enabled for the channel chat; false otherwise */
   are_direct_messages_enabled: boolean;
   /** The new number of Telegram Stars that must be paid by users for each direct message sent to the channel. Does not apply to users who have been exempted by administrators. Defaults to 0. */
-  direct_message_star_count: number;
+  direct_message_star_count?: number;
 }
 
 /** Describes a service message about the approval of a suggested post. */
@@ -2130,7 +2130,7 @@ export interface SuggestedPostApprovalFailed {
   /** Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
   suggested_post_message?: Message;
   /** Expected price of the post */
-  price?: SuggestedPostPrice;
+  price: SuggestedPostPrice;
 }
 
 /** Describes a service message about the rejection of a suggested post. */
@@ -2648,15 +2648,15 @@ export interface ChatAdministratorRights {
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories: boolean;
   /** True, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
-  can_post_messages: boolean;
+  can_post_messages?: boolean;
   /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
-  can_edit_messages: boolean;
+  can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; for groups and supergroups only */
-  can_pin_messages: boolean;
+  can_pin_messages?: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
-  can_manage_topics: boolean;
+  can_manage_topics?: boolean;
   /** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
-  can_manage_direct_messages: boolean;
+  can_manage_direct_messages?: boolean;
 }
 
 /** This object represents changes in the status of a chat member. */
@@ -2738,15 +2738,15 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
   /** True, if the administrator can delete stories posted by other users */
   can_delete_stories: boolean;
   /** True, if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
-  can_post_messages: boolean;
+  can_post_messages?: boolean;
   /** True, if the administrator can edit messages of other users and can pin messages; for channels only */
-  can_edit_messages: boolean;
+  can_edit_messages?: boolean;
   /** True, if the user is allowed to pin messages; for groups and supergroups only */
-  can_pin_messages: boolean;
+  can_pin_messages?: boolean;
   /** True, if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
-  can_manage_topics: boolean;
+  can_manage_topics?: boolean;
   /** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
-  can_manage_direct_messages: boolean;
+  can_manage_direct_messages?: boolean;
   /** Custom title for this user */
   custom_title?: string;
 }
@@ -3185,13 +3185,13 @@ export interface GiftInfo {
   /** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
   prepaid_upgrade_star_count?: number;
   /** True, if the gift can be upgraded to a unique gift */
-  can_be_upgraded?: boolean;
+  can_be_upgraded?: true;
   /** Text of the message that was added to the gift */
   text?: string;
   /** Special entities that appear in the text */
   entities?: MessageEntity[];
   /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
-  is_private?: boolean;
+  is_private?: true;
 }
 
 /** Describes a service message about a unique gift that was sent or received. */
@@ -3232,13 +3232,13 @@ export interface OwnedGiftRegular {
   /** Special entities that appear in the text */
   entities?: MessageEntity[];
   /** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
-  is_private?: boolean;
+  is_private?: true;
   /** True, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only */
-  is_saved?: boolean;
+  is_saved?: true;
   /** True, if the gift can be upgraded to a unique gift; for gifts received on behalf of business accounts only */
-  can_be_upgraded?: boolean;
+  can_be_upgraded?: true;
   /** True, if the gift was refunded and isn't available anymore */
-  was_refunded?: boolean;
+  was_refunded?: true;
   /** Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars */
   convert_star_count?: number;
   /** Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift */
@@ -3258,9 +3258,9 @@ export interface OwnedGiftUnique {
   /** Date the gift was sent in Unix time */
   send_date: number;
   /** True, if the gift is displayed on the account's profile page; for gifts received on behalf of business accounts only */
-  is_saved?: boolean;
+  is_saved?: true;
   /** True, if the gift can be transferred to another owner; for gifts received on behalf of business accounts only */
-  can_be_transferred?: boolean;
+  can_be_transferred?: true;
   /** Number of Telegram Stars that must be paid to transfer the gift; omitted if the bot cannot transfer the gift */
   transfer_star_count?: number;
   /** Point in time (Unix timestamp) when the gift can be transferred. If it is in the past, then the gift can be transferred now */
@@ -3649,7 +3649,7 @@ export interface InputMediaPhoto<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Pass True if the photo needs to be covered with a spoiler animation */
   has_spoiler?: boolean;
 }
@@ -3673,7 +3673,7 @@ export interface InputMediaVideo<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Video width */
   width?: number;
   /** Video height */
@@ -3701,7 +3701,7 @@ export interface InputMediaAnimation<F> {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Animation width */
   width?: number;
   /** Animation height */
@@ -3953,7 +3953,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the new caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -4011,7 +4011,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** Pass True if the photo needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
@@ -4155,7 +4155,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** Pass True if the video needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Pass True if the uploaded video is suitable for streaming */
@@ -4207,7 +4207,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** Pass True if the animation needs to be covered with a spoiler animation */
     has_spoiler?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
@@ -4332,7 +4332,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** Sends the message silently. Users will receive a notification with no sound. */
     disable_notification?: boolean;
     /** Protects the contents of the sent message from forwarding and saving */
@@ -4570,7 +4570,7 @@ interface MethodDeclarations<F> {
   /** Use this method to send a checklist on behalf of a connected business account. On success, the sent Message is returned. */
   sendChecklist(args: {
     /** Unique identifier of the business connection on behalf of which the message will be sent */
-    business_connection_id?: string;
+    business_connection_id: string;
     /** Unique identifier for the target chat */
     chat_id: number | string;
     /** An object for the checklist to send */
@@ -5129,7 +5129,7 @@ interface MethodDeclarations<F> {
 
   getBusinessConnection(args: {
     /** Unique identifier of the business connection */
-    business_connection_id?: string;
+    business_connection_id: string;
   }): BusinessConnection;
 
   /** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
@@ -5542,7 +5542,7 @@ interface MethodDeclarations<F> {
     /** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
     caption_entities?: MessageEntity[];
     /** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
-    show_caption_above_media?: true;
+    show_caption_above_media?: boolean;
     /** An object for an inline keyboard. */
     reply_markup?: InlineKeyboardMarkup;
   }):
@@ -6100,7 +6100,7 @@ export interface InlineQueryResultPhoto {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -6134,7 +6134,7 @@ export interface InlineQueryResultGif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -6168,7 +6168,7 @@ export interface InlineQueryResultMpeg4Gif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
@@ -6198,7 +6198,7 @@ export interface InlineQueryResultVideo {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Video width */
   video_width?: number;
   /** Video height */
@@ -6418,7 +6418,7 @@ export interface InlineQueryResultCachedPhoto {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the photo */
@@ -6442,7 +6442,7 @@ export interface InlineQueryResultCachedGif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the GIF animation */
@@ -6466,7 +6466,7 @@ export interface InlineQueryResultCachedMpeg4Gif {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video animation */
@@ -6530,7 +6530,7 @@ export interface InlineQueryResultCachedVideo {
   /** List of special entities that appear in the caption, which can be specified instead of parse_mode */
   caption_entities?: MessageEntity[];
   /** Pass True, if the caption must be shown above the message media */
-  show_caption_above_media?: true;
+  show_caption_above_media?: boolean;
   /** Inline keyboard attached to the message */
   reply_markup?: InlineKeyboardMarkup;
   /** Content of the message to be sent instead of the video */
@@ -6727,7 +6727,7 @@ interface MethodDeclarations<F> {
 /** Describes an inline message sent by a Web App on behalf of a user. */
 export interface SentWebAppMessage {
   /** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
-  inline_message_id: string;
+  inline_message_id?: string;
 }
 
 // Methods in documentation order; merged and published as `ApiMethods`.
@@ -6842,7 +6842,7 @@ interface MethodDeclarations<F> {
     /** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
     prices: LabeledPrice[];
     /** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
-    subscription_period: 2592000;
+    subscription_period?: 2592000;
     /** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
     max_tip_amount?: number;
     /** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
@@ -6996,9 +6996,9 @@ export interface SuccessfulPayment {
   /** Expiration date of the subscription, in Unix time; for recurring payments only */
   subscription_expiration_date?: number;
   /** True, if the payment is a recurring payment for a subscription */
-  is_recurring?: boolean;
+  is_recurring?: true;
   /** True, if the payment is the first payment for a subscription */
-  is_first_recurring?: boolean;
+  is_first_recurring?: true;
   /** Identifier of the shipping option chosen by the user */
   shipping_option_id?: string;
   /** Order information provided by the user */
@@ -7537,11 +7537,11 @@ export interface Game {
   /** Photo that will be displayed in the game message in chats. */
   photo: PhotoSize[];
   /** Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters. */
-  text: string;
+  text?: string;
   /** Special entities that appear in text, such as usernames, URLs, bot commands, etc. */
-  text_entities: MessageEntity[];
+  text_entities?: MessageEntity[];
   /** Animation that will be displayed in the game message in chats. Upload via BotFather */
-  animation: Animation;
+  animation?: Animation;
 }
 
 /** A placeholder, currently holds no information. Use BotFather to set up your game. */
