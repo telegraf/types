@@ -18,4 +18,4 @@ export type {
   InputStoryContentVideo,
   Opts,
   Ret,
-} from "./bot-api.ts";
+} from "./bot-api.js";

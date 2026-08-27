@@ -3,8 +3,8 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "deno.enable": true,
-  "deno.config": "./deno.jsonc",
-  "deno.lint": true,
-  "editor.defaultFormatter": "denoland.vscode-deno"
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "oxc.enable": true,
+  "oxc.fmt.experimental": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

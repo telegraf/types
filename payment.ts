@@ -24,4 +24,4 @@ export type {
   TransactionPartnerTelegramAds,
   TransactionPartnerTelegramApi,
   TransactionPartnerUser,
-} from "./bot-api.ts";
+} from "./bot-api.js";

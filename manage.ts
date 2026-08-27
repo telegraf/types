@@ -75,4 +75,4 @@ export type {
   UserFromGetMe,
   UserProfilePhotos,
   WebhookInfo,
-} from "./bot-api.ts";
+} from "./bot-api.js";

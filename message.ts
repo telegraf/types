@@ -114,4 +114,4 @@ export type {
   Voice,
   WebAppData,
   WriteAccessAllowed,
-} from "./bot-api.ts";
+} from "./bot-api.js";

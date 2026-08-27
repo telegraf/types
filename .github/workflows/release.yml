@@ -10,12 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - run : npm ci --ignore-scripts
-    - run : npm run prepare
-    - name: Publish to npm
-      run : |
-        npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-        npm publish --ignore-scripts --access=public
-      env :
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # --ignore-scripts so `prepare` does not run here; the build is an explicit step
+      # below, which keeps a build failure distinguishable from an install failure.
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run build
+
+      # npm is used only to publish — bun does the install and build.
+      - name: Publish to npm
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish --ignore-scripts --access=public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

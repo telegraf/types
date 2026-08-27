@@ -14,4 +14,4 @@ export type {
   ReplyKeyboardRemove,
   SwitchInlineQueryChosenChat,
   WebAppInfo,
-} from "./bot-api.ts";
+} from "./bot-api.js";

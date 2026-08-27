@@ -14,4 +14,4 @@ export type {
   MenuButtonCommands,
   MenuButtonDefault,
   MenuButtonWebApp,
-} from "./bot-api.ts";
+} from "./bot-api.js";

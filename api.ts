@@ -3,4 +3,4 @@ export type {
   ApiResponse,
   ApiSuccess,
   ResponseParameters,
-} from "./bot-api.ts";
+} from "./bot-api.js";

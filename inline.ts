@@ -32,4 +32,4 @@ export type {
   InputMessageContent,
   InputTextMessageContent,
   InputVenueMessageContent,
-} from "./bot-api.ts";
+} from "./bot-api.js";

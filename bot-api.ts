@@ -1,5 +1,3 @@
-// deno-lint-ignore-file ban-types no-irregular-whitespace
-
 export declare namespace Update {
   /** Internal type holding properties that updates in channels share. */
   export interface Channel {
