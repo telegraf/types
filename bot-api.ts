@@ -1593,7 +1593,15 @@ export interface PaidMediaInfo {
 - PaidMediaPhoto
 - PaidMediaVideo
  */
-export type PaidMedia = PaidMediaPreview | PaidMediaPhoto | PaidMediaVideo;
+export type PaidMedia = PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
+
+/** The paid media is a photo. */
+export interface PaidMediaPhoto {
+	/** Type of the paid media, always “photo” */
+	type: string;
+	/** The photo */
+	photo: PhotoSize[];
+}
 
 /** The paid media isn't available before the payment. */
 export interface PaidMediaPreview {
@@ -1605,14 +1613,6 @@ export interface PaidMediaPreview {
 	height?: number;
 	/** Duration of the media in seconds as defined by the sender */
 	duration?: number;
-}
-
-/** The paid media is a photo. */
-export interface PaidMediaPhoto {
-	/** Type of the paid media, always “photo” */
-	type: string;
-	/** The photo */
-	photo: PhotoSize[];
 }
 
 /** The paid media is a video. */
@@ -1780,24 +1780,6 @@ export interface InputChecklist {
 	others_can_add_tasks?: boolean;
 	/** Pass True if other users can mark tasks as done or not done in the checklist */
 	others_can_mark_tasks_as_done?: boolean;
-}
-
-/** Describes a service message about checklist tasks marked as done or not done. */
-export interface ChecklistTasksDone {
-	/** Message containing the checklist whose tasks were marked as done or not done. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
-	checklist_message?: Message;
-	/** Identifiers of the tasks that were marked as done */
-	marked_as_done_task_ids?: number[];
-	/** Identifiers of the tasks that were marked as not done */
-	marked_as_not_done_task_ids?: number[];
-}
-
-/** Describes a service message about tasks added to a checklist. */
-export interface ChecklistTasksAdded {
-	/** Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
-	checklist_message?: Message;
-	/** List of tasks added to the checklist */
-	tasks: ChecklistTask[];
 }
 
 export declare namespace Location {
@@ -1971,6 +1953,24 @@ export interface BackgroundTypeChatTheme {
 export interface ChatBackground {
 	/** Type of the background */
 	type: BackgroundType;
+}
+
+/** Describes a service message about checklist tasks marked as done or not done. */
+export interface ChecklistTasksDone {
+	/** Message containing the checklist whose tasks were marked as done or not done. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	checklist_message?: Message;
+	/** Identifiers of the tasks that were marked as done */
+	marked_as_done_task_ids?: number[];
+	/** Identifiers of the tasks that were marked as not done */
+	marked_as_not_done_task_ids?: number[];
+}
+
+/** Describes a service message about tasks added to a checklist. */
+export interface ChecklistTasksAdded {
+	/** Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	checklist_message?: Message;
+	/** List of tasks added to the checklist */
+	tasks: ChecklistTask[];
 }
 
 /** This object represents a service message about a new forum topic created in the chat. */
@@ -3625,6 +3625,20 @@ export interface BusinessMessagesDeleted {
 	message_ids: number[];
 }
 
+/** Describes an inline message sent by a Web App on behalf of a user. */
+export interface SentWebAppMessage {
+	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
+	inline_message_id?: string;
+}
+
+/** Describes an inline message to be sent by a user of a Mini App. */
+export interface PreparedInlineMessage {
+	/** Unique identifier of the prepared message */
+	id: string;
+	/** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
+	expiration_date: number;
+}
+
 export interface ApiError {
 	ok: false;
 	error_code: number;
@@ -3659,60 +3673,10 @@ export interface ResponseParameters {
   - InputMediaVideo */
 export type InputMedia<F> =
 	| InputMediaAnimation<F>
-	| InputMediaDocument<F>
 	| InputMediaAudio<F>
+	| InputMediaDocument<F>
 	| InputMediaPhoto<F>
 	| InputMediaVideo<F>;
-
-/** Represents a photo to be sent. */
-export interface InputMediaPhoto<F> {
-	/** Type of the result, must be photo */
-	type: "photo";
-	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
-	media: F | string;
-	/** Caption of the photo to be sent, 0-1024 characters after entities parsing */
-	caption?: string;
-	/** Mode for parsing entities in the photo caption. See formatting options for more details. */
-	parse_mode?: ParseMode;
-	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
-	caption_entities?: MessageEntity[];
-	/** Pass True, if the caption must be shown above the message media */
-	show_caption_above_media?: boolean;
-	/** Pass True if the photo needs to be covered with a spoiler animation */
-	has_spoiler?: boolean;
-}
-
-/** Represents a video to be sent. */
-export interface InputMediaVideo<F> {
-	/** Type of the result, must be video */
-	type: "video";
-	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
-	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
-	thumbnail?: F;
-	/** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
-	cover?: F | string;
-	/** Start timestamp for the video in the message */
-	start_timestamp?: number;
-	/** Caption of the video to be sent, 0-1024 characters after entities parsing */
-	caption?: string;
-	/** Mode for parsing entities in the video caption. See formatting options for more details. */
-	parse_mode?: ParseMode;
-	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
-	caption_entities?: MessageEntity[];
-	/** Pass True, if the caption must be shown above the message media */
-	show_caption_above_media?: boolean;
-	/** Video width */
-	width?: number;
-	/** Video height */
-	height?: number;
-	/** Video duration in seconds */
-	duration?: number;
-	/** Pass True if the uploaded video is suitable for streaming */
-	supports_streaming?: boolean;
-	/** Pass True if the photo needs to be covered with a spoiler animation */
-	has_spoiler?: boolean;
-}
 
 /** Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent. */
 export interface InputMediaAnimation<F> {
@@ -3778,6 +3742,56 @@ export interface InputMediaDocument<F> {
 	caption_entities?: MessageEntity[];
 	/** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album. */
 	disable_content_type_detection?: boolean;
+}
+
+/** Represents a photo to be sent. */
+export interface InputMediaPhoto<F> {
+	/** Type of the result, must be photo */
+	type: "photo";
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
+	media: F | string;
+	/** Caption of the photo to be sent, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the photo caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Pass True, if the caption must be shown above the message media */
+	show_caption_above_media?: boolean;
+	/** Pass True if the photo needs to be covered with a spoiler animation */
+	has_spoiler?: boolean;
+}
+
+/** Represents a video to be sent. */
+export interface InputMediaVideo<F> {
+	/** Type of the result, must be video */
+	type: "video";
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
+	media: F | string;
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	thumbnail?: F;
+	/** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
+	cover?: F | string;
+	/** Start timestamp for the video in the message */
+	start_timestamp?: number;
+	/** Caption of the video to be sent, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the video caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Pass True, if the caption must be shown above the message media */
+	show_caption_above_media?: boolean;
+	/** Video width */
+	width?: number;
+	/** Video height */
+	height?: number;
+	/** Video duration in seconds */
+	duration?: number;
+	/** Pass True if the uploaded video is suitable for streaming */
+	supports_streaming?: boolean;
+	/** Pass True if the photo needs to be covered with a spoiler animation */
+	has_spoiler?: boolean;
 }
 
 /** This object describes the paid media to be sent. Currently, it can be one of
@@ -5424,6 +5438,30 @@ interface MethodDeclarations<F> {
 		story_id: number;
 	}): true;
 
+	/** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
+	answerWebAppQuery(args: {
+		/** Unique identifier for the query to be answered */
+		web_app_query_id: string;
+		/** An object describing the message to be sent */
+		result: InlineQueryResult;
+	}): SentWebAppMessage;
+
+	/** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
+	savePreparedInlineMessage(args: {
+		/** Unique identifier of the target user that can use the prepared message */
+		user_id: number;
+		/** An object describing the message to be sent */
+		result: InlineQueryResult;
+		/** Pass True if the message can be sent to private chats with users */
+		allow_user_chats?: boolean;
+		/** Pass True if the message can be sent to private chats with bots */
+		allow_bot_chats?: boolean;
+		/** Pass True if the message can be sent to group and supergroup chats */
+		allow_group_chats?: boolean;
+		/** Pass True if the message can be sent to channel chats */
+		allow_channel_chats?: boolean;
+	}): PreparedInlineMessage;
+
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6634,50 +6672,6 @@ export interface ChosenInlineResult {
 	inline_message_id?: string;
 	/** The query that was used to obtain the result */
 	query: string;
-}
-
-// Methods in documentation order; merged and published as `ApiMethods`.
-interface MethodDeclarations<F> {
-	/** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
-	answerWebAppQuery(args: {
-		/** Unique identifier for the query to be answered */
-		web_app_query_id: string;
-		/** An object describing the message to be sent */
-		result: InlineQueryResult;
-	}): SentWebAppMessage;
-}
-
-/** Describes an inline message sent by a Web App on behalf of a user. */
-export interface SentWebAppMessage {
-	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
-	inline_message_id?: string;
-}
-
-// Methods in documentation order; merged and published as `ApiMethods`.
-interface MethodDeclarations<F> {
-	/** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
-	savePreparedInlineMessage(args: {
-		/** Unique identifier of the target user that can use the prepared message */
-		user_id: number;
-		/** An object describing the message to be sent */
-		result: InlineQueryResult;
-		/** Pass True if the message can be sent to private chats with users */
-		allow_user_chats?: boolean;
-		/** Pass True if the message can be sent to private chats with bots */
-		allow_bot_chats?: boolean;
-		/** Pass True if the message can be sent to group and supergroup chats */
-		allow_group_chats?: boolean;
-		/** Pass True if the message can be sent to channel chats */
-		allow_channel_chats?: boolean;
-	}): PreparedInlineMessage;
-}
-
-/** Describes an inline message to be sent by a user of a Mini App. */
-export interface PreparedInlineMessage {
-	/** Unique identifier of the prepared message */
-	id: string;
-	/** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
-	expiration_date: number;
 }
 
 // Methods in documentation order; merged and published as `ApiMethods`.
