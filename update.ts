@@ -1,1 +1,1 @@
-export type { Update } from "./bot-api.ts";
+export type { Update } from "./bot-api.js";

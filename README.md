@@ -63,7 +63,7 @@ For instance, let's stick with our example and say that you want to support `Inp
 
 ```ts
 interface MyInputFile {
-  path: string;
+	path: string;
 }
 ```
 
