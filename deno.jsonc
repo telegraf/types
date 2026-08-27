@@ -9,6 +9,7 @@
   "lint": {
     "exclude": [
       "api.d.ts",
+      "bot-api.d.ts",
       "inline.d.ts",
       "manage.d.ts",
       "markup.d.ts",
