@@ -372,7 +372,7 @@ export declare namespace ChatFullInfo {
 		/** The most recent pinned message (by sending date) */
 		pinned_message?: Message;
 		/** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
-		accepted_gift_types?: AcceptedGiftTypes[];
+		accepted_gift_types: AcceptedGiftTypes;
 		/** The time after which all messages sent to the chat will be automatically deleted; in seconds */
 		message_auto_delete_time?: number;
 		/** True, if messages from the chat can't be forwarded to other chats */
@@ -409,7 +409,7 @@ export declare namespace ChatFullInfo {
 		/** Default chat member permissions, for groups and supergroups */
 		permissions?: ChatPermissions;
 		/** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
-		accepted_gift_types?: AcceptedGiftTypes[];
+		accepted_gift_types: AcceptedGiftTypes;
 		/** The time after which all messages sent to the chat will be automatically deleted; in seconds */
 		message_auto_delete_time?: number;
 		/** True, if non-administrators can only get the list of bots and administrators in the chat */
@@ -454,7 +454,7 @@ export declare namespace ChatFullInfo {
 		/** Default chat member permissions, for groups and supergroups */
 		permissions?: ChatPermissions;
 		/** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
-		accepted_gift_types?: AcceptedGiftTypes[];
+		accepted_gift_types: AcceptedGiftTypes;
 		/** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
 		can_send_paid_media?: true;
 		/** For supergroups, the minimum allowed delay between consecutive messages sent by each unpriviledged user; in seconds */
@@ -507,7 +507,7 @@ export declare namespace ChatFullInfo {
 		/** The most recent pinned message (by sending date) */
 		pinned_message?: Message;
 		/** Information about types of gifts that are accepted by the chat or by the corresponding user for private chats */
-		accepted_gift_types?: AcceptedGiftTypes[];
+		accepted_gift_types: AcceptedGiftTypes;
 		/** True, if paid media messages can be sent or forwarded to the channel chat. The field is available only for channel chats. */
 		can_send_paid_media?: true;
 		/** The time after which all messages sent to the chat will be automatically deleted; in seconds */
@@ -619,7 +619,7 @@ export declare namespace Message {
 		/** Chat the message belongs to */
 		chat: Chat;
 		/** True, if the message is sent to a forum topic */
-		is_topic_message?: boolean;
+		is_topic_message?: true;
 	}
 	export interface CommonMessage extends ServiceMessage {
 		/** If the sender of the message boosted the chat, the number of boosts added by the user */
@@ -1589,8 +1589,8 @@ export interface PaidMediaInfo {
 
 /** This object describes paid media. Currently, it can be one of
 
-- PaidMediaPreview
 - PaidMediaPhoto
+- PaidMediaPreview
 - PaidMediaVideo
  */
 export type PaidMedia = PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
@@ -1598,7 +1598,7 @@ export type PaidMedia = PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
 /** The paid media is a photo. */
 export interface PaidMediaPhoto {
 	/** Type of the paid media, always “photo” */
-	type: string;
+	type: "photo";
 	/** The photo */
 	photo: PhotoSize[];
 }
@@ -1606,7 +1606,7 @@ export interface PaidMediaPhoto {
 /** The paid media isn't available before the payment. */
 export interface PaidMediaPreview {
 	/** Type of the paid media, always “preview” */
-	type: string;
+	type: "preview";
 	/** Media width as defined by the sender */
 	width?: number;
 	/** Media height as defined by the sender */
@@ -1618,7 +1618,7 @@ export interface PaidMediaPreview {
 /** The paid media is a video. */
 export interface PaidMediaVideo {
 	/** Type of the paid media, always “video” */
-	type: string;
+	type: "video";
 	/** The video */
 	video: Video;
 }
@@ -3233,7 +3233,7 @@ export interface UniqueGiftInfo {
 	/** Information about the gift */
 	gift: UniqueGift;
 	/** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
-	origin: "upgrade" | "transfer" | "resale";
+	origin: "upgrade" | "transfer" | "resale" | "gifted_upgrade" | "offer";
 	/** For gifts bought from other users, the price paid for the gift */
 	last_resale_star_count?: number;
 	/** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
@@ -3981,7 +3981,7 @@ interface MethodDeclarations<F> {
 		/** New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept */
 		caption?: string;
 		/** Mode for parsing entities in the new caption. See formatting options for more details. */
-		parse_mode?: string;
+		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the new caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
@@ -5588,8 +5588,8 @@ interface MethodDeclarations<F> {
 	editMessageChecklist(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id: string;
-		/** Unique identifier for the target chat */
-		chat_id: number;
+		/** Unique identifier for the target chat or username of the target bot in the format `@username` */
+		chat_id: number | string;
 		/** Unique identifier for the target message */
 		message_id: number;
 		/** A JSON-serialized object for the new checklist */
@@ -7408,8 +7408,8 @@ interface MethodDeclarations<F> {
 	sendGame(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat */
-		chat_id: number;
+		/** Unique identifier for the target chat or username of the target bot in the format `@username`. Games can't be sent to channel direct messages chats and channel chats. */
+		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Short name of the game, serves as the unique identifier for the game. Set up your games via BotFather. */
