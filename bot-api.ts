@@ -1382,6 +1382,14 @@ export interface ReplyParameters {
 	/** Identifier of the specific checklist task to be replied to */
 	checklist_task_id?: number;
 }
+export interface EphemeralMessageParameters {
+	/** Identifier of the user who will receive the message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
+	receiver_user_id: number;
+	/** Identifier of the callback query which triggered the message, if any */
+	callback_query_id?: string;
+	/** Pass True if the ephemeral message must be shown in place of the original message. Must be False for callback queries from ephemeral messages, which must be edited using regular editEphemeralMessage… methods. */
+	replace_callback_query_message?: boolean;
+}
 
 export interface AbstractMessageOrigin {
 	/** Type of the message origin */
@@ -1506,6 +1514,25 @@ export interface Document {
 	/** File size in bytes */
 	file_size?: number;
 }
+/** This object represents a live photo. */
+export interface LivePhoto {
+	/** Available sizes of the corresponding static photo */
+	photo?: PhotoSize[];
+	/** Identifier for the video file which can be used to download or reuse the file */
+	file_id: string;
+	/** Unique identifier for the video file which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+	file_unique_id: string;
+	/** Video width as defined by the sender */
+	width: number;
+	/** Video height as defined by the sender */
+	height: number;
+	/** Duration of the video in seconds as defined by the sender */
+	duration: number;
+	/** MIME type of the file as defined by the sender */
+	mime_type?: string;
+	/** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+	file_size?: number;
+}
 
 /** This object represents a story. */
 export interface Story {
@@ -1521,6 +1548,21 @@ export interface Story {
 	chat: Chat;
 	/** Unique identifier for the story in the chat */
 	id: number;
+}
+/** This object represents a video file of a specific quality. */
+export interface VideoQuality {
+	/** Identifier for this file, which can be used to download or reuse the file */
+	file_id: string;
+	/** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
+	file_unique_id: string;
+	/** Video width */
+	width: number;
+	/** Video height */
+	height: number;
+	/** Codec that was used to encode the video, for example, “h264”, “h265”, or “av01” */
+	codec: string;
+	/** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+	file_size?: number;
 }
 
 /** This object represents a video file. */
@@ -1593,7 +1635,14 @@ export interface PaidMediaInfo {
 - PaidMediaPreview
 - PaidMediaVideo
  */
-export type PaidMedia = PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
+export type PaidMedia = PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
+/** The paid media is a live photo. */
+export interface PaidMediaLivePhoto {
+	/** Type of the paid media, always “live_photo” */
+	type: "live_photo";
+	/** The photo */
+	live_photo: LivePhoto;
+}
 
 /** The paid media is a photo. */
 export interface PaidMediaPhoto {
@@ -1644,6 +1693,77 @@ export interface Dice {
 	/** Value of the dice, 1-6 for “🎲”, “🎯” and “🎳” base emoji, 1-5 for “🏀” and “⚽” base emoji, 1-64 for “🎰” base emoji */
 	value: number;
 }
+/** Represents an HTTP link. */
+export interface Link {
+	/** URL of the link */
+	url: string;
+}
+
+/** At most one of the optional fields can be present in any given object. */
+export interface PollMedia {
+	/** Media is an animation, information about the animation */
+	animation?: Animation;
+	/** Media is an audio file, information about the file; currently, can't be received in a poll option */
+	audio?: Audio;
+	/** Media is a general file, information about the file; currently, can't be received in a poll option */
+	document?: Document;
+	/** The HTTP link attached to the poll option */
+	link?: Link;
+	/** Media is a live photo, information about the live photo */
+	live_photo?: LivePhoto;
+	/** Media is a shared location, information about the location */
+	location?: Location;
+	/** Media is a photo, available sizes of the photo */
+	photo?: PhotoSize[];
+	/** Media is a sticker, information about the sticker; currently, for poll options only */
+	sticker?: Sticker;
+	/** Media is a venue, information about the venue */
+	venue?: Venue;
+	/** Media is a video, information about the video */
+	video?: Video;
+}
+
+/** This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
+
+- InputMediaAnimation
+- InputMediaAudio
+- InputMediaDocument
+- InputMediaLivePhoto
+- InputMediaLocation
+- InputMediaPhoto
+- InputMediaVenue
+- InputMediaVideo
+ */
+export type InputPollMedia<F> =
+	| InputMediaAnimation<F>
+	| InputMediaAudio<F>
+	| InputMediaDocument<F>
+	| InputMediaLivePhoto<F>
+	| InputMediaLocation
+	| InputMediaPhoto<F>
+	| InputMediaVenue
+	| InputMediaVideo<F>;
+
+/** This object represents the content of a poll option to be sent. It should be one of
+
+- InputMediaAnimation
+- InputMediaLink
+- InputMediaLivePhoto
+- InputMediaLocation
+- InputMediaPhoto
+- InputMediaSticker
+- InputMediaVenue
+- InputMediaVideo
+ */
+export type InputPollOptionMedia<F> =
+	| InputMediaAnimation<F>
+	| InputMediaLink
+	| InputMediaLivePhoto<F>
+	| InputMediaLocation
+	| InputMediaPhoto<F>
+	| InputMediaSticker<F>
+	| InputMediaVenue
+	| InputMediaVideo<F>;
 
 /** This object contains information about one answer option in a poll. */
 export interface PollOption {
@@ -1845,6 +1965,63 @@ export interface MessageAutoDeleteTimerChanged {
 	/** New auto-delete time for messages in the chat; in seconds */
 	message_auto_delete_time: number;
 }
+/** This object contains information about the bot that was created to be managed by the current bot. */
+export interface ManagedBotCreated {
+	/** Information about the bot. The bot's token can be fetched using the method getManagedBotToken. */
+	bot: User;
+}
+
+/** This object contains information about the creation, token update, or owner update of a bot that is managed by the current bot. */
+export interface ManagedBotUpdated {
+	/** User that created the bot */
+	user: User;
+	/** Information about the bot. Token of the bot can be fetched using the method getManagedBotToken. */
+	bot: User;
+}
+
+/** This object contains information about changes to a user payment subscription toward the current bot. */
+export interface BotSubscriptionUpdated {
+	/** User who subscribed for payments toward the bot */
+	user: User;
+	/** Bot-specified invoice payload */
+	invoice_payload: string;
+	/** The new state of the subscription. Currently, it can be one of “canceled” if the user canceled the subscription, “active” if the user re-enabled a previously canceled subscription, or “failed” if payment for the subscription failed. */
+	state: "canceled" | "active" | "failed";
+}
+
+/** This object describes an update about a user stopping message generation. */
+export interface MessageGenerationStopped {
+	/** Chat in which the message is generated */
+	chat: Chat;
+	/** Unique identifier of the message thread in which the message is generated */
+	message_thread_id?: number;
+	/** Unique identifier of the message draft which was stopped */
+	draft_id: number;
+}
+
+/** Describes a service message about an option added to a poll. */
+export interface PollOptionAdded {
+	/** Message containing the poll to which the option was added, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	poll_message?: MaybeInaccessibleMessage;
+	/** Unique identifier of the added option */
+	option_persistent_id: string;
+	/** Option text */
+	option_text: string;
+	/** Special entities that appear in the option_text */
+	option_text_entities?: MessageEntity[];
+}
+
+/** Describes a service message about an option deleted from a poll. */
+export interface PollOptionDeleted {
+	/** Message containing the poll from which the option was deleted, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	poll_message?: MaybeInaccessibleMessage;
+	/** Unique identifier of the deleted option */
+	option_persistent_id: string;
+	/** Option text */
+	option_text: string;
+	/** Special entities that appear in the option_text */
+	option_text_entities?: MessageEntity[];
+}
 
 /** This object represents a service message about a user boosting a chat. */
 export interface ChatBoostAdded {
@@ -1972,6 +2149,20 @@ export interface ChecklistTasksAdded {
 	/** List of tasks added to the checklist */
 	tasks: ChecklistTask[];
 }
+/** Describes a service message about a chat or a bot being added to a community. */
+export interface CommunityChatAdded {
+	/** The new community to which the chat or the bot belongs */
+	community: Community;
+}
+
+/** Describes a service message about a chat being joined by a user from a community. */
+export interface CommunityChatJoined {
+	/** The community from which the chat was joined */
+	community: Community;
+}
+
+/** Describes a service message about a chat or a bot being removed from a community. Currently holds no information. */
+export interface CommunityChatRemoved {}
 
 /** This object represents a service message about a new forum topic created in the chat. */
 export interface ForumTopicCreated {
@@ -2252,6 +2443,13 @@ export interface UserProfilePhotos {
 	/** Requested profile pictures (in up to 4 sizes each) */
 	photos: PhotoSize[][];
 }
+/** This object represents the audios displayed on a user's profile. */
+export interface UserProfileAudios {
+	/** Total number of profile audios for the target user */
+	total_count: number;
+	/** Requested profile audios */
+	audios: Audio[];
+}
 
 /** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
 
@@ -2377,6 +2575,15 @@ export interface KeyboardButtonRequestChat {
 	/** Pass True to request the chat's photo */
 	request_photo?: boolean;
 }
+/** This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created. */
+export interface KeyboardButtonRequestManagedBot {
+	/** Signed 32-bit identifier of the request. Must be unique within the message. */
+	request_id: number;
+	/** Suggested name for the bot */
+	suggested_name?: string;
+	/** Suggested username for the bot */
+	suggested_username?: string;
+}
 
 /** This object represents type of a poll, which is allowed to be created and sent when the corresponding button is pressed. */
 export interface KeyboardButtonPollType {
@@ -2500,6 +2707,8 @@ export interface CopyTextButton {
 	/** The text to be copied to the clipboard; 1-256 characters */
 	text: string;
 }
+/** This object represents a disabled button which does nothing. Currently holds no information. */
+export interface DisabledButton {}
 
 export declare namespace CallbackQuery {
 	interface AbstractQuery {
@@ -2547,6 +2756,13 @@ export interface ForceReply {
 	input_field_placeholder?: string;
 	/** Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message. */
 	selective?: boolean;
+}
+/** Represents a community (a group of chats). */
+export interface Community {
+	/** Unique identifier for this community. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier. */
+	id: number;
+	/** Name of the community */
+	name: string;
 }
 
 /** This object represents a chat photo. */
@@ -2862,6 +3078,17 @@ export interface BusinessOpeningHours {
 	/** List of time intervals describing business opening hours */
 	opening_hours: BusinessOpeningHoursInterval[];
 }
+/** This object describes the rating of a user based on their Telegram Star spendings. */
+export interface UserRating {
+	/** Current level of the user, indicating their reliability when purchasing digital goods and services. A higher level suggests a more trustworthy customer; a negative level is likely reason for concern. */
+	level: number;
+	/** Numerical value of the user's rating; the higher the rating, the better */
+	rating: number;
+	/** The rating value required to get the current level */
+	current_level_rating: number;
+	/** The rating value required to get to the next level; omitted if the maximum level was reached */
+	next_level_rating?: number;
+}
 
 /** Describes the position of a clickable area within a story. */
 export interface StoryAreaPosition {
@@ -3123,6 +3350,15 @@ export interface ForumTopic {
 	/** Unique identifier of the custom emoji shown as the topic icon */
 	icon_custom_emoji_id?: string;
 }
+/** This object describes the background of a gift. */
+export interface GiftBackground {
+	/** Center color of the background in RGB format */
+	center_color: number;
+	/** Edge color of the background in RGB format */
+	edge_color: number;
+	/** Text color of the background in RGB format */
+	text_color: number;
+}
 
 /** This object represents a gift that can be sent by the bot. */
 export interface Gift {
@@ -3188,6 +3424,21 @@ export interface UniqueGiftBackdrop {
 	colors: UniqueGiftBackdropColors;
 	/** The number of unique gifts that receive this backdrop for every 1000 gifts upgraded */
 	rarity_per_mille: number;
+}
+/** This object contains information about the color scheme for a user's name, message replies and link previews based on a unique gift. */
+export interface UniqueGiftColors {
+	/** Custom emoji identifier of the unique gift's model */
+	model_custom_emoji_id: string;
+	/** Custom emoji identifier of the unique gift's symbol */
+	symbol_custom_emoji_id: string;
+	/** Main color used in light themes; RGB format */
+	light_theme_main_color: number;
+	/** List of 1-3 additional colors used in light themes; RGB format */
+	light_theme_other_colors: number[];
+	/** Main color used in dark themes; RGB format */
+	dark_theme_main_color: number;
+	/** List of 1-3 additional colors used in dark themes; RGB format */
+	dark_theme_other_colors: number[];
 }
 
 /** This object describes a unique gift that was upgraded from a regular gift. */
@@ -3309,6 +3560,13 @@ export interface OwnedGifts {
 	gifts: OwnedGift[];
 	/** Offset for the next request. If empty, then there are no more results */
 	next_offset?: string;
+}
+/** This object describes the access settings of a bot. */
+export interface BotAccessSettings {
+	/** True, if only selected users can access the bot. The bot's owner can always access it. */
+	is_access_restricted: boolean;
+	/** The list of other users who have access to the bot if the access is restricted */
+	added_users?: User[];
 }
 
 /** This object describes the types of gifts that can be gifted to a user or a chat. */
@@ -3551,6 +3809,17 @@ export interface ChatBoostRemoved {
 	/** Source of the removed boost */
 	source: ChatBoostSource;
 }
+/** Describes a service message about the chat owner leaving the chat. */
+export interface ChatOwnerLeft {
+	/** The user who will become the new owner of the chat if the previous owner does not return to the chat */
+	new_owner?: User;
+}
+
+/** Describes a service message about an ownership change in the chat. */
+export interface ChatOwnerChanged {
+	/** The new owner of the chat */
+	new_owner: User;
+}
 
 /** This object represents a list of boosts added to a chat by a user. */
 export interface UserChatBoosts {
@@ -3630,6 +3899,11 @@ export interface SentWebAppMessage {
 	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
 	inline_message_id?: string;
 }
+/** Describes an inline message sent by a guest bot. */
+export interface SentGuestMessage {
+	/** Identifier of the sent inline message */
+	inline_message_id: string;
+}
 
 /** Describes an inline message to be sent by a user of a Mini App. */
 export interface PreparedInlineMessage {
@@ -3637,6 +3911,11 @@ export interface PreparedInlineMessage {
 	id: string;
 	/** Expiration date of the prepared message, in Unix time. Expired prepared messages can no longer be used */
 	expiration_date: number;
+}
+/** Describes a keyboard button to be used by a user of a Mini App. */
+export interface PreparedKeyboardButton {
+	/** Unique identifier of the keyboard button */
+	id: string;
 }
 
 export interface ApiError {
@@ -3675,6 +3954,7 @@ export type InputMedia<F> =
 	| InputMediaAnimation<F>
 	| InputMediaAudio<F>
 	| InputMediaDocument<F>
+	| InputMediaLivePhoto<F>
 	| InputMediaPhoto<F>
 	| InputMediaVideo<F>;
 
@@ -3743,6 +4023,45 @@ export interface InputMediaDocument<F> {
 	/** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album. */
 	disable_content_type_detection?: boolean;
 }
+/** Represents an HTTP link to be sent. */
+export interface InputMediaLink {
+	/** Type of the media, must be link */
+	type: "link";
+	/** HTTP URL of the link */
+	url: string;
+}
+
+/** Represents a live photo to be sent. */
+export interface InputMediaLivePhoto<F> {
+	/** Type of the media, must be live_photo */
+	type: "live_photo";
+	/** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. Sending live photos by a URL is currently unsupported. */
+	media: F | string;
+	/** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. Sending live photos by a URL is currently unsupported. */
+	photo: F | string;
+	/** Caption of the live photo to be sent, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the live photo caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Pass True if the caption must be shown above the message media */
+	show_caption_above_media?: boolean;
+	/** Pass True if the live photo needs to be covered with a spoiler animation */
+	has_spoiler?: boolean;
+}
+
+/** Represents a location to be sent. */
+export interface InputMediaLocation {
+	/** Type of the media, must be location */
+	type: "location";
+	/** Latitude of the location */
+	latitude: number;
+	/** Longitude of the location */
+	longitude: number;
+	/** The radius of uncertainty for the location, measured in meters; 0-1500 */
+	horizontal_accuracy?: number;
+}
 
 /** Represents a photo to be sent. */
 export interface InputMediaPhoto<F> {
@@ -3760,6 +4079,37 @@ export interface InputMediaPhoto<F> {
 	show_caption_above_media?: boolean;
 	/** Pass True if the photo needs to be covered with a spoiler animation */
 	has_spoiler?: boolean;
+}
+/** Represents a sticker file to be sent. */
+export interface InputMediaSticker<F> {
+	/** Type of the media, must be sticker */
+	type: "sticker";
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a.WEBP sticker from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one.WEBP,.TGS, or.WEBM sticker using multipart/form-data under <file_attach_name> name. */
+	media: F | string;
+	/** Emoji associated with the sticker; only for just uploaded stickers */
+	emoji?: string;
+}
+
+/** Represents a venue to be sent. */
+export interface InputMediaVenue {
+	/** Type of the media, must be venue */
+	type: "venue";
+	/** Latitude of the location */
+	latitude: number;
+	/** Longitude of the location */
+	longitude: number;
+	/** Name of the venue */
+	title: string;
+	/** Address of the venue */
+	address: string;
+	/** Foursquare identifier of the venue */
+	foursquare_id?: string;
+	/** Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.) */
+	foursquare_type?: string;
+	/** Google Places identifier of the venue */
+	google_place_id?: string;
+	/** Google Places type of the venue. (See supported types.) */
+	google_place_type?: string;
 }
 
 /** Represents a video to be sent. */
@@ -3793,11 +4143,35 @@ export interface InputMediaVideo<F> {
 	/** Pass True if the photo needs to be covered with a spoiler animation */
 	has_spoiler?: boolean;
 }
+/** Represents a voice message file to be sent. */
+export interface InputMediaVoiceNote<F> {
+	/** Type of the media, must be voice_note */
+	type: "voice_note";
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+	media: F | string;
+	/** Caption of the voice message to be sent, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Duration of the voice message in seconds */
+	duration?: number;
+}
 
 /** This object describes the paid media to be sent. Currently, it can be one of
 - InputPaidMediaPhoto
 - InputPaidMediaVideo */
-export type InputPaidMedia<F> = InputPaidMediaPhoto<F> | InputPaidMediaVideo<F>;
+export type InputPaidMedia<F> = InputPaidMediaLivePhoto<F> | InputPaidMediaPhoto<F> | InputPaidMediaVideo<F>;
+/** The paid media to send is a live photo. */
+export interface InputPaidMediaLivePhoto<F> {
+	/** Type of the media, must be live_photo */
+	type: "live_photo";
+	/** Video of the live photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. Sending live photos by a URL is currently unsupported. */
+	media: F | string;
+	/** The static photo to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. Sending live photos by a URL is currently unsupported. */
+	photo: F | string;
+}
 
 /** The paid media to send is a photo. */
 export interface InputPaidMediaPhoto<F> {
