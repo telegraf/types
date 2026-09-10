@@ -125,6 +125,18 @@ export declare namespace Update {
 		/** A boost was removed from a chat. The bot must be an administrator in the chat to receive these updates. */
 		removed_chat_boost: ChatBoostRemoved;
 	}
+	export interface ManagedBotUpdate extends AbstractUpdate {
+		/** A new bot was created to be managed by the bot, or token or owner of a managed bot was changed */
+		managed_bot: ManagedBotUpdated;
+	}
+	export interface SubscriptionUpdate extends AbstractUpdate {
+		/** User payment subscription has changed */
+		subscription: BotSubscriptionUpdated;
+	}
+	export interface StoppedMessageGenerationUpdate extends AbstractUpdate {
+		/** A user asked the bot to stop the generation of a message */
+		stopped_message_generation: MessageGenerationStopped;
+	}
 }
 
 /** This object represents an incoming update.
@@ -152,7 +164,10 @@ export type Update =
 	| Update.ChatMemberUpdate
 	| Update.ChatJoinRequestUpdate
 	| Update.ChatBoostUpdate
-	| Update.RemovedChatBoostUpdate;
+	| Update.RemovedChatBoostUpdate
+	| Update.ManagedBotUpdate
+	| Update.SubscriptionUpdate
+	| Update.StoppedMessageGenerationUpdate;
 
 // Methods in documentation order; merged and published as `ApiMethods`.
 interface MethodDeclarations<F> {
@@ -377,6 +392,10 @@ export declare namespace ChatFullInfo {
 		message_auto_delete_time?: number;
 		/** True, if messages from the chat can't be forwarded to other chats */
 		has_protected_content?: true;
+		/** For private chats, the rating of the user if any */
+		rating?: UserRating;
+		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
+		unique_gift_colors?: UniqueGiftColors;
 	}
 	/** Internal type representing group chats returned from `getChat`. */
 	export interface GroupChat extends Chat.GroupChat {
@@ -420,6 +439,8 @@ export declare namespace ChatFullInfo {
 		has_visible_history?: true;
 		/** True, if the bot can change the group sticker set */
 		can_set_sticker_set?: true;
+		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
+		unique_gift_colors?: UniqueGiftColors;
 	}
 	/** Internal type representing supergroup chats returned from `getChat`. */
 	export interface SupergroupChat extends Chat.SupergroupChat {
@@ -481,6 +502,8 @@ export declare namespace ChatFullInfo {
 		linked_chat_id?: number;
 		/** For supergroups, the location to which the supergroup is connected */
 		location?: ChatLocation;
+		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
+		unique_gift_colors?: UniqueGiftColors;
 	}
 	/** Internal type representing channel chats returned from `getChat`. */
 	export interface ChannelChat extends Chat.ChannelChat {
@@ -516,6 +539,8 @@ export declare namespace ChatFullInfo {
 		has_protected_content?: true;
 		/** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. */
 		linked_chat_id?: number;
+		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
+		unique_gift_colors?: UniqueGiftColors;
 	}
 }
 
@@ -530,6 +555,8 @@ export type ChatFullInfo =
 export type ServiceMessageBundle =
 	| Message.NewChatMembersMessage
 	| Message.LeftChatMemberMessage
+	| Message.ChatOwnerLeftMessage
+	| Message.ChatOwnerChangedMessage
 	| Message.NewChatTitleMessage
 	| Message.NewChatPhotoMessage
 	| Message.DeleteChatPhotoMessage
@@ -555,8 +582,13 @@ export type ServiceMessageBundle =
 	| Message.ChatBackgroundSetMessage
 	| Message.ChecklistTasksDoneMessage
 	| Message.ChecklistTasksAddedMessage
+	| Message.CommunityChatAddedMessage
+	| Message.CommunityChatJoinedMessage
+	| Message.CommunityChatRemovedMessage
 	| Message.DirectMessagePriceChangedMessage
 	| Message.PaidMessagePriceChangedMessage
+	| Message.PollOptionAddedMessage
+	| Message.PollOptionDeletedMessage
 	| Message.SuggestedPostApprovedMessage
 	| Message.SuggestedPostApprovalFailedMessage
 	| Message.SuggestedPostDeclinedMessage
@@ -572,6 +604,7 @@ export type ServiceMessageBundle =
 	| Message.GiveawayMessage
 	| Message.GiveawayWinnersMessage
 	| Message.GiveawayCompletedMessage
+	| Message.ManagedBotCreatedMessage
 	| Message.VideoChatScheduledMessage
 	| Message.VideoChatStartedMessage
 	| Message.VideoChatEndedMessage
@@ -769,6 +802,14 @@ export declare namespace Message {
 		/** A member was removed from the group, information about them (this member may be the bot itself) */
 		left_chat_member: User;
 	}
+	export interface ChatOwnerLeftMessage extends ServiceMessage {
+		/** Service message: chat owner has left */
+		chat_owner_left: ChatOwnerLeft;
+	}
+	export interface ChatOwnerChangedMessage extends ServiceMessage {
+		/** Service message: chat owner has changed */
+		chat_owner_changed: ChatOwnerChanged;
+	}
 	export interface NewChatTitleMessage extends ServiceMessage {
 		/** A chat title was changed to this value */
 		new_chat_title: string;
@@ -869,6 +910,18 @@ export declare namespace Message {
 		/** Service message: tasks were added to a checklist */
 		checklist_tasks_added: ChecklistTasksAdded;
 	}
+	export interface CommunityChatAddedMessage extends ServiceMessage {
+		/** Service message: chat or bot added to a Community */
+		community_chat_added: CommunityChatAdded;
+	}
+	export interface CommunityChatJoinedMessage extends ServiceMessage {
+		/** Service message: chat was joined by a user from a Community */
+		community_chat_joined: CommunityChatJoined;
+	}
+	export interface CommunityChatRemovedMessage extends ServiceMessage {
+		/** Service message: chat or bot removed from a Community */
+		community_chat_removed: CommunityChatRemoved;
+	}
 	export interface DirectMessagePriceChangedMessage extends ServiceMessage {
 		/** Service message: the price for paid messages in the corresponding direct messages chat of a channel has changed */
 		direct_message_price_changed: DirectMessagePriceChanged;
@@ -913,9 +966,21 @@ export declare namespace Message {
 		/** Service message: a giveaway without public winners was completed */
 		giveaway_completed: GiveawayCompleted;
 	}
+	export interface ManagedBotCreatedMessage extends ServiceMessage {
+		/** Service message: user created a bot that will be managed by the current bot */
+		managed_bot_created: ManagedBotCreated;
+	}
 	export interface PaidMessagePriceChangedMessage extends ServiceMessage {
 		/** Service message: the price for paid messages has changed in the chat */
 		paid_message_price_changed: PaidMessagePriceChanged;
+	}
+	export interface PollOptionAddedMessage extends ServiceMessage {
+		/** Service message: answer option was added to a poll */
+		poll_option_added: PollOptionAdded;
+	}
+	export interface PollOptionDeletedMessage extends ServiceMessage {
+		/** Service message: answer option was deleted from a poll */
+		poll_option_deleted: PollOptionDeleted;
 	}
 	export interface SuggestedPostApprovedMessage extends ServiceMessage {
 		/** Service message: a suggested post was approved */
@@ -1583,6 +1648,8 @@ export interface Video {
 	cover?: PhotoSize[];
 	/** Timestamp in seconds from which the video will play in the message */
 	start_timestamp?: number;
+	/** List of available qualities of the video */
+	qualities?: VideoQuality[];
 	/** Original filename as defined by the sender */
 	file_name?: string;
 	/** MIME type of the file as defined by the sender */
@@ -1771,18 +1838,22 @@ export interface PollOption {
 	text: string;
 	/** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
 	text_entities?: MessageEntity.CustomEmoji[];
+	/** Media added to the poll option */
+	media?: PollMedia;
 	/** Number of users that voted for this option */
 	voter_count: number;
 }
 
 /** This object contains information about one answer option in a poll to be sent. */
-export interface InputPollOption {
+export interface InputPollOption<F> {
 	/** Option text, 1-100 characters */
 	text: string;
 	/** Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed */
 	text_parse_mode?: ParseMode;
 	/** A list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode */
 	text_entities?: MessageEntity.CustomEmoji[];
+	/** Media added to the poll option */
+	media?: InputPollOptionMedia<F>;
 }
 
 /** This object represents an answer of a user in a non-anonymous poll. */
@@ -1826,10 +1897,14 @@ export interface Poll {
 	explanation?: string;
 	/** Special entities like usernames, URLs, bot commands, etc. that appear in the explanation */
 	explanation_entities?: MessageEntity[];
+	/** Media added to the quiz explanation */
+	explanation_media?: PollMedia;
 	/** Amount of time in seconds the poll will be active after creation */
 	open_period?: number;
 	/** Point in time (Unix timestamp) when the poll will be automatically closed */
 	close_date?: number;
+	/** Media added to the poll description; for polls inside the Message object only */
+	media?: PollMedia;
 }
 
 /** Describes a task in a checklist. */
@@ -2504,6 +2579,10 @@ export declare namespace KeyboardButton {
 		/** If specified, pressing the button will open a list of suitable chats. Tapping on a chat will send its identifier to the bot in a “chat_shared” service message. Available in private chats only. */
 		request_chat: KeyboardButtonRequestChat;
 	}
+	export interface RequestManagedBot extends Common {
+		/** If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the @BotFather Mini App. Available in private chats only. */
+		request_managed_bot: KeyboardButtonRequestManagedBot;
+	}
 	export interface RequestContact extends Common {
 		/** If True, the user's phone number will be sent as a contact when the button is pressed. Available in private chats only. */
 		request_contact: boolean;
@@ -2526,6 +2605,7 @@ export declare namespace KeyboardButton {
 export type KeyboardButton =
 	| KeyboardButton.RequestUsers
 	| KeyboardButton.RequestChat
+	| KeyboardButton.RequestManagedBot
 	| KeyboardButton.RequestContact
 	| KeyboardButton.RequestLocation
 	| KeyboardButton.RequestPoll
@@ -2652,6 +2732,10 @@ export declare namespace InlineKeyboardButton {
     NOTE: This type of button must always be the first button in the first row. */
 		callback_game: CallbackGame;
 	}
+	export interface Disabled extends AbstractInlineKeyboardButton {
+		/** If set, then the button is disabled and does nothing */
+		disabled: DisabledButton;
+	}
 	export interface PayButton extends AbstractInlineKeyboardButton {
 		/** Specify True, to send a Pay button.
 
@@ -2671,7 +2755,8 @@ export type InlineKeyboardButton =
 	| InlineKeyboardButton.SwitchInlineChosenChatButton
 	| InlineKeyboardButton.CopyButton
 	| InlineKeyboardButton.GameButton
-	| InlineKeyboardButton.PayButton;
+	| InlineKeyboardButton.PayButton
+	| InlineKeyboardButton.Disabled;
 
 /** This object represents a parameter of the inline keyboard button used to automatically authorize a user. Serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in.
 Telegram apps support these buttons as of version 5.7. */
@@ -3374,6 +3459,8 @@ export interface Gift {
 	total_count?: number;
 	/** The number of remaining gifts of this type that can be sent; for limited gifts only */
 	remaining_count?: number;
+	/** Background of the gift */
+	background?: GiftBackground;
 	/** Information about the chat that published the gift */
 	publisher_chat?: Chat;
 }
@@ -3455,6 +3542,8 @@ export interface UniqueGift {
 	symbol: UniqueGiftSymbol;
 	/** Backdrop of the gift */
 	backdrop: UniqueGiftBackdrop;
+	/** The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only */
+	colors?: UniqueGiftColors;
 	/** Information about the chat that published the gift */
 	publisher_chat?: Chat;
 }
@@ -4274,6 +4363,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Text of the message to be sent, 1-4096 characters after entities parsing */
 		text: string;
 		/** Mode for parsing entities in the message text. See formatting options for more details. */
@@ -4404,6 +4495,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. */
 		photo: F | string;
 		/** Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing */
@@ -4444,6 +4537,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. */
 		audio: F | string;
 		/** Audio caption, 0-1024 characters after entities parsing */
@@ -4486,6 +4581,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		document: F | string;
 		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
@@ -4524,6 +4621,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. */
 		video: F | string;
 		/** Duration of sent video in seconds */
@@ -4576,6 +4675,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. */
 		animation: F | string;
 		/** Duration of sent animation in seconds */
@@ -4622,6 +4723,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		voice: F | string;
 		/** Voice message caption, 0-1024 characters after entities parsing */
@@ -4659,6 +4762,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data.. Sending video notes by a URL is currently unsupported */
 		video_note: F | string;
 		/** Duration of sent video in seconds */
@@ -4758,6 +4863,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Latitude of the location */
 		latitude: number;
 		/** Longitude of the location */
@@ -4796,6 +4903,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Latitude of the venue */
 		latitude: number;
 		/** Longitude of the venue */
@@ -4838,6 +4947,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Contact's phone number */
 		phone_number: string;
 		/** Contact's first name */
@@ -4877,7 +4988,7 @@ interface MethodDeclarations<F> {
 		/** A list of special entities that appear in the poll question. It can be specified instead of question_parse_mode */
 		question_entities?: MessageEntity[];
 		/** A list of answer options, 2-12 answer options */
-		options: readonly InputPollOption[];
+		options: readonly InputPollOption<F>[];
 		/** True, if the poll needs to be anonymous, defaults to True */
 		is_anonymous?: boolean;
 		/** Poll type, “quiz” or “regular”, defaults to “regular” */
@@ -4892,12 +5003,16 @@ interface MethodDeclarations<F> {
 		explanation_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode */
 		explanation_entities?: MessageEntity[];
+		/** Media added to the quiz explanation */
+		explanation_media?: InputPollMedia<F>;
 		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
 		open_period?: number;
 		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
 		close_date?: number;
 		/** Pass True if the poll needs to be immediately closed. This can be useful for poll preview. */
 		is_closed?: boolean;
+		/** Media added to the poll description */
+		media?: InputPollMedia<F>;
 		/** Sends the message silently. Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
@@ -6130,6 +6245,8 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
+		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Video and animated stickers can't be sent via an HTTP URL. */
 		sticker: F | string;
 		/** Emoji associated with the sticker; only for just uploaded stickers */
