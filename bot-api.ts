@@ -4905,6 +4905,8 @@ interface MethodDeclarations<F> {
 			Message.BusinessSentMessage
 	>;
 
+	// TODO: split into overloads in v6: ephemeral_message_parameters, which needs live_period 0 | otherwise.
+	// One signature in v4, like every published method, even though ephemeral_message_parameters is new in 10.3.
 	/** Use this method to send point on the map. On success, the sent Message is returned. */
 	sendLocation(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -5025,6 +5027,10 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}): Message.ContactMessage & Message.BusinessSentMessage;
 
+	// TODO: split into overloads in v6: open_period | close_date, which can't be used together;
+	// type "quiz", which requires correct_option_ids; and allow_adding_options, which needs is_anonymous false
+	// and a type other than quiz.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to send a native poll. On success, the sent Message is returned. */
 	sendPoll(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -5358,6 +5364,8 @@ interface MethodDeclarations<F> {
 		chat_id: number | string;
 	}): string;
 
+	// TODO: split into overloads in v6: creates_join_request true, which forbids member_limit | otherwise.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
 	createChatInviteLink(args: {
 		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -5372,6 +5380,8 @@ interface MethodDeclarations<F> {
 		creates_join_request?: boolean;
 	}): ChatInviteLink;
 
+	// TODO: split into overloads in v6: creates_join_request true, which forbids member_limit | otherwise.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
 	editChatInviteLink(args: {
 		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -5492,6 +5502,8 @@ interface MethodDeclarations<F> {
 		disable_notification?: boolean;
 	}): true;
 
+	// TODO: split into overloads in v6: business_connection_id + message_id | no business_connection_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns True on success. */
 	unpinChatMessage(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be pinned */
@@ -5838,6 +5850,8 @@ interface MethodDeclarations<F> {
 	/** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
 	getAvailableGifts(): Gifts;
 
+	// TODO: split into overloads in v6: user_id | chat_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success. */
 	sendGift(args: {
 		/** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift */
@@ -6184,6 +6198,9 @@ interface MethodDeclarations<F> {
 		button: KeyboardButton;
 	}): PreparedKeyboardButton;
 
+	// TODO: in v6, make each overload require its own arm: chat_id + message_id here, inline_message_id below,
+	// and split both by text | rich_message. The overloads keep chat and inline apart but leave them optional,
+	// and requiring them in v4 rejects calls that type today.
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6228,6 +6245,8 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): true;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageCaption(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6250,6 +6269,8 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): (Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage) | true;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6266,6 +6287,8 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): (Update.Edited & Message & Message.BusinessSentMessage) | true;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	editMessageLiveLocation(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6292,6 +6315,8 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): (Update.Edited & Message.LocationMessage & Message.BusinessSentMessage) | true;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	stopMessageLiveLocation(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6314,12 +6339,14 @@ interface MethodDeclarations<F> {
 		chat_id: number | string;
 		/** Unique identifier for the target message */
 		message_id: number;
-		/** A JSON-serialized object for the new checklist */
+		/** An object for the new checklist */
 		checklist: InputChecklist;
-		/** A JSON-serialized object for the new inline keyboard for the message */
+		/** An object for the new inline keyboard for the message */
 		reply_markup?: InlineKeyboardMarkup;
 	}): Update.Edited & Message.ChecklistMessage & Message.BusinessSentMessage;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageReplyMarkup(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -8684,6 +8711,8 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): Message.InvoiceMessage & Message.BusinessSentMessage;
 
+	// TODO: split into overloads in v6: subscription_period, which needs currency "XTR" | otherwise.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
 	createInvoiceLink(args: {
 		/** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
@@ -8732,6 +8761,8 @@ interface MethodDeclarations<F> {
 		is_flexible?: boolean;
 	}): string;
 
+	// TODO: split into overloads in v6, one per value of ok: ok true + shipping_options | ok false + error_message.
+	// One signature in v4 because arms on a literal ok reject a boolean variable and change what Opts/Params/Ret resolve.
 	/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
 	answerShippingQuery(args: {
 		/** Unique identifier for the query to be answered */
@@ -8744,6 +8775,8 @@ interface MethodDeclarations<F> {
 		error_message?: string;
 	}): true;
 
+	// TODO: split into overloads in v6, one per value of ok: ok true | ok false + error_message.
+	// One signature in v4 because arms on a literal ok reject a boolean variable and change what Opts/Params/Ret resolve.
 	/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
 	answerPreCheckoutQuery(args: {
 		/** Unique identifier for the query to be answered */
@@ -9392,6 +9425,8 @@ export interface CallbackGame {}
 
 // Methods in documentation order; merged and published as `ApiMethods`.
 interface MethodDeclarations<F> {
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
 	setGameScore(args: {
 		/** User identifier */
@@ -9410,6 +9445,8 @@ interface MethodDeclarations<F> {
 		inline_message_id?: string;
 	}): (Update.Edited & Message.GameMessage & Message.BusinessSentMessage) | true;
 
+	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
+	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 
   This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
