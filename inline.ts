@@ -30,6 +30,7 @@ export type {
 	InputInvoiceMessageContent,
 	InputLocationMessageContent,
 	InputMessageContent,
+	InputRichMessageContent,
 	InputTextMessageContent,
 	InputVenueMessageContent,
 } from "./bot-api.js";

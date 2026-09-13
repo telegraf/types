@@ -25,6 +25,11 @@ export declare namespace Update {
 		/** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
 		business_connection_id: string;
 	}
+	/** Internal type holding properties that updates about guest messages share. */
+	export interface Guest {
+		/** The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier. */
+		guest_query_id: string;
+	}
 
 	export interface AbstractUpdate {
 		/** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
@@ -63,6 +68,10 @@ export declare namespace Update {
 	export interface DeletedBusinessMessagesUpdate extends AbstractUpdate {
 		/** Messages were deleted from a connected business account */
 		deleted_business_messages: BusinessMessagesDeleted;
+	}
+	export interface GuestMessageUpdate<M extends CommonMessageBundle = CommonMessageBundle> extends AbstractUpdate {
+		/** New guest message. The bot can use the field Message.guest_query_id and the method answerGuestQuery to send a message in response. */
+		guest_message: New & Guest & M;
 	}
 	export interface MessageReactionUpdate extends AbstractUpdate {
 		/** A reaction to a message was changed by a user. The bot must be an administrator in the chat and must explicitly specify `"message_reaction"` in the list of allowed_updates to receive these updates. The update isn't received for reactions set by bots. */
@@ -150,6 +159,7 @@ export type Update =
 	| Update.BusinessMessageUpdate
 	| Update.EditedBusinessMessageUpdate
 	| Update.DeletedBusinessMessagesUpdate
+	| Update.GuestMessageUpdate
 	| Update.MessageReactionUpdate
 	| Update.MessageReactionCountUpdate
 	| Update.InlineQueryUpdate
@@ -278,12 +288,22 @@ export interface UserFromGetMe extends User {
 	can_join_groups: boolean;
 	/** True, if privacy mode is disabled for the bot. Returned only in getMe. */
 	can_read_all_group_messages: boolean;
+	/** True, if the bot supports guest queries from chats it is not a member of. Returned only in getMe. */
+	supports_guest_queries?: boolean;
 	/** True, if the bot supports inline queries. Returned only in getMe. */
 	supports_inline_queries: boolean;
 	/** True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe. */
 	can_connect_to_business?: boolean;
 	/** True, if the bot has a main Web App. Returned only in getMe. */
 	has_main_web_app?: boolean;
+	/** True, if the bot has forum topic mode enabled in private chats. Returned only in getMe. */
+	has_topics_enabled?: boolean;
+	/** True, if the bot allows users to create and delete topics in private chats. Returned only in getMe. */
+	allows_users_to_create_topics?: boolean;
+	/** True, if other bots can be created to be controlled by the bot. Returned only in getMe. */
+	can_manage_bots?: boolean;
+	/** True, if the bot supports join request queries and can be assigned to process them. Returned only in getMe. */
+	supports_join_request_queries?: boolean;
 }
 
 export declare namespace Chat {
@@ -394,8 +414,14 @@ export declare namespace ChatFullInfo {
 		has_protected_content?: true;
 		/** For private chats, the rating of the user if any */
 		rating?: UserRating;
+		/** For private chats, the first audio added to the profile of the user */
+		first_profile_audio?: Audio;
 		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
 		unique_gift_colors?: UniqueGiftColors;
+		/** The number of Telegram Stars a general user has to pay to send a message to the chat */
+		paid_message_star_count?: number;
+		/** The Community to which the chat belongs */
+		community?: Community;
 	}
 	/** Internal type representing group chats returned from `getChat`. */
 	export interface GroupChat extends Chat.GroupChat {
@@ -441,6 +467,10 @@ export declare namespace ChatFullInfo {
 		can_set_sticker_set?: true;
 		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
 		unique_gift_colors?: UniqueGiftColors;
+		/** The number of Telegram Stars a general user has to pay to send a message to the chat */
+		paid_message_star_count?: number;
+		/** The bot that processes join request queries in the chat. The field is only available to chat administrators. */
+		guard_bot?: User;
 	}
 	/** Internal type representing supergroup chats returned from `getChat`. */
 	export interface SupergroupChat extends Chat.SupergroupChat {
@@ -504,6 +534,12 @@ export declare namespace ChatFullInfo {
 		location?: ChatLocation;
 		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
 		unique_gift_colors?: UniqueGiftColors;
+		/** The number of Telegram Stars a general user has to pay to send a message to the chat */
+		paid_message_star_count?: number;
+		/** The bot that processes join request queries in the chat. The field is only available to chat administrators. */
+		guard_bot?: User;
+		/** The Community to which the chat belongs */
+		community?: Community;
 	}
 	/** Internal type representing channel chats returned from `getChat`. */
 	export interface ChannelChat extends Chat.ChannelChat {
@@ -541,6 +577,12 @@ export declare namespace ChatFullInfo {
 		linked_chat_id?: number;
 		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
 		unique_gift_colors?: UniqueGiftColors;
+		/** The number of Telegram Stars a general user has to pay to send a message to the chat */
+		paid_message_star_count?: number;
+		/** The bot that processes join request queries in the chat. The field is only available to chat administrators. */
+		guard_bot?: User;
+		/** The Community to which the chat belongs */
+		community?: Community;
 	}
 }
 
@@ -574,6 +616,7 @@ export type ServiceMessageBundle =
 	| Message.ChatSharedMessage
 	| Message.GiftMessage
 	| Message.UniqueGiftMessage
+	| Message.GiftUpgradeSentMessage
 	| Message.ConnectedWebsiteMessage
 	| Message.WriteAccessAllowedMessage
 	| Message.PassportDataMessage
@@ -659,6 +702,14 @@ export declare namespace Message {
 	export interface CommonMessage extends ServiceMessage {
 		/** If the sender of the message boosted the chat, the number of boosts added by the user */
 		sender_boost_count?: number;
+		/** Tag or custom title of the sender of the message; for supergroups only */
+		sender_tag?: string;
+		/** For ephemeral messages, the user who received the message */
+		receiver_user?: User;
+		/** For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires. */
+		ephemeral_message_id?: number;
+		/** The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier. */
+		guest_query_id?: string;
 		/** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
 		business_connection_id?: string;
 		/** Information about the original message for forwarded messages */
@@ -675,8 +726,14 @@ export declare namespace Message {
 		reply_to_story?: Story;
 		/** Identifier of the specific checklist task that is being replied to */
 		reply_to_checklist_task_id?: number;
+		/** Persistent identifier of the specific poll option that is being replied to */
+		reply_to_poll_option_id?: string;
 		/** Bot through which the message was sent */
 		via_bot?: User;
+		/** For a message sent by a guest bot, this is the user whose original message triggered the bot's response */
+		guest_bot_caller_user?: User;
+		/** For a message sent by a guest bot, this is the chat whose original message triggered the bot's response */
+		guest_bot_caller_chat?: Chat;
 		/** Date the message was last edited in Unix time */
 		edit_date?: number;
 		/** True, if the message can't be forwarded */
@@ -888,6 +945,10 @@ export declare namespace Message {
 		/** Service message: a unique gift was sent or received */
 		unique_gift: UniqueGiftInfo;
 	}
+	export interface GiftUpgradeSentMessage extends ServiceMessage {
+		/** Service message: upgrade of a gift was purchased after the gift was sent */
+		gift_upgrade_sent: GiftInfo;
+	}
 	export interface ConnectedWebsiteMessage extends ServiceMessage {
 		/** The domain name of the website on which the user has logged in. More about Telegram Login » */
 		connected_website: string;
@@ -1061,7 +1122,7 @@ export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 
 export declare namespace MessageEntity {
 	interface Abstract {
-		/** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers) */
+		/** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time). */
 		type: string;
 		/** Offset in UTF-16 code units to the start of the entity */
 		offset: number;
@@ -1148,6 +1209,13 @@ export declare namespace MessageEntity {
 		/** For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker */
 		custom_emoji_id: string;
 	}
+	export interface DateTime extends Abstract {
+		type: "date_time";
+		/** For “date_time” only, the Unix time associated with the entity */
+		unix_time: number;
+		/** For “date_time” only, the string that defines the formatting of the date and time. See date-time entity formatting for more details. */
+		date_time_format?: string;
+	}
 }
 
 /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
@@ -1170,7 +1238,8 @@ export type MessageEntity =
 	| MessageEntity.PreMessage
 	| MessageEntity.TextLink
 	| MessageEntity.TextMention
-	| MessageEntity.CustomEmoji;
+	| MessageEntity.CustomEmoji
+	| MessageEntity.DateTime;
 
 /** The Bot API supports basic formatting for messages. You can use bold, italic, underlined, strikethrough, spoiler text, block quotations as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly. You can specify text entities directly, or use markdown-style or HTML-style formatting.
 
@@ -1289,7 +1358,7 @@ export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 export interface TextQuote {
 	/** Text of the quoted part of a message that is replied to by the given message */
 	text: string;
-	/** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are kept in quotes. */
+	/** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are kept in quotes. */
 	entities?: MessageEntity[];
 	/** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
 	position: number;
@@ -1309,7 +1378,7 @@ export interface AbstractExternalReply {
 	link_preview_options?: LinkPreviewOptions;
 }
 
-/** Properties shared by Animation, Photo, and Video ExternalReplyInfo */
+/** Properties shared by Animation, LivePhoto, Photo, and Video ExternalReplyInfo */
 export interface AbstractExternalReplyMedia {
 	/** True, if the message media is covered by a spoiler animation */
 	has_media_spoiler?: true;
@@ -1328,6 +1397,11 @@ export interface ExternalReplyAudio extends AbstractExternalReply {
 export interface ExternalReplyDocument extends AbstractExternalReply {
 	/** Message is a general file, information about the file */
 	document: Document;
+}
+
+export interface ExternalReplyLivePhoto extends AbstractExternalReply, AbstractExternalReplyMedia {
+	/** Message is a live photo, information about the live photo */
+	live_photo: LivePhoto;
 }
 
 export interface ExternalReplyPaidMedia extends AbstractExternalReply {
@@ -1420,6 +1494,7 @@ export type ExternalReplyInfo =
 	| ExternalReplyAnimation
 	| ExternalReplyAudio
 	| ExternalReplyDocument
+	| ExternalReplyLivePhoto
 	| ExternalReplyPaidMedia
 	| ExternalReplyPhoto
 	| ExternalReplySticker
@@ -1440,10 +1515,12 @@ export type ExternalReplyInfo =
 
 /** Describes reply parameters for the message that is being sent. */
 export interface ReplyParameters {
-	/** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified */
-	message_id: number;
+	/** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id isn't specified. */
+	message_id?: number;
 	/** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats. */
 	chat_id?: number | string;
+	/** Identifier of the incoming ephemeral message that will be replied to in the current chat. A reply to an ephemeral message must itself be an ephemeral message. An ephemeral message may only be replied to within 15 seconds of being sent. Required if message_id isn't specified. */
+	ephemeral_message_id?: number;
 	/** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account. */
 	allow_sending_without_reply?: boolean;
 	/** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message. */
@@ -1456,6 +1533,8 @@ export interface ReplyParameters {
 	quote_position?: number;
 	/** Identifier of the specific checklist task to be replied to */
 	checklist_task_id?: number;
+	/** Persistent identifier of the specific poll option to be replied to */
+	poll_option_id?: string;
 }
 export interface EphemeralMessageParameters {
 	/** Identifier of the user who will receive the message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
@@ -1844,6 +1923,8 @@ export type InputPollOptionMedia<F> =
 
 /** This object contains information about one answer option in a poll. */
 export interface PollOption {
+	/** Unique identifier of the option, persistent on option addition and deletion */
+	persistent_id: string;
 	/** Option text, 1-100 characters */
 	text: string;
 	/** Special entities that appear in the option text. Currently, only custom emoji entities are allowed in poll option texts */
@@ -1852,6 +1933,12 @@ export interface PollOption {
 	media?: PollMedia;
 	/** Number of users that voted for this option */
 	voter_count: number;
+	/** User who added the option; omitted if the option wasn't added by a user after poll creation */
+	added_by_user?: User;
+	/** Chat that added the option; omitted if the option wasn't added by a chat after poll creation */
+	added_by_chat?: Chat;
+	/** Point in time (Unix timestamp) when the option was added; omitted if the option existed in the original poll */
+	addition_date?: number;
 }
 
 /** This object contains information about one answer option in a poll to be sent. */
@@ -1879,6 +1966,8 @@ export interface PollAnswer {
 	user?: User;
 	/** 0-based identifiers of answer options, chosen by the user. May be empty if the user retracted their vote. */
 	option_ids: number[];
+	/** Persistent identifiers of the chosen answer options. May be empty if the vote was retracted. */
+	option_persistent_ids: string[];
 }
 
 /** This object contains information about a poll. */
@@ -1901,7 +1990,16 @@ export interface Poll {
 	type: "regular" | "quiz";
 	/** True, if the poll allows multiple answers */
 	allows_multiple_answers: boolean;
-	/** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot. */
+	/** True, if the poll allows to change the chosen answer options */
+	allows_revoting: boolean;
+	/** True if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours */
+	members_only: boolean;
+	/** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code “FT” is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll. */
+	country_codes?: string[];
+	/** Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot. */
+	correct_option_ids?: number[];
+	/** 0-based identifier of the correct answer option. Available only for polls in the quiz mode, which are closed, or was sent (not forwarded) by the bot or to the private chat with the bot.
+	 * @deprecated Use `correct_option_ids` instead. */
 	correct_option_id?: number;
 	/** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters */
 	explanation?: string;
@@ -1913,6 +2011,10 @@ export interface Poll {
 	open_period?: number;
 	/** Point in time (Unix timestamp) when the poll will be automatically closed */
 	close_date?: number;
+	/** Description of the poll; for polls inside the Message object only */
+	description?: string;
+	/** Special entities like usernames, URLs, bot commands, etc. that appear in the description */
+	description_entities?: MessageEntity[];
 	/** Media added to the poll description; for polls inside the Message object only */
 	media?: PollMedia;
 }
@@ -1927,6 +2029,8 @@ export interface ChecklistTask {
 	text_entities?: MessageEntity[];
 	/** User that completed the task; omitted if the task wasn't completed */
 	completed_by_user?: User;
+	/** Chat that completed the task; omitted if the task wasn't completed by a chat */
+	completed_by_chat?: Chat;
 	/** Point in time (Unix timestamp) when the task was completed; 0 if the task wasn't completed */
 	completion_date?: number;
 }
@@ -1953,7 +2057,7 @@ export interface InputChecklistTask {
 	text: string;
 	/** Mode for parsing entities in the text. See formatting options for more details. */
 	parse_mode?: ParseMode;
-	/** List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+	/** List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed. */
 	text_entities?: (
 		| MessageEntity.Bold
 		| MessageEntity.Italic
@@ -1961,6 +2065,7 @@ export interface InputChecklistTask {
 		| MessageEntity.Strikethrough
 		| MessageEntity.Spoiler
 		| MessageEntity.CustomEmoji
+		| MessageEntity.DateTime
 	)[];
 }
 
@@ -1970,7 +2075,7 @@ export interface InputChecklist {
 	title: string;
 	/** Mode for parsing entities in the title. See formatting options for more details. */
 	parse_mode?: ParseMode;
-	/** List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, and custom_emoji entities are allowed. */
+	/** List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed. */
 	title_entities?: (
 		| MessageEntity.Bold
 		| MessageEntity.Italic
@@ -1978,6 +2083,7 @@ export interface InputChecklist {
 		| MessageEntity.Strikethrough
 		| MessageEntity.Spoiler
 		| MessageEntity.CustomEmoji
+		| MessageEntity.DateTime
 	)[];
 	/** List of 1-30 tasks in the checklist */
 	tasks: InputChecklistTask[];
@@ -2257,6 +2363,8 @@ export interface ForumTopicCreated {
 	icon_color: number;
 	/** Unique identifier of the custom emoji shown as the topic icon */
 	icon_custom_emoji_id?: string;
+	/** True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot */
+	is_name_implicit?: true;
 }
 
 /** This object represents a service message about a forum topic closed in the chat. Currently holds no information. */
@@ -2573,13 +2681,19 @@ export interface ReplyKeyboardMarkup {
 
 Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard. */
 	selective?: boolean;
+	/** Pass True if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply' */
+	force_reply?: boolean;
 }
 
-/** This object represents one button of the reply keyboard. At most one of the optional fields must be used to specify type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
+/** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
 export declare namespace KeyboardButton {
 	interface Common {
-		/** Text of the button. If none of the optional fields are used, it will be sent as a message when the button is pressed */
+		/** Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed. */
 		text: string;
+		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+		icon_custom_emoji_id?: string;
+		/** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+		style?: "danger" | "success" | "primary";
 	}
 	export interface RequestUsers extends Common {
 		/** If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only. */
@@ -2611,7 +2725,7 @@ export declare namespace KeyboardButton {
 	}
 }
 
-/** This object represents one button of the reply keyboard. For simple text buttons, String can be used instead of this object to specify the button text. The optional fields web_app, request_user, request_chat, request_contact, request_location, and request_poll are mutually exclusive. */
+/** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
 export type KeyboardButton =
 	| KeyboardButton.RequestUsers
 	| KeyboardButton.RequestChat
@@ -2695,12 +2809,18 @@ export interface ReplyKeyboardRemove {
 export interface InlineKeyboardMarkup {
 	/** Array of button rows, each represented by an Array of InlineKeyboardButton objects */
 	inline_keyboard: InlineKeyboardButton[][];
+	/** Pass True if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'. The value of the field can't be changed when the inline keyboard is edited. */
+	force_reply?: boolean;
 }
 
 export declare namespace InlineKeyboardButton {
 	interface AbstractInlineKeyboardButton {
 		/** Label text on the button */
 		text: string;
+		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+		icon_custom_emoji_id?: string;
+		/** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
+		style?: "danger" | "success" | "primary";
 	}
 	export interface UrlButton extends AbstractInlineKeyboardButton {
 		/** HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings. */
@@ -2754,7 +2874,7 @@ export declare namespace InlineKeyboardButton {
 	}
 }
 
-/** This object represents one button of an inline keyboard. Exactly one of the optional fields must be used to specify type of the button. */
+/** This object represents one button of an inline keyboard. Exactly one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. */
 export type InlineKeyboardButton =
 	| InlineKeyboardButton.UrlButton
 	| InlineKeyboardButton.CallbackButton
@@ -2932,6 +3052,10 @@ export interface ChatAdministratorRights {
 	can_manage_topics?: boolean;
 	/** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
 	can_manage_direct_messages?: boolean;
+	/** True, if the administrator can edit the tags of regular members; for groups and supergroups only */
+	can_manage_tags?: boolean;
+	/** True, if the administrator can manage chat welcome messages or directly send them in the case of bots */
+	can_send_welcome_messages: boolean;
 }
 
 /** This object represents changes in the status of a chat member. */
@@ -3022,6 +3146,10 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 	can_manage_topics?: boolean;
 	/** True, if the administrator can manage direct messages of the channel and decline suggested posts; for channels only */
 	can_manage_direct_messages?: boolean;
+	/** True, if the administrator can edit the tags of regular members; for groups and supergroups only */
+	can_manage_tags?: boolean;
+	/** True, if the administrator can manage chat welcome messages or directly send them in the case of bots */
+	can_send_welcome_messages: boolean;
 	/** Custom title for this user */
 	custom_title?: string;
 }
@@ -3029,6 +3157,8 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 /** Represents a chat member that has no additional privileges or restrictions. */
 export interface ChatMemberMember extends AbstractChatMember {
 	status: "member";
+	/** Tag of the member */
+	tag?: string;
 	/** Date when the user's subscription will expire; Unix time */
 	until_date?: number;
 }
@@ -3036,6 +3166,8 @@ export interface ChatMemberMember extends AbstractChatMember {
 /** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
 export interface ChatMemberRestricted extends AbstractChatMember {
 	status: "restricted";
+	/** Tag of the member */
+	tag?: string;
 	/** True, if the user is a member of the chat at the moment of the request */
 	is_member: boolean;
 	/** True, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues */
@@ -3058,6 +3190,10 @@ export interface ChatMemberRestricted extends AbstractChatMember {
 	can_send_other_messages: boolean;
 	/** True, if the user is allowed to add web page previews to their messages */
 	can_add_web_page_previews: boolean;
+	/** True, if the user is allowed to react to messages */
+	can_react_to_messages: boolean;
+	/** True, if the user is allowed to edit their own tag */
+	can_edit_tag: boolean;
 	/** True, if the user is allowed to change the chat title, photo and other settings */
 	can_change_info: boolean;
 	/** True, if the user is allowed to invite new users to the chat */
@@ -3096,6 +3232,8 @@ export interface ChatJoinRequest {
 	bio?: string;
 	/** Chat invite link that was used by the user to send the join request */
 	invite_link?: ChatInviteLink;
+	/** Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds. */
+	query_id?: string;
 }
 
 /** Describes actions that a non-administrator user is allowed to take in a chat. */
@@ -3120,6 +3258,10 @@ export interface ChatPermissions {
 	can_send_other_messages?: boolean;
 	/** True, if the user is allowed to add web page previews to their messages */
 	can_add_web_page_previews?: boolean;
+	/** True, if the user is allowed to react to messages. If omitted, defaults to the value of can_send_messages. */
+	can_react_to_messages?: boolean;
+	/** True, if the user is allowed to edit their own tag. If omitted, defaults to the value of can_pin_messages. */
+	can_edit_tag?: boolean;
 	/** True, if the user is allowed to change the chat title, photo and other settings. Ignored in public supergroups */
 	can_change_info?: boolean;
 	/** True, if the user is allowed to invite new users to the chat */
@@ -3444,6 +3586,8 @@ export interface ForumTopic {
 	icon_color: number;
 	/** Unique identifier of the custom emoji shown as the topic icon */
 	icon_custom_emoji_id?: string;
+	/** True, if the name of the topic wasn't specified explicitly by its creator and likely needs to be changed by the bot */
+	is_name_implicit?: true;
 }
 /** This object describes the background of a gift. */
 export interface GiftBackground {
@@ -3465,12 +3609,22 @@ export interface Gift {
 	star_count: number;
 	/** The number of Telegram Stars that must be paid to upgrade the gift to a unique one */
 	upgrade_star_count?: number;
+	/** True, if the gift can only be purchased by Telegram Premium subscribers */
+	is_premium?: true;
+	/** True, if the gift can be used (after being upgraded) to customize a user's appearance */
+	has_colors?: true;
 	/** The total number of the gifts of this type that can be sent; for limited gifts only */
 	total_count?: number;
 	/** The number of remaining gifts of this type that can be sent; for limited gifts only */
 	remaining_count?: number;
+	/** The total number of gifts of this type that can be sent by the bot; for limited gifts only */
+	personal_total_count?: number;
+	/** The number of remaining gifts of this type that can be sent by the bot; for limited gifts only */
+	personal_remaining_count?: number;
 	/** Background of the gift */
 	background?: GiftBackground;
+	/** The total number of different unique gifts that can be obtained by upgrading the gift */
+	unique_gift_variant_count?: number;
 	/** Information about the chat that published the gift */
 	publisher_chat?: Chat;
 }
@@ -3489,6 +3643,8 @@ export interface UniqueGiftModel {
 	sticker: Sticker;
 	/** The number of unique gifts that receive this model for every 1000 gifts upgraded */
 	rarity_per_mille: number;
+	/** Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”. */
+	rarity?: "uncommon" | "rare" | "epic" | "legendary";
 }
 
 /** This object describes the symbol shown on the pattern of a unique gift. */
@@ -3540,6 +3696,8 @@ export interface UniqueGiftColors {
 
 /** This object describes a unique gift that was upgraded from a regular gift. */
 export interface UniqueGift {
+	/** Identifier of the regular gift from which the gift was upgraded */
+	gift_id: string;
 	/** Human-readable name of the regular gift from which this unique gift was upgraded */
 	base_name: string;
 	/** Unique name of the gift. This name can be used in https://t.me/nft/... links and story areas */
@@ -3552,6 +3710,12 @@ export interface UniqueGift {
 	symbol: UniqueGiftSymbol;
 	/** Backdrop of the gift */
 	backdrop: UniqueGiftBackdrop;
+	/** True, if the original regular gift was exclusively purchaseable by Telegram Premium subscribers */
+	is_premium?: true;
+	/** True, if the gift was used to craft another gift and isn't available anymore */
+	is_burned?: true;
+	/** True, if the gift is assigned from the TON blockchain and can't be resold or transferred in Telegram */
+	is_from_blockchain?: true;
 	/** The color scheme that can be used by the gift's owner for the chat's name, replies to messages and link previews; for business account gifts and gifts that are currently on sale only */
 	colors?: UniqueGiftColors;
 	/** Information about the chat that published the gift */
@@ -3568,6 +3732,8 @@ export interface GiftInfo {
 	convert_star_count?: number;
 	/** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
 	prepaid_upgrade_star_count?: number;
+	/** True, if the gift's upgrade was purchased after the gift was sent */
+	is_upgrade_separate?: true;
 	/** True, if the gift can be upgraded to a unique gift */
 	can_be_upgraded?: true;
 	/** Text of the message that was added to the gift */
@@ -3576,6 +3742,8 @@ export interface GiftInfo {
 	entities?: MessageEntity[];
 	/** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
 	is_private?: true;
+	/** Unique number reserved for this gift when upgraded. See the number field in UniqueGift. */
+	unique_gift_number?: number;
 }
 
 /** Describes a service message about a unique gift that was sent or received. */
@@ -3584,7 +3752,18 @@ export interface UniqueGiftInfo {
 	gift: UniqueGift;
 	/** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
 	origin: "upgrade" | "transfer" | "resale" | "gifted_upgrade" | "offer";
-	/** For gifts bought from other users, the price paid for the gift */
+	/** Text of the message that was added to the gift */
+	text?: string;
+	/** Special entities that appear in the text */
+	entities?: MessageEntity[];
+	/** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
+	is_private?: true;
+	/** For gifts bought from other users, the currency in which the payment for the gift was done. Currently, one of “XTR” for Telegram Stars or “TON” for TON grams. */
+	last_resale_currency?: "XTR" | "TON";
+	/** For gifts bought from other users, the price paid for the gift in either Telegram Stars or nanograms */
+	last_resale_amount?: number;
+	/** For gifts bought from other users, the price paid for the gift
+	 * @deprecated Use `last_resale_currency` and `last_resale_amount` instead. */
 	last_resale_star_count?: number;
 	/** Unique identifier of the received gift for the bot; only present for gifts received on behalf of business accounts */
 	owned_gift_id?: string;
@@ -3627,6 +3806,10 @@ export interface OwnedGiftRegular {
 	convert_star_count?: number;
 	/** Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift */
 	prepaid_upgrade_star_count?: number;
+	/** True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only */
+	is_upgrade_separate?: true;
+	/** Unique number reserved for this gift when upgraded. See the number field in UniqueGift. */
+	unique_gift_number?: number;
 }
 
 /** Describes a unique gift received and owned by a user or a chat. */
@@ -3678,6 +3861,8 @@ export interface AcceptedGiftTypes {
 	unique_gifts: boolean;
 	/** True, if a Telegram Premium subscription is accepted */
 	premium_subscription: boolean;
+	/** True, if transfers of unique gifts from channels are accepted */
+	gifts_from_channels: boolean;
 }
 
 /** Describes an amount of Telegram Stars. */
@@ -3694,6 +3879,8 @@ export interface BotCommand {
 	command: string;
 	/** Description of the command; 1-256 characters. */
 	description: string;
+	/** True, if the command sends an ephemeral message, which can be seen only by the sender of the message and the bot */
+	is_ephemeral?: boolean;
 }
 
 /** This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
@@ -4415,6 +4602,8 @@ interface MethodDeclarations<F> {
 		disable_notification?: boolean;
 		/** Protects the contents of the forwarded message from forwarding and saving */
 		protect_content?: boolean;
+		/** Unique identifier of the message effect to be added to the message; only available when forwarding to private chats */
+		message_effect_id?: string;
 		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Message identifier in the chat specified in from_chat_id */
@@ -4467,6 +4656,8 @@ interface MethodDeclarations<F> {
 		protect_content?: boolean;
 		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
+		/** Unique identifier of the message effect to be added to the message; only available when copying to private chats */
+		message_effect_id?: string;
 		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
@@ -5053,7 +5244,22 @@ interface MethodDeclarations<F> {
 		type?: "quiz" | "regular";
 		/** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
 		allows_multiple_answers?: boolean;
-		/** 0-based identifier of the correct answer option, required for polls in quiz mode */
+		/** Pass True if the poll allows to change chosen answer options, defaults to False for quizzes and to True for regular polls */
+		allows_revoting?: boolean;
+		/** Pass True if the poll options must be shown in random order */
+		shuffle_options?: boolean;
+		/** Pass True if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes */
+		allow_adding_options?: boolean;
+		/** Pass True if poll results must be shown only after the poll closes */
+		hide_results_until_closes?: boolean;
+		/** Pass True if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only */
+		members_only?: boolean;
+		/** A list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use “FT” as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll. */
+		country_codes?: string[];
+		/** A list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode */
+		correct_option_ids?: number[];
+		/** 0-based identifier of the correct answer option, required for polls in quiz mode
+		 * @deprecated Use `correct_option_ids` instead. */
 		correct_option_id?: number;
 		/** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
 		explanation?: string;
@@ -5069,6 +5275,12 @@ interface MethodDeclarations<F> {
 		close_date?: number;
 		/** Pass True if the poll needs to be immediately closed. This can be useful for poll preview. */
 		is_closed?: boolean;
+		/** Description of the poll to be sent, 0-1024 characters after entities parsing */
+		description?: string;
+		/** Mode for parsing entities in the poll description. See formatting options for more details. */
+		description_parse_mode?: ParseMode;
+		/** A list of special entities that appear in the poll description, which can be specified instead of description_parse_mode */
+		description_entities?: MessageEntity[];
 		/** Media added to the poll description */
 		media?: InputPollMedia<F>;
 		/** Sends the message silently. Users will receive a notification with no sound. */
@@ -5308,6 +5520,10 @@ interface MethodDeclarations<F> {
 		can_manage_topics?: boolean;
 		/** Pass True if the administrator can manage direct messages within the channel and decline suggested posts; for channels only */
 		can_manage_direct_messages?: boolean;
+		/** Pass True if the administrator can edit the tags of regular members; for groups and supergroups only */
+		can_manage_tags?: boolean;
+		/** Pass True if the administrator can manage chat welcome messages or directly send them in the case of bots */
+		can_send_welcome_messages?: boolean;
 	}): true;
 
 	/** Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success. */
@@ -5536,6 +5752,8 @@ interface MethodDeclarations<F> {
 	getChatAdministrators(args: {
 		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
 		chat_id: number | string;
+		/** Pass True to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted. */
+		return_bots?: boolean;
 	}): Array<ChatMemberOwner | ChatMemberAdministrator>;
 
 	/** Use this method to get the number of members in a chat. Returns Int on success.
@@ -6010,10 +6228,17 @@ interface MethodDeclarations<F> {
 		exclude_saved?: boolean;
 		/** Pass True to exclude gifts that can be purchased an unlimited number of times */
 		exclude_unlimited?: boolean;
-		/** Pass True to exclude gifts that can be purchased a limited number of times */
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+		exclude_limited_upgradable?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+		exclude_limited_non_upgradable?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times
+		 * @deprecated Use `exclude_limited_upgradable` and `exclude_limited_non_upgradable` instead. */
 		exclude_limited?: boolean;
 		/** Pass True to exclude unique gifts */
 		exclude_unique?: boolean;
+		/** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+		exclude_from_blockchain?: boolean;
 		/** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
 		sort_by_price?: boolean;
 		/** Offset of the first entry to return as received from the previous request; use empty string to get the first chunk of results */
@@ -6199,8 +6424,8 @@ interface MethodDeclarations<F> {
 	}): PreparedKeyboardButton;
 
 	// TODO: in v6, make each overload require its own arm: chat_id + message_id here, inline_message_id below,
-	// and split both by text | rich_message. The overloads keep chat and inline apart but leave them optional,
-	// and requiring them in v4 rejects calls that type today.
+	// and split both by text | rich_message, whose edited Message is a RichMessageMessage. The overloads keep
+	// chat and inline apart but leave the arms optional, and requiring them in v4 rejects calls that type today.
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(args: {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
@@ -6211,14 +6436,16 @@ interface MethodDeclarations<F> {
 		message_id?: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: undefined;
-		/** New text of the message, 1-4096 characters after entities parsing */
-		text: string;
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: string;
 		/** Mode for parsing entities in the message text. See formatting options for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
 		/** Link preview generation options for the message */
 		link_preview_options?: LinkPreviewOptions;
+		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
+		rich_message?: InputRichMessage<F>;
 		/** An object for an inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}): Update.Edited & Message.TextMessage & Message.BusinessSentMessage;
@@ -6233,14 +6460,16 @@ interface MethodDeclarations<F> {
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: string;
-		/** New text of the message, 1-4096 characters after entities parsing */
-		text: string;
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: string;
 		/** Mode for parsing entities in the message text. See formatting options for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
 		/** Link preview generation options for the message */
 		link_preview_options?: LinkPreviewOptions;
+		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
+		rich_message?: InputRichMessage<never>;
 		/** An object for an inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}): true;
@@ -8509,15 +8738,17 @@ export interface InlineQueryResultCachedAudio {
 	input_message_content?: InputMessageContent;
 }
 
-/** This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following 5 types:
+/** This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
 
 - InputTextMessageContent
+- InputRichMessageContent
 - InputLocationMessageContent
 - InputVenueMessageContent
 - InputContactMessageContent
 - InputInvoiceMessageContent */
 export type InputMessageContent =
 	| InputTextMessageContent
+	| InputRichMessageContent
 	| InputLocationMessageContent
 	| InputVenueMessageContent
 	| InputContactMessageContent
@@ -8533,6 +8764,11 @@ export interface InputTextMessageContent {
 	entities?: MessageEntity[];
 	/** Options used for link preview generation for the original message, if it is a text message */
 	link_preview_options?: LinkPreviewOptions;
+}
+/** Represents the content of a rich message to be sent as the result of an inline query. */
+export interface InputRichMessageContent {
+	/** The message to be sent. Only previously uploaded files may be used in the message. */
+	rich_message: InputRichMessage<never>;
 }
 
 /** Represents the content of a location message to be sent as the result of an inline query. */

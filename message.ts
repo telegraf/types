@@ -41,6 +41,7 @@ export type {
 	ExternalReplyGiveawayWinners,
 	ExternalReplyInfo,
 	ExternalReplyInvoice,
+	ExternalReplyLivePhoto,
 	ExternalReplyLocation,
 	ExternalReplyPaidMedia,
 	ExternalReplyPhoto,
