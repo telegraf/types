@@ -537,7 +537,7 @@ export declare namespace ChatFullInfo {
 		message_auto_delete_time?: number;
 		/** True, if messages from the chat can't be forwarded to other chats */
 		has_protected_content?: true;
-		/** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. This identifier may be greater than 32 bits and some programming languages may have difficulty/silent defects in interpreting it. But it is smaller than 52 bits, so a signed 64 bit integer or double-precision float type are safe for storing this identifier. */
+		/** Unique identifier for the linked chat, i.e. the discussion group identifier for a channel and vice versa; for supergroups and channel chats. */
 		linked_chat_id?: number;
 		/** The color scheme based on a unique gift that must be used for the chat's name, message replies and link previews */
 		unique_gift_colors?: UniqueGiftColors;
@@ -1600,7 +1600,7 @@ export interface LivePhoto {
 	duration: number;
 	/** MIME type of the file as defined by the sender */
 	mime_type?: string;
-	/** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+	/** File size in bytes. */
 	file_size?: number;
 }
 
@@ -1631,7 +1631,7 @@ export interface VideoQuality {
 	height: number;
 	/** Codec that was used to encode the video, for example, “h264”, “h265”, or “av01” */
 	codec: string;
-	/** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+	/** File size in bytes. */
 	file_size?: number;
 }
 
@@ -2540,7 +2540,7 @@ export interface File {
 	file_id: string;
 	/** Unique identifier for this file, which is supposed to be the same over time and for different bots. Can't be used to download or reuse the file. */
 	file_unique_id: string;
-	/** File size in bytes. It can be bigger than 2^31 and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this value. */
+	/** File size in bytes. */
 	file_size?: number;
 	/** File path. Use `https://api.telegram.org/file/bot<token>/<file_path>` to get the file. */
 	file_path?: string;
@@ -2849,7 +2849,7 @@ export interface ForceReply {
 }
 /** Represents a community (a group of chats). */
 export interface Community {
-	/** Unique identifier for this community. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a signed 64-bit integer or double-precision float type are safe for storing this identifier. */
+	/** Unique identifier for this community. */
 	id: number;
 	/** Name of the community */
 	name: string;
@@ -3959,7 +3959,7 @@ export interface BusinessConnection {
 	id: string;
 	/** Business account user that created the business connection */
 	user: User;
-	/** Identifier of a private chat with the user who created the business connection. This number may have more than 32 significant bits and some programming languages may have difficulty/silent defects in interpreting it. But it has at most 52 significant bits, so a 64-bit integer or double-precision float type are safe for storing this identifier. */
+	/** Identifier of a private chat with the user who created the business connection. */
 	user_chat_id: number;
 	/** Date the connection was established in Unix time */
 	date: number;
@@ -4241,7 +4241,7 @@ export interface InputMediaVideo<F> {
 export interface InputMediaVoiceNote<F> {
 	/** Type of the media, must be voice_note */
 	type: "voice_note";
-	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or pass "attach://<file_attach_name>" to upload a new one using multipart/form-data under <file_attach_name> name. */
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
 	/** Caption of the voice message to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
@@ -4368,7 +4368,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Text of the message to be sent, 1-4096 characters after entities parsing */
 		text: string;
@@ -4390,7 +4390,7 @@ interface MethodDeclarations<F> {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. A object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}): Message.TextMessage & Message.BusinessSentMessage;
 
@@ -4500,7 +4500,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. */
 		photo: F | string;
@@ -4542,7 +4542,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. */
 		audio: F | string;
@@ -4586,7 +4586,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		document: F | string;
@@ -4626,7 +4626,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. */
 		video: F | string;
@@ -4680,7 +4680,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. */
 		animation: F | string;
@@ -4728,7 +4728,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		voice: F | string;
@@ -4767,7 +4767,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data.. Sending video notes by a URL is currently unsupported */
 		video_note: F | string;
@@ -4868,7 +4868,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Latitude of the location */
 		latitude: number;
@@ -4908,7 +4908,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Latitude of the venue */
 		latitude: number;
@@ -4952,7 +4952,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Contact's phone number */
 		phone_number: string;
@@ -6250,7 +6250,7 @@ interface MethodDeclarations<F> {
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Video and animated stickers can't be sent via an HTTP URL. */
 		sticker: F | string;
@@ -6264,7 +6264,7 @@ interface MethodDeclarations<F> {
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
-		/** A object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
@@ -6460,13 +6460,13 @@ interface MethodDeclarations<F> {
 	sendRichMessage(args: {
 		/** Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages. */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format @username */
+		/** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** A JSON-serialized object containing the parameters of the ephemeral message to send */
+		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters;
 		/** The message to be sent */
 		rich_message: InputRichMessage<F>;
@@ -6478,11 +6478,11 @@ interface MethodDeclarations<F> {
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
-		/** A JSON-serialized object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}): Message.RichMessageMessage & Message.BusinessSentMessage;
 
@@ -8326,7 +8326,7 @@ interface MethodDeclarations<F> {
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
-		/** A object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
