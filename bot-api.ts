@@ -620,6 +620,7 @@ export type CommonMessageBundle =
 	| Message.DiceMessage
 	| Message.DocumentMessage
 	| Message.GameMessage
+	| Message.LivePhotoMessage
 	| Message.LocationMessage
 	| Message.PaidMediaMessage
 	| Message.PhotoMessage
@@ -744,6 +745,10 @@ export declare namespace Message {
 		photo: PhotoSize[];
 		/** True, if the caption must be shown above the message media */
 		show_caption_above_media?: true;
+	}
+	export interface LivePhotoMessage extends PhotoMessage {
+		/** Message is a live photo, information about the live photo. For backward compatibility, when this field is set, the photo field will also be set. */
+		live_photo: LivePhoto;
 	}
 	export interface StickerMessage extends CommonMessage {
 		/** Message is a sticker, information about the sticker */
@@ -4530,6 +4535,48 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}): Message.PhotoMessage & Message.BusinessSentMessage;
 
+	/** Use this method to send live photos. On success, the sent Message is returned. */
+	sendLivePhoto(args: {
+		/** Unique identifier of the business connection on behalf of which the message will be sent */
+		business_connection_id?: string;
+		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id: number | string;
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+		message_thread_id?: number;
+		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
+		direct_messages_topic_id?: number;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters?: EphemeralMessageParameters;
+		/** Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
+		live_photo: F | string;
+		/** The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
+		photo: F | string;
+		/** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
+		caption?: string;
+		/** Mode for parsing entities in the video caption. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+		caption_entities?: MessageEntity[];
+		/** Pass True if the caption must be shown above the message media */
+		show_caption_above_media?: boolean;
+		/** Pass True if the video needs to be covered with a spoiler animation */
+		has_spoiler?: boolean;
+		/** Sends the message silently. Users will receive a notification with no sound. */
+		disable_notification?: boolean;
+		/** Protects the contents of the sent message from forwarding and saving */
+		protect_content?: boolean;
+		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		allow_paid_broadcast?: boolean;
+		/** Unique identifier of the message effect to be added to the message; for private chats only */
+		message_effect_id?: string;
+		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
+		suggested_post_parameters?: SuggestedPostParameters;
+		/** Description of the message to reply to */
+		reply_parameters?: ReplyParameters;
+		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
+	}): Message.LivePhotoMessage & Message.BusinessSentMessage;
+
 	/** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 
   For sending voice messages, use the sendVoice method instead. */
@@ -5080,6 +5127,26 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}): Message.DiceMessage & Message.BusinessSentMessage;
 
+	/** Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendMessage with the complete message to persist it in the user's chat. Returns True on success. */
+	sendMessageDraft(args: {
+		/** Unique identifier for the target private chat */
+		chat_id: number;
+		/** Unique identifier for the target message thread */
+		message_thread_id?: number;
+		/** Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation. */
+		draft_id: number;
+		/** Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a “Thinking…” placeholder. */
+		text?: string;
+		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
+		entities?: MessageEntity[];
+		/** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
+		can_stop?: boolean;
+		/** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
+		keep_on_stop?: boolean;
+	}): true;
+
 	/** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
 
   Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use sendChatAction with action = upload_photo. The user will see a "sending photo" status for the bot.
@@ -5128,6 +5195,16 @@ interface MethodDeclarations<F> {
 		/** Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
 		limit?: number;
 	}): UserProfilePhotos;
+
+	/** Use this method to get a list of profile audios for a user. Returns a UserProfileAudios object. */
+	getUserProfileAudios(args: {
+		/** Unique identifier of the target user */
+		user_id: number;
+		/** Sequential number of the first audio to be returned. By default, all audios are returned. */
+		offset?: number;
+		/** Limits the number of audios to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
+		limit?: number;
+	}): UserProfileAudios;
 
 	/** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success. */
 	setUserEmojiStatus(args: {
@@ -5235,6 +5312,16 @@ interface MethodDeclarations<F> {
 		user_id: number;
 		/** New custom title for the administrator; 0-16 characters, emoji are not allowed */
 		custom_title: string;
+	}): true;
+
+	/** Use this method to set a tag for a regular member in a group or a supergroup. The bot must be an administrator in the chat for this to work and must have the can_manage_tags administrator right. Returns True on success. */
+	setChatMemberTag(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Unique identifier of the target user */
+		user_id: number;
+		/** New tag for the member; 0-16 characters, emoji are not allowed */
+		tag?: string;
 	}): true;
 
 	/** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
@@ -5347,6 +5434,22 @@ interface MethodDeclarations<F> {
 		user_id: number;
 	}): true;
 
+	/** Use this method to process a received chat join request query. Returns True on success. */
+	answerChatJoinRequestQuery(args: {
+		/** Unique identifier of the join request query */
+		chat_join_request_query_id: string;
+		/** Result of the query. Must be either “approve” to allow the user to join the chat, “decline” to disallow the user to join the chat, or “queue” to leave the decision to other administrators. */
+		result: "approve" | "decline" | "queue";
+	}): true;
+
+	/** Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns True on success. */
+	sendChatJoinRequestWebApp(args: {
+		/** Unique identifier of the join request query */
+		chat_join_request_query_id: string;
+		/** An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps */
+		web_app_url: string;
+	}): true;
+
 	/** Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	setChatPhoto(args: {
 		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -5440,6 +5543,14 @@ interface MethodDeclarations<F> {
 		/** Unique identifier of the target user */
 		user_id: number;
 	}): ChatMember;
+
+	/** Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of Message objects is returned. */
+	getUserPersonalChatMessages(args: {
+		/** Unique identifier for the target user */
+		user_id: number;
+		/** The maximum number of messages to return; 1-20 */
+		limit: number;
+	}): Message[];
 
 	/** Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set ly returned in getChat requests to check if the bot can use this method. Returns True on success. */
 	setChatStickerSet(args: {
@@ -5570,6 +5681,14 @@ interface MethodDeclarations<F> {
 		cache_time?: number;
 	}): true;
 
+	/** Use this method to reply to a received guest message. On success, a SentGuestMessage object is returned. */
+	answerGuestQuery(args: {
+		/** Unique identifier for the query to be answered */
+		guest_query_id: string;
+		/** An object describing the message to be sent */
+		result: InlineQueryResult;
+	}): SentGuestMessage;
+
 	/** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
 	getUserChatBoosts(arg: {
 		/** Unique identifier for the chat or username of the channel (in the format `@channelusername`) */
@@ -5582,6 +5701,34 @@ interface MethodDeclarations<F> {
 		/** Unique identifier of the business connection */
 		business_connection_id: string;
 	}): BusinessConnection;
+
+	/** Use this method to get the token of a managed bot. Returns the token as String on success. */
+	getManagedBotToken(args: {
+		/** User identifier of the managed bot whose token will be returned */
+		user_id: number;
+	}): string;
+
+	/** Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success. */
+	replaceManagedBotToken(args: {
+		/** User identifier of the managed bot whose token will be replaced */
+		user_id: number;
+	}): string;
+
+	/** Use this method to get the access settings of a managed bot. Returns a BotAccessSettings object on success. */
+	getManagedBotAccessSettings(args: {
+		/** User identifier of the managed bot whose access settings will be returned */
+		user_id: number;
+	}): BotAccessSettings;
+
+	/** Use this method to change the access settings of a managed bot. Returns True on success. */
+	setManagedBotAccessSettings(args: {
+		/** User identifier of the managed bot whose access settings will be changed */
+		user_id: number;
+		/** Pass True if only selected users can access the bot. The bot's owner can always access it. */
+		is_access_restricted: boolean;
+		/** A list of up to 10 identifiers of users who will have access to the bot in addition to its owner. Ignored if is_access_restricted is False. */
+		added_user_ids?: number[];
+	}): true;
 
 	/** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
 	setMyCommands(args: {
@@ -5650,6 +5797,15 @@ interface MethodDeclarations<F> {
 		/** A two-letter ISO 639-1 language code or an empty string */
 		language_code?: string;
 	}): BotShortDescription;
+
+	/** Changes the profile photo of the bot. Returns True on success. */
+	setMyProfilePhoto(args: {
+		/** The new profile photo to set */
+		photo: InputProfilePhoto<F>;
+	}): true;
+
+	/** Removes the profile photo of the bot. Requires no parameters. Returns True on success. */
+	removeMyProfilePhoto(): true;
 
 	/** Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success. */
 	setChatMenuButton(args: {
@@ -5852,6 +6008,54 @@ interface MethodDeclarations<F> {
 		limit?: number;
 	}): OwnedGifts;
 
+	/** Returns the gifts owned and hosted by a user. Returns OwnedGifts on success. */
+	getUserGifts(args: {
+		/** Unique identifier of the user */
+		user_id: number;
+		/** Pass True to exclude gifts that can be purchased an unlimited number of times */
+		exclude_unlimited?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+		exclude_limited_upgradable?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+		exclude_limited_non_upgradable?: boolean;
+		/** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+		exclude_from_blockchain?: boolean;
+		/** Pass True to exclude unique gifts */
+		exclude_unique?: boolean;
+		/** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
+		sort_by_price?: boolean;
+		/** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
+		offset?: string;
+		/** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
+		limit?: number;
+	}): OwnedGifts;
+
+	/** Returns the gifts owned by a chat. Returns OwnedGifts on success. */
+	getChatGifts(args: {
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
+		chat_id: number | string;
+		/** Pass True to exclude gifts that aren't saved to the chat's profile page. Always True, unless the bot has the can_post_messages administrator right in the channel. */
+		exclude_unsaved?: boolean;
+		/** Pass True to exclude gifts that are saved to the chat's profile page. Always False, unless the bot has the can_post_messages administrator right in the channel. */
+		exclude_saved?: boolean;
+		/** Pass True to exclude gifts that can be purchased an unlimited number of times */
+		exclude_unlimited?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can be upgraded to unique */
+		exclude_limited_upgradable?: boolean;
+		/** Pass True to exclude gifts that can be purchased a limited number of times and can't be upgraded to unique */
+		exclude_limited_non_upgradable?: boolean;
+		/** Pass True to exclude gifts that were assigned from the TON blockchain and can't be resold or transferred in Telegram */
+		exclude_from_blockchain?: boolean;
+		/** Pass True to exclude unique gifts */
+		exclude_unique?: boolean;
+		/** Pass True to sort results by gift price instead of send date. Sorting is applied before pagination. */
+		sort_by_price?: boolean;
+		/** Offset of the first entry to return as received from the previous request; use an empty string to get the first chunk of results */
+		offset?: string;
+		/** The maximum number of gifts to be returned; 1-100. Defaults to 100. */
+		limit?: number;
+	}): OwnedGifts;
+
 	/** Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars business bot right. Returns True on success. */
 	convertGiftToStars(args: {
 		/** Unique identifier of the business connection */
@@ -5900,6 +6104,22 @@ interface MethodDeclarations<F> {
 		caption_entities?: MessageEntity[];
 		/** A list of clickable areas to be shown on the story */
 		areas?: StoryArea[];
+		/** Pass True to keep the story accessible after it expires */
+		post_to_chat_page?: boolean;
+		/** Pass True if the content of the story must be protected from forwarding and screenshotting */
+		protect_content?: boolean;
+	}): Story;
+
+	/** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success. */
+	repostStory(args: {
+		/** Unique identifier of the business connection */
+		business_connection_id: string;
+		/** Unique identifier of the chat which posted the story that should be reposted */
+		from_chat_id: number;
+		/** Unique identifier of the story that should be reposted */
+		from_story_id: number;
+		/** Period after which the story is moved to the archive, in seconds; must be one of 6 * 3600, 12 * 3600, 86400, or 2 * 86400 */
+		active_period: 21600 | 43200 | 86400 | 172800;
 		/** Pass True to keep the story accessible after it expires */
 		post_to_chat_page?: boolean;
 		/** Pass True if the content of the story must be protected from forwarding and screenshotting */
@@ -5955,6 +6175,14 @@ interface MethodDeclarations<F> {
 		/** Pass True if the message can be sent to channel chats */
 		allow_channel_chats?: boolean;
 	}): PreparedInlineMessage;
+
+	/** Stores a keyboard button that can be used by a user within a Mini App. Returns a PreparedKeyboardButton object. */
+	savePreparedKeyboardButton(args: {
+		/** Unique identifier of the target user that can use the button */
+		user_id: number;
+		/** An object describing the button to be saved. The button must be of the type request_users, request_chat, or request_managed_bot. */
+		button: KeyboardButton;
+	}): PreparedKeyboardButton;
 
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(args: {
@@ -6118,6 +6346,96 @@ interface MethodDeclarations<F> {
 		reply_markup?: InlineKeyboardMarkup;
 	}): Poll;
 
+	/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+	editEphemeralMessageText(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to edit */
+		ephemeral_message_id: number;
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: undefined;
+		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
+		entities?: MessageEntity[];
+		/** New rich content of the message; required if text isn't specified */
+		rich_message: InputRichMessage<F>;
+		/** Link preview generation options for the message */
+		link_preview_options?: LinkPreviewOptions;
+		/** An object for an inline keyboard */
+		reply_markup?: InlineKeyboardMarkup;
+	}): true;
+
+	/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+	editEphemeralMessageText(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to edit */
+		ephemeral_message_id: number;
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text: string;
+		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
+		entities?: MessageEntity[];
+		/** New rich content of the message; required if text isn't specified */
+		rich_message?: undefined;
+		/** Link preview generation options for the message */
+		link_preview_options?: LinkPreviewOptions;
+		/** An object for an inline keyboard */
+		reply_markup?: InlineKeyboardMarkup;
+	}): true;
+
+	/** Use this method to edit the media of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+	editEphemeralMessageMedia(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to edit */
+		ephemeral_message_id: number;
+		/** An object for the new media content of the message */
+		media: InputMedia<F>;
+		/** An object for an inline keyboard */
+		reply_markup?: InlineKeyboardMarkup;
+	}): true;
+
+	/** Use this method to edit the caption of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+	editEphemeralMessageCaption(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to edit */
+		ephemeral_message_id: number;
+		/** New caption of the message, 0-1024 characters after entities parsing */
+		caption?: string;
+		/** Mode for parsing entities in the message caption. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+		caption_entities?: MessageEntity[];
+		/** Pass True if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
+		show_caption_above_media?: boolean;
+		/** An object for an inline keyboard */
+		reply_markup?: InlineKeyboardMarkup;
+	}): true;
+
+	/** Use this method to edit only the reply markup of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
+	editEphemeralMessageReplyMarkup(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to edit */
+		ephemeral_message_id: number;
+		/** An object for an inline keyboard */
+		reply_markup?: InlineKeyboardMarkup;
+	}): true;
+
 	/** Use this method to approve a suggested post in a direct messages chat. The bot must have the 'can_post_messages' administrator right in the corresponding channel chat. Returns True on success. */
 	approveSuggestedPost(args: {
 		/** Unique identifier for the target direct messages chat */
@@ -6161,6 +6479,38 @@ interface MethodDeclarations<F> {
 		chat_id: number | string;
 		/** A list of 1-100 identifiers of messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
 		message_ids: number[];
+	}): true;
+
+	/** Use this method to delete an ephemeral message. Note that it is not guaranteed that the user will receive the message deletion event, especially if they are offline. Returns True on success. */
+	deleteEphemeralMessage(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user who received the message */
+		receiver_user_id: number;
+		/** Identifier of the ephemeral message to delete */
+		ephemeral_message_id: number;
+	}): true;
+
+	/** Use this method to remove a reaction from a message in a group or a supergroup chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
+	deleteMessageReaction(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the target message */
+		message_id: number;
+		/** Identifier of the user whose reaction will be removed, if the reaction was added by a user */
+		user_id?: number;
+		/** Identifier of the chat whose reaction will be removed, if the reaction was added by a chat */
+		actor_chat_id?: number;
+	}): true;
+
+	/** Use this method to remove up to 10000 recent reactions in a group or a supergroup chat added by a given user or chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
+	deleteAllMessageReactions(args: {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Identifier of the user whose reactions will be removed, if the reactions were added by a user */
+		user_id?: number;
+		/** Identifier of the chat whose reactions will be removed, if the reactions were added by a chat */
+		actor_chat_id?: number;
 	}): true;
 }
 
