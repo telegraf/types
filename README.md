@@ -1,10 +1,18 @@
 # Types for the Telegram Bot API
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v9.2-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v10.3-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
 
 This project keeps Telegram Bot API types updated for Telegraf. This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api).
 
 It contains zero bytes of executable code.
+
+## Development and Validation
+
+The declarations target [Bot API 10.3](https://core.telegram.org/bots/api#recent-changes), verified on October 4, 2026. `bot-api.ts` follows the official documentation order; the smaller modules re-export their existing public names. TypeScript emits the published declarations directly, without Deno or a runtime dependency.
+
+Run `bun install --frozen-lockfile`, `npm test`, `bun run lint`, and `bun run fmt:check`. Tests compile positive and negative contracts against both source files and isolated generated declarations. An offline snapshot checks all 185 official methods, their parameter names and optionality, and the fields and primitive types of 399 official objects. `InputFile` remains the consumer-supplied generic `F`.
+
+The snapshot in `test/bot-api-10.3.json` records its source and retrieval date. Future API updates should refresh the snapshot and declarations together. These checks detect declaration drift; they do not make live Telegram requests or prove every prose-only constraint.
 
 ## Installation
 

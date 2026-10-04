@@ -14,4 +14,10 @@ export type {
 	ReplyKeyboardRemove,
 	SwitchInlineQueryChosenChat,
 	WebAppInfo,
+	DisabledButton,
+	RichMessageButtonText,
+	RichMessageLoginUrl,
+	RichMessageButton,
+	KeyboardButtonRequestManagedBot,
+	PreparedKeyboardButton,
 } from "./bot-api.js";

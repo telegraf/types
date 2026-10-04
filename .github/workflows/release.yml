@@ -7,13 +7,17 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: 1.4.2
 
       # --ignore-scripts so `prepare` does not run here; the build is an explicit step
       # below, which keeps a build failure distinguishable from an install failure.
