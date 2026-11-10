@@ -7346,11 +7346,32 @@ export declare namespace Args {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+		/** New caption of the message, 0-1024 characters after entities parsing */
+		caption?: string;
+		/** Mode for parsing entities in the message caption. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+		caption_entities?: MessageEntity[];
+		/** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
+		show_caption_above_media?: boolean;
+		/** An object for an inline keyboard. */
+		reply_markup?: InlineKeyboardMarkup;
+	}
+
+	export interface EditMessageCaptionInline {
+		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+		business_connection_id?: string;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message to edit */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 		/** New caption of the message, 0-1024 characters after entities parsing */
 		caption?: string;
 		/** Mode for parsing entities in the message caption. See formatting options for more details. */
@@ -7365,13 +7386,14 @@ export declare namespace Args {
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageCaption(
 		args: Args.EditMessageCaption,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage>;
+
+	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	editMessageCaption(args: Args.EditMessageCaptionInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -7379,26 +7401,42 @@ export declare namespace Args {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
 		/** An object for a new media content of the message */
 		media: InputMedia<F>;
+		/** An object for a new inline keyboard. */
+		reply_markup?: InlineKeyboardMarkup;
+	}
+
+	export interface EditMessageMediaInline {
+		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+		business_connection_id?: string;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message to edit */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
+		/** An object for a new media content of the message */
+		media: InputMedia<never>;
 		/** An object for a new inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(
 		args: Args.EditMessageMedia<F>,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message & Message.BusinessSentMessage>;
+
+	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	editMessageMedia(args: Args.EditMessageMediaInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -7406,11 +7444,36 @@ export declare namespace Args {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+		/** Latitude of new location */
+		latitude: number;
+		/** Longitude of new location */
+		longitude: number;
+		/** New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged */
+		live_period?: number;
+		/** The radius of uncertainty for the location, measured in meters; 0-1500 */
+		horizontal_accuracy?: number;
+		/** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
+		heading?: number;
+		/** The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only. */
+		proximity_alert_radius?: number;
+		/** An object for a new inline keyboard. */
+		reply_markup?: InlineKeyboardMarkup;
+	}
+
+	export interface EditMessageLiveLocationInline {
+		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+		business_connection_id?: string;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message to edit */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 		/** Latitude of new location */
 		latitude: number;
 		/** Longitude of new location */
@@ -7429,13 +7492,14 @@ export declare namespace Args {
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	editMessageLiveLocation(
 		args: Args.EditMessageLiveLocation,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message.LocationMessage & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message.LocationMessage & Message.BusinessSentMessage>;
+
+	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	editMessageLiveLocation(args: Args.EditMessageLiveLocationInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -7443,24 +7507,38 @@ export declare namespace Args {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+		/** An object for a new inline keyboard. */
+		reply_markup?: InlineKeyboardMarkup;
+	}
+
+	export interface StopMessageLiveLocationInline {
+		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+		business_connection_id?: string;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 		/** An object for a new inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	stopMessageLiveLocation(
 		args: Args.StopMessageLiveLocation,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message.LocationMessage & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message.LocationMessage & Message.BusinessSentMessage>;
+
+	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	stopMessageLiveLocation(args: Args.StopMessageLiveLocationInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -7491,24 +7569,38 @@ export declare namespace Args {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+		/** An object for an inline keyboard. */
+		reply_markup?: InlineKeyboardMarkup;
+	}
+
+	export interface EditMessageReplyMarkupInline {
+		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
+		business_connection_id?: string;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message to edit */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 		/** An object for an inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageReplyMarkup(
 		args: Args.EditMessageReplyMarkup,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message & Message.BusinessSentMessage>;
+
+	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	editMessageReplyMarkup(args: Args.EditMessageReplyMarkupInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -10832,22 +10924,40 @@ export declare namespace Args {
 		/** Pass True if the game message should not be automatically edited to include the current scoreboard */
 		disable_edit_message?: boolean;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
-		chat_id?: number;
+		chat_id: number;
 		/** Required if inline_message_id is not specified. Identifier of the sent message */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+	}
+
+	export interface SetGameScoreInline {
+		/** User identifier */
+		user_id: number;
+		/** New score, must be non-negative */
+		score: number;
+		/** Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters */
+		force?: boolean;
+		/** Pass True if the game message should not be automatically edited to include the current scoreboard */
+		disable_edit_message?: boolean;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the sent message */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
 	setGameScore(
 		args: Args.SetGameScore,
 		options?: CallOptions,
-	): Promise<(Update.Edited & Message.GameMessage & Message.BusinessSentMessage) | true>;
+	): Promise<Update.Edited & Message.GameMessage & Message.BusinessSentMessage>;
+
+	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
+	setGameScore(args: Args.SetGameScoreInline, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -10855,21 +10965,33 @@ export declare namespace Args {
 		/** Target user id */
 		user_id: number;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
-		chat_id?: number;
+		chat_id: number;
 		/** Required if inline_message_id is not specified. Identifier of the sent message */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id?: undefined;
+	}
+
+	export interface GetGameHighScoresInline {
+		/** Target user id */
+		user_id: number;
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the sent message */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: chat_id + message_id | inline_message_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 
   This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
-	getGameHighScores(args: Args.GetGameHighScores, options?: CallOptions): Promise<GameHighScore[]>;
+	getGameHighScores(
+		args: Args.GetGameHighScores | Args.GetGameHighScoresInline,
+		options?: CallOptions,
+	): Promise<GameHighScore[]>;
 }
 
 /** This object represents one row of the high scores table for a game. */
@@ -10909,19 +11031,26 @@ type Back1<Fn> = Fn extends (args: infer A, options?: CallOptions) => Promise<in
 		: (args: Id<A>) => R
 	: never;
 
-type Back2<Fn> = Fn extends {
+// The methods `ApiMethods` declares with two signatures, as it did before `BotMethods`.
+type ApiMethodsOverloads = "editMessageText" | "editEphemeralMessageText";
+
+// Two signatures for the methods in `ApiMethodsOverloads`; for every other overloaded method,
+// one signature taking either arm and returning either result.
+type Back2<Fn, K> = Fn extends {
 	(args: infer A1, options?: CallOptions): Promise<infer R1>;
 	(args: infer A2, options?: CallOptions): Promise<infer R2>;
 }
 	? Equal<[A1, R1], [A2, R2]> extends true
 		? Back1<Fn>
-		: { (args: Id<A1>): R1; (args: Id<A2>): R2 }
+		: K extends ApiMethodsOverloads
+			? { (args: Id<A1>): R1; (args: Id<A2>): R2 }
+			: Back1<(args: A1 | A2, options?: CallOptions) => Promise<R1 | R2>>
 	: never;
 
 /** Wrapper type to bundle all methods of the Telegram Bot API
  * @deprecated Use `BotMethods` instead. */
 export type ApiMethods<F> = {
-	[K in keyof BotMethods<F>]: Back2<BotMethods<F>[K]>;
+	[K in keyof BotMethods<F>]: Back2<BotMethods<F>[K], K>;
 };
 
 /** Extracts the parameters of a given method name */
