@@ -1,5 +1,9 @@
 export type {
+	AbortSignalLike,
 	ApiMethods,
+	Args,
+	BotMethods,
+	CallOptions,
 	InputMedia,
 	InputMediaAnimation,
 	InputMediaAudio,
@@ -51,6 +55,7 @@ export type {
 	InputStoryContent,
 	InputStoryContentPhoto,
 	InputStoryContentVideo,
+	NoArgs,
 	Opts,
 	Ret,
 } from "./bot-api.js";
