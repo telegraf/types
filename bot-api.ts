@@ -5255,7 +5255,7 @@ export declare namespace Args {
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: undefined;
 		/** Latitude of the location */
 		latitude: number;
 		/** Longitude of the location */
@@ -5283,14 +5283,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendLocationEphemeral extends Omit<SendLocation, "ephemeral_message_parameters" | "live_period"> {
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters;
+		/** Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
+		live_period?: 0;
+	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: ephemeral_message_parameters, which needs live_period 0 | otherwise.
-	// One signature in v4, like every published method, even though ephemeral_message_parameters is new in 10.3.
 	/** Use this method to send point on the map. On success, the sent Message is returned. */
 	sendLocation(
-		args: Args.SendLocation,
+		args: Args.SendLocation | Args.SendLocationEphemeral,
 		options?: CallOptions,
 	): Promise<Message.LocationMessage & Message.BusinessSentMessage>;
 }
@@ -5407,9 +5412,9 @@ export declare namespace Args {
 		/** A list of answer options, 2-12 answer options */
 		options: readonly InputPollOption<F>[];
 		/** True, if the poll needs to be anonymous, defaults to True */
-		is_anonymous?: boolean;
+		is_anonymous?: true;
 		/** Poll type, “quiz” or “regular”, defaults to “regular” */
-		type?: "quiz" | "regular";
+		type?: "regular";
 		/** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
 		allows_multiple_answers?: boolean;
 		/** Pass True if the poll allows to change chosen answer options, defaults to False for quizzes and to True for regular polls */
@@ -5417,7 +5422,7 @@ export declare namespace Args {
 		/** Pass True if the poll options must be shown in random order */
 		shuffle_options?: boolean;
 		/** Pass True if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes */
-		allow_adding_options?: boolean;
+		allow_adding_options?: undefined;
 		/** Pass True if poll results must be shown only after the poll closes */
 		hide_results_until_closes?: boolean;
 		/** Pass True if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only */
@@ -5440,7 +5445,7 @@ export declare namespace Args {
 		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
 		open_period?: number;
 		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
-		close_date?: number;
+		close_date?: undefined;
 		/** Pass True if the poll needs to be immediately closed. This can be useful for poll preview. */
 		is_closed?: boolean;
 		/** Description of the poll to be sent, 0-1024 characters after entities parsing */
@@ -5464,15 +5469,57 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendPollClosingAt<F> extends Omit<SendPoll<F>, "open_period" | "close_date"> {
+		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		open_period?: undefined;
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		close_date: number;
+	}
+
+	export interface SendPollPublic<F> extends Omit<SendPoll<F>, "is_anonymous" | "allow_adding_options"> {
+		/** True, if the poll needs to be anonymous, defaults to True */
+		is_anonymous: false;
+		/** Pass True if answer options can be added to the poll after creation; not supported for anonymous polls and quizzes */
+		allow_adding_options?: boolean;
+	}
+
+	export interface SendPollPublicClosingAt<F> extends Omit<SendPollPublic<F>, "open_period" | "close_date"> {
+		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		open_period?: undefined;
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		close_date: number;
+	}
+
+	export interface SendQuiz<F> extends Omit<SendPoll<F>, "is_anonymous" | "type" | "correct_option_ids"> {
+		/** True, if the poll needs to be anonymous, defaults to True */
+		is_anonymous?: boolean;
+		/** Poll type, “quiz” or “regular”, defaults to “regular” */
+		type: "quiz";
+		/** A list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode */
+		correct_option_ids: number[];
+	}
+
+	export interface SendQuizClosingAt<F> extends Omit<SendQuiz<F>, "open_period" | "close_date"> {
+		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		open_period?: undefined;
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		close_date: number;
+	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: open_period | close_date, which can't be used together;
-	// type "quiz", which requires correct_option_ids; and allow_adding_options, which needs is_anonymous false
-	// and a type other than quiz.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to send a native poll. On success, the sent Message is returned. */
-	sendPoll(args: Args.SendPoll<F>, options?: CallOptions): Promise<Message.PollMessage & Message.BusinessSentMessage>;
+	sendPoll(
+		args:
+			| Args.SendPoll<F>
+			| Args.SendPollClosingAt<F>
+			| Args.SendPollPublic<F>
+			| Args.SendPollPublicClosingAt<F>
+			| Args.SendQuiz<F>
+			| Args.SendQuizClosingAt<F>,
+		options?: CallOptions,
+	): Promise<Message.PollMessage & Message.BusinessSentMessage>;
 }
 
 export declare namespace Args {
@@ -5892,15 +5939,26 @@ export declare namespace Args {
 		/** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
 		member_limit?: number;
 		/** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified */
-		creates_join_request?: boolean;
+		creates_join_request?: false;
+	}
+
+	export interface CreateChatInviteLinkJoinRequest extends Omit<
+		CreateChatInviteLink,
+		"member_limit" | "creates_join_request"
+	> {
+		/** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
+		member_limit?: undefined;
+		/** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified */
+		creates_join_request: true;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: creates_join_request true, which forbids member_limit | otherwise.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
-	createChatInviteLink(args: Args.CreateChatInviteLink, options?: CallOptions): Promise<ChatInviteLink>;
+	createChatInviteLink(
+		args: Args.CreateChatInviteLink | Args.CreateChatInviteLinkJoinRequest,
+		options?: CallOptions,
+	): Promise<ChatInviteLink>;
 }
 
 export declare namespace Args {
@@ -5916,15 +5974,26 @@ export declare namespace Args {
 		/** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
 		member_limit?: number;
 		/** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified */
-		creates_join_request?: boolean;
+		creates_join_request?: false;
+	}
+
+	export interface EditChatInviteLinkJoinRequest extends Omit<
+		EditChatInviteLink,
+		"member_limit" | "creates_join_request"
+	> {
+		/** The maximum number of users that can be members of the chat simultaneously after joining the chat via this invite link; 1-99999 */
+		member_limit?: undefined;
+		/** True, if users joining the chat via the link need to be approved by chat administrators. If True, member_limit can't be specified */
+		creates_join_request: true;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: creates_join_request true, which forbids member_limit | otherwise.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
-	editChatInviteLink(args: Args.EditChatInviteLink, options?: CallOptions): Promise<ChatInviteLink>;
+	editChatInviteLink(
+		args: Args.EditChatInviteLink | Args.EditChatInviteLinkJoinRequest,
+		options?: CallOptions,
+	): Promise<ChatInviteLink>;
 }
 
 export declare namespace Args {
@@ -6112,19 +6181,24 @@ export interface BotMethods<F> {
 export declare namespace Args {
 	export interface UnpinChatMessage {
 		/** Unique identifier of the business connection on behalf of which the message will be pinned */
-		business_connection_id?: string;
+		business_connection_id?: undefined;
 		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id: number | string;
 		/** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
 		message_id?: number;
 	}
+
+	export interface UnpinChatMessageBusiness extends Omit<UnpinChatMessage, "business_connection_id" | "message_id"> {
+		/** Unique identifier of the business connection on behalf of which the message will be pinned */
+		business_connection_id: string;
+		/** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
+		message_id: number;
+	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: business_connection_id + message_id | no business_connection_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns True on success. */
-	unpinChatMessage(args: Args.UnpinChatMessage, options?: CallOptions): Promise<true>;
+	unpinChatMessage(args: Args.UnpinChatMessage | Args.UnpinChatMessageBusiness, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -6747,9 +6821,9 @@ export interface BotMethods<F> {
 export declare namespace Args {
 	export interface SendGift {
 		/** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift */
-		user_id?: number;
+		user_id: number;
 		/** Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift */
-		chat_id?: number | string;
+		chat_id?: undefined;
 		/** Identifier of the gift */
 		gift_id: string;
 		/** Pass True to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver */
@@ -6761,13 +6835,18 @@ export declare namespace Args {
 		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
 		text_entities?: MessageEntity[];
 	}
+
+	export interface SendGiftToChat extends Omit<SendGift, "user_id" | "chat_id"> {
+		/** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift */
+		user_id?: undefined;
+		/** Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift */
+		chat_id: number | string;
+	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: user_id | chat_id.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success. */
-	sendGift(args: Args.SendGift, options?: CallOptions): Promise<true>;
+	sendGift(args: Args.SendGift | Args.SendGiftToChat, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -7280,17 +7359,17 @@ export interface BotMethods<F> {
 }
 
 export declare namespace Args {
-	export interface EditMessageText<F> {
+	export interface EditMessageText {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
-		chat_id?: number | string;
+		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
-		message_id?: number;
+		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: undefined;
 		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
-		text?: string;
+		text: string;
 		/** Mode for parsing entities in the message text. See formatting options for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
@@ -7298,36 +7377,62 @@ export declare namespace Args {
 		/** Link preview generation options for the message */
 		link_preview_options?: LinkPreviewOptions;
 		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
-		rich_message?: InputRichMessage<F>;
+		rich_message?: undefined;
 		/** An object for an inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageTextInline extends Omit<
-		EditMessageText<never>,
-		"chat_id" | "message_id" | "inline_message_id"
+	export interface EditMessageTextRich<F> extends Omit<EditMessageText, "text" | "rich_message"> {
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: undefined;
+		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
+		rich_message: InputRichMessage<F>;
+	}
+
+	export interface EditMessageTextInline extends Omit<EditMessageText, "chat_id" | "message_id" | "inline_message_id"> {
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message to edit */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
+		inline_message_id: string;
+	}
+
+	export interface EditMessageTextInlineRich extends Omit<
+		EditMessageText,
+		"chat_id" | "message_id" | "inline_message_id" | "text" | "rich_message"
 	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
-		inline_message_id?: string;
+		inline_message_id: string;
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: undefined;
+		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
+		rich_message: InputRichMessage<never>;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: in v6, make each overload require its own arm: chat_id + message_id here, inline_message_id below,
-	// and split both by text | rich_message, whose edited Message is a RichMessageMessage. The overloads keep
-	// chat and inline apart but leave the arms optional, and requiring them in v4 rejects calls that type today.
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(
-		args: Args.EditMessageText<F>,
+		args: Args.EditMessageText,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.TextMessage & Message.BusinessSentMessage>;
 
+	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	editMessageText(
+		args: Args.EditMessageTextRich<F>,
+		options?: CallOptions,
+	): Promise<Update.Edited & Message.RichMessageMessage & Message.BusinessSentMessage>;
+
 	/** Use this method to edit inline text and game messages. On success, True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
-	editMessageText(args: Args.EditMessageTextInline, options?: CallOptions): Promise<true>;
+	editMessageText(
+		args: Args.EditMessageTextInline | Args.EditMessageTextInlineRich,
+		options?: CallOptions,
+	): Promise<true>;
 }
 
 export declare namespace Args {
@@ -10120,7 +10225,7 @@ export declare namespace Args {
 		/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
 		prices: LabeledPrice[];
 		/** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
-		subscription_period?: 2592000;
+		subscription_period?: undefined;
 		/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
 		max_tip_amount?: number;
 		/** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
@@ -10150,13 +10255,21 @@ export declare namespace Args {
 		/** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
 		is_flexible?: boolean;
 	}
+
+	export interface CreateInvoiceLinkSubscription extends Omit<CreateInvoiceLink, "currency" | "subscription_period"> {
+		/** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+		currency: "XTR";
+		/** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 2500 Telegram Stars. */
+		subscription_period: 2592000;
+	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6: subscription_period, which needs currency "XTR" | otherwise.
-	// One signature in v4 because splitting it rejects calls that type today and changes what Opts/Params/Ret resolve.
 	/** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
-	createInvoiceLink(args: Args.CreateInvoiceLink, options?: CallOptions): Promise<string>;
+	createInvoiceLink(
+		args: Args.CreateInvoiceLink | Args.CreateInvoiceLinkSubscription,
+		options?: CallOptions,
+	): Promise<string>;
 }
 
 export declare namespace Args {
@@ -10164,19 +10277,32 @@ export declare namespace Args {
 		/** Unique identifier for the query to be answered */
 		shipping_query_id: string;
 		/** Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible) */
-		ok: boolean;
+		ok: true;
+		/** Required if ok is True. An array of available shipping options. */
+		shipping_options: readonly ShippingOption[];
+		/** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable"). Telegram will display this message to the user. */
+		error_message?: string;
+	}
+
+	export interface AnswerShippingQueryError extends Omit<
+		AnswerShippingQuery,
+		"ok" | "shipping_options" | "error_message"
+	> {
+		/** Pass True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible) */
+		ok: false;
 		/** Required if ok is True. An array of available shipping options. */
 		shipping_options?: readonly ShippingOption[];
 		/** Required if ok is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. "Sorry, delivery to your desired address is unavailable"). Telegram will display this message to the user. */
-		error_message?: string;
+		error_message: string;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6, one per value of ok: ok true + shipping_options | ok false + error_message.
-	// One signature in v4 because arms on a literal ok reject a boolean variable and change what Opts/Params/Ret resolve.
 	/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
-	answerShippingQuery(args: Args.AnswerShippingQuery, options?: CallOptions): Promise<true>;
+	answerShippingQuery(
+		args: Args.AnswerShippingQuery | Args.AnswerShippingQueryError,
+		options?: CallOptions,
+	): Promise<true>;
 }
 
 export declare namespace Args {
@@ -10184,17 +10310,25 @@ export declare namespace Args {
 		/** Unique identifier for the query to be answered */
 		pre_checkout_query_id: string;
 		/** Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems. */
-		ok: boolean;
+		ok: true;
 		/** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
 		error_message?: string;
+	}
+
+	export interface AnswerPreCheckoutQueryError extends Omit<AnswerPreCheckoutQuery, "ok" | "error_message"> {
+		/** Specify True if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use False if there are any problems. */
+		ok: false;
+		/** Required if ok is False. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. "Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!"). Telegram will display this message to the user. */
+		error_message: string;
 	}
 }
 
 export interface BotMethods<F> {
-	// TODO: split into overloads in v6, one per value of ok: ok true | ok false + error_message.
-	// One signature in v4 because arms on a literal ok reject a boolean variable and change what Opts/Params/Ret resolve.
 	/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
-	answerPreCheckoutQuery(args: Args.AnswerPreCheckoutQuery, options?: CallOptions): Promise<true>;
+	answerPreCheckoutQuery(
+		args: Args.AnswerPreCheckoutQuery | Args.AnswerPreCheckoutQueryError,
+		options?: CallOptions,
+	): Promise<true>;
 }
 
 export interface BotMethods<F> {
@@ -10972,26 +11106,31 @@ type Back1<Fn> = Fn extends (args: infer A, options?: CallOptions) => Promise<in
 		: (args: Id<A>) => R
 	: never;
 
-// The methods `ApiMethods` declares with two signatures, as it did before `BotMethods`.
+// The methods `ApiMethods` declares with their overloads, as it did before `BotMethods`.
 type ApiMethodsOverloads = "editMessageText" | "editEphemeralMessageText";
 
-// Two signatures for the methods in `ApiMethodsOverloads`; for every other overloaded method,
-// one signature taking either arm and returning either result.
-type Back2<Fn, K> = Fn extends {
+// Up to three signatures for the methods in `ApiMethodsOverloads`, in order; for every other
+// overloaded method, one signature taking any arm and returning any result. Matched against three
+// signatures, a method with fewer repeats its first in the slots it lacks, so equal neighbours
+// are one signature.
+type Back3<Fn, K> = Fn extends {
 	(args: infer A1, options?: CallOptions): Promise<infer R1>;
 	(args: infer A2, options?: CallOptions): Promise<infer R2>;
+	(args: infer A3, options?: CallOptions): Promise<infer R3>;
 }
-	? Equal<[A1, R1], [A2, R2]> extends true
+	? Equal<[A2, R2], [A3, R3]> extends true
 		? Back1<Fn>
 		: K extends ApiMethodsOverloads
-			? { (args: Id<A1>): R1; (args: Id<A2>): R2 }
-			: Back1<(args: A1 | A2, options?: CallOptions) => Promise<R1 | R2>>
+			? Equal<[A1, R1], [A2, R2]> extends true
+				? { (args: Id<A2>): R2; (args: Id<A3>): R3 }
+				: { (args: Id<A1>): R1; (args: Id<A2>): R2; (args: Id<A3>): R3 }
+			: Back1<(args: A1 | A2 | A3, options?: CallOptions) => Promise<R1 | R2 | R3>>
 	: never;
 
 /** Wrapper type to bundle all methods of the Telegram Bot API
  * @deprecated Use `BotMethods` instead. */
 export type ApiMethods<F> = {
-	[K in keyof BotMethods<F>]: Back2<BotMethods<F>[K], K>;
+	[K in keyof BotMethods<F>]: Back3<BotMethods<F>[K], K>;
 };
 
 /** Extracts the parameters of a given method name */
