@@ -7303,27 +7303,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageTextInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface EditMessageTextInline extends Omit<
+		EditMessageText<never>,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: string;
-		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
-		text?: string;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
-		parse_mode?: ParseMode;
-		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
-		entities?: MessageEntity[];
-		/** Link preview generation options for the message */
-		link_preview_options?: LinkPreviewOptions;
-		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
-		rich_message?: InputRichMessage<never>;
-		/** An object for an inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7363,25 +7352,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageCaptionInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface EditMessageCaptionInline extends Omit<
+		EditMessageCaption,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id: string;
-		/** New caption of the message, 0-1024 characters after entities parsing */
-		caption?: string;
-		/** Mode for parsing entities in the message caption. See formatting options for more details. */
-		parse_mode?: ParseMode;
-		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
-		caption_entities?: MessageEntity[];
-		/** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
-		show_caption_above_media?: boolean;
-		/** An object for an inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7412,19 +7392,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageMediaInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface EditMessageMediaInline extends Omit<
+		EditMessageMedia<never>,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id: string;
-		/** An object for a new media content of the message */
-		media: InputMedia<never>;
-		/** An object for a new inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7465,29 +7442,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageLiveLocationInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface EditMessageLiveLocationInline extends Omit<
+		EditMessageLiveLocation,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id: string;
-		/** Latitude of new location */
-		latitude: number;
-		/** Longitude of new location */
-		longitude: number;
-		/** New period in seconds during which the location can be updated, starting from the message send date. If 0x7FFFFFFF is specified, then the location can be updated forever. Otherwise, the new value must not exceed the current live_period by more than a day, and the live location expiration date must remain within the next 90 days. If not specified, then live_period remains unchanged */
-		live_period?: number;
-		/** The radius of uncertainty for the location, measured in meters; 0-1500 */
-		horizontal_accuracy?: number;
-		/** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
-		heading?: number;
-		/** The maximum distance for proximity alerts about approaching another chat member, in meters. For sent live locations only. */
-		proximity_alert_radius?: number;
-		/** An object for a new inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7516,17 +7480,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface StopMessageLiveLocationInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface StopMessageLiveLocationInline extends Omit<
+		StopMessageLiveLocation,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id: string;
-		/** An object for a new inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7578,17 +7541,16 @@ export declare namespace Args {
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
-	export interface EditMessageReplyMarkupInline {
-		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
-		business_connection_id?: string;
+	export interface EditMessageReplyMarkupInline extends Omit<
+		EditMessageReplyMarkup,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id: string;
-		/** An object for an inline keyboard. */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -7622,25 +7584,11 @@ export interface BotMethods<F> {
 }
 
 export declare namespace Args {
-	export interface EditEphemeralMessageTextRich<F> {
-		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
-		chat_id: number | string;
-		/** Identifier of the user who received the message */
-		receiver_user_id: number;
-		/** Identifier of the ephemeral message to edit */
-		ephemeral_message_id: number;
+	export interface EditEphemeralMessageTextRich<F> extends Omit<EditEphemeralMessageText, "text" | "rich_message"> {
 		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
 		text?: undefined;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
-		parse_mode?: ParseMode;
-		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
-		entities?: MessageEntity[];
 		/** New rich content of the message; required if text isn't specified */
 		rich_message: InputRichMessage<F>;
-		/** Link preview generation options for the message */
-		link_preview_options?: LinkPreviewOptions;
-		/** An object for an inline keyboard */
-		reply_markup?: InlineKeyboardMarkup;
 	}
 
 	export interface EditEphemeralMessageText {
@@ -10931,15 +10879,7 @@ export declare namespace Args {
 		inline_message_id?: undefined;
 	}
 
-	export interface SetGameScoreInline {
-		/** User identifier */
-		user_id: number;
-		/** New score, must be non-negative */
-		score: number;
-		/** Pass True if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters */
-		force?: boolean;
-		/** Pass True if the game message should not be automatically edited to include the current scoreboard */
-		disable_edit_message?: boolean;
+	export interface SetGameScoreInline extends Omit<SetGameScore, "chat_id" | "message_id" | "inline_message_id"> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the sent message */
@@ -10972,9 +10912,10 @@ export declare namespace Args {
 		inline_message_id?: undefined;
 	}
 
-	export interface GetGameHighScoresInline {
-		/** Target user id */
-		user_id: number;
+	export interface GetGameHighScoresInline extends Omit<
+		GetGameHighScores,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
 		/** Required if inline_message_id is not specified. Unique identifier for the target chat */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the sent message */
