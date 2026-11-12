@@ -1714,13 +1714,6 @@ export interface Story {
 	id: number;
 }
 
-/** This object represents a message about a forwarded story in the chat. Currently holds no information. */
-export interface Story {
-	/** Chat that posted the story */
-	chat: Chat;
-	/** Unique identifier for the story in the chat */
-	id: number;
-}
 /** This object represents a video file of a specific quality. */
 export interface VideoQuality {
 	/** Identifier for this file, which can be used to download or reuse the file */
@@ -2713,6 +2706,10 @@ export declare namespace KeyboardButton {
 		/** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
 		style?: "danger" | "success" | "primary";
 	}
+	export interface Text extends Common {
+		/** Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed. */
+		text: string;
+	}
 	export interface RequestUsers extends Common {
 		/** If specified, pressing the button will open a list of suitable users. Identifiers of selected users will be sent to the bot in a “users_shared” service message. Available in private chats only. */
 		request_users: KeyboardButtonRequestUsers;
@@ -2745,6 +2742,7 @@ export declare namespace KeyboardButton {
 
 /** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
 export type KeyboardButton =
+	| KeyboardButton.Text
 	| KeyboardButton.RequestUsers
 	| KeyboardButton.RequestChat
 	| KeyboardButton.RequestManagedBot
@@ -4179,15 +4177,6 @@ export interface BusinessConnection {
 	is_enabled: boolean;
 }
 
-export interface BusinessMessagesDeleted {
-	/** Unique identifier of the business connection */
-	business_connection_id: string;
-	/** Information about a chat in the business account. The bot may not have access to the chat or the corresponding user. */
-	chat: Chat;
-	/** The list of identifiers of deleted messages in the chat of the business account */
-	message_ids: number[];
-}
-
 /** This object is received when messages are deleted from a connected business account. */
 export interface BusinessMessagesDeleted {
 	/** Unique identifier of the business connection */
@@ -5217,7 +5206,9 @@ export declare namespace Args {
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An array describing messages to be sent, must include 2-10 items */
-		media: ReadonlyArray<InputMediaAudio<F> | InputMediaDocument<F> | InputMediaPhoto<F> | InputMediaVideo<F>>;
+		media: ReadonlyArray<
+			InputMediaAudio<F> | InputMediaDocument<F> | InputMediaLivePhoto<F> | InputMediaPhoto<F> | InputMediaVideo<F>
+		>;
 		/** Sends the messages silently. Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent messages from forwarding and saving */
