@@ -22,6 +22,7 @@ export type {
 	ChatBoostSourceGiveaway,
 	ChatBoostSourcePremium,
 	ChatBoostUpdated,
+	ChatFromGetChat,
 	ChatFullInfo,
 	ChatInviteLink,
 	ChatJoinRequest,

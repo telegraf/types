@@ -378,6 +378,42 @@ export declare namespace Chat {
 		/** Username, for private chats, supergroups and channels if available */
 		username?: string;
 	}
+
+	// The names 7.1.0 had, which code written for telegraf 4.16.3 still refers to.
+	/** @deprecated Use the variants of `Chat` instead. */
+	export type AbstractChat = { id: number; type: string };
+	/** @deprecated Use the variants of `Chat` instead. */
+	export type UserNameChat = Pick<Chat.SupergroupChat, "username">;
+	/** @deprecated Use the variants of `Chat` instead. */
+	export type TitleChat = Pick<Chat.SupergroupChat, "title">;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type GetChat = Pick<
+		ChatFullInfo.PrivateChat,
+		"photo" | "pinned_message" | "message_auto_delete_time" | "has_protected_content"
+	>;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type NonGroupGetChat = GetChat & Pick<ChatFullInfo.PrivateChat, "active_usernames">;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type NonPrivateGetChat = GetChat &
+		Pick<ChatFullInfo.SupergroupChat, "available_reactions" | "description" | "invite_link">;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type AnyGroupGetChat = NonPrivateGetChat &
+		Pick<ChatFullInfo.SupergroupChat, "permissions" | "can_set_sticker_set">;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type PrivateAndChannelGetChat = Pick<
+		ChatFullInfo.PrivateChat,
+		"accent_color_id" | "background_custom_emoji_id" | "emoji_status_custom_emoji_id" | "emoji_status_expiration_date"
+	>;
+	/** @deprecated Use the variants of `ChatFullInfo` instead. */
+	export type LargeGetChat = NonPrivateGetChat & Pick<ChatFullInfo.SupergroupChat, "linked_chat_id">;
+	/** @deprecated Use `ChatFullInfo.PrivateChat` instead. */
+	export type PrivateGetChat = ChatFullInfo.PrivateChat;
+	/** @deprecated Use `ChatFullInfo.GroupChat` instead. */
+	export type GroupGetChat = ChatFullInfo.GroupChat;
+	/** @deprecated Use `ChatFullInfo.SupergroupChat` instead. */
+	export type SupergroupGetChat = ChatFullInfo.SupergroupChat;
+	/** @deprecated Use `ChatFullInfo.ChannelChat` instead. */
+	export type ChannelGetChat = ChatFullInfo.ChannelChat;
 }
 
 /** This object represents a chat. */
@@ -610,6 +646,9 @@ export type ChatFullInfo =
 	| ChatFullInfo.GroupChat
 	| ChatFullInfo.SupergroupChat
 	| ChatFullInfo.ChannelChat;
+
+/** @deprecated Use `ChatFullInfo` instead. */
+export type ChatFromGetChat = ChatFullInfo;
 
 /** Helper type that bundles all possible `Message.ServiceMessage`s. More specifically, bundles all messages that do not have a `reply_to_message` field, i.e. are not a `Message.CommonMessage`. */
 export type ServiceMessageBundle =
@@ -1234,6 +1273,35 @@ export declare namespace MessageEntity {
 		/** For “date_time” only, the string that defines the formatting of the date and time. See date-time entity formatting for more details. */
 		date_time_format?: string;
 	}
+
+	// The names 7.1.0 had, which code written for telegraf 4.16.3 still refers to.
+	/** @deprecated Use `MessageEntity.Abstract` instead. */
+	export type AbstractMessageEntity = Abstract;
+	/** @deprecated Use the variants of `MessageEntity` instead. */
+	export type CommonMessageEntity =
+		| Mention
+		| Hashtag
+		| Cashtag
+		| BotCommand
+		| Url
+		| Email
+		| PhoneNumber
+		| Bold
+		| Blockquote
+		| ExpandableBlockquote
+		| Italic
+		| Underline
+		| Strikethrough
+		| Spoiler
+		| Code;
+	/** @deprecated Use `MessageEntity.PreMessage` instead. */
+	export type PreMessageEntity = PreMessage;
+	/** @deprecated Use `MessageEntity.TextLink` instead. */
+	export type TextLinkMessageEntity = TextLink;
+	/** @deprecated Use `MessageEntity.TextMention` instead. */
+	export type TextMentionMessageEntity = TextMention;
+	/** @deprecated Use `MessageEntity.CustomEmoji` instead. */
+	export type CustomEmojiMessageEntity = CustomEmoji;
 }
 
 /** This object represents one special entity in a text message. For example, hashtags, usernames, URLs, etc. */
@@ -2738,6 +2806,22 @@ export declare namespace KeyboardButton {
 		/** If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a “web_app_data” service message. Available in private chats only. */
 		web_app: WebAppInfo;
 	}
+
+	// The names 7.1.0 had, which code written for telegraf 4.16.3 still refers to.
+	/** @deprecated Use `KeyboardButton.Text` instead. */
+	export type CommonButton = Text;
+	/** @deprecated Use `KeyboardButton.RequestUsers` instead. */
+	export type RequestUsersButton = RequestUsers;
+	/** @deprecated Use `KeyboardButton.RequestChat` instead. */
+	export type RequestChatButton = RequestChat;
+	/** @deprecated Use `KeyboardButton.RequestContact` instead. */
+	export type RequestContactButton = RequestContact;
+	/** @deprecated Use `KeyboardButton.RequestLocation` instead. */
+	export type RequestLocationButton = RequestLocation;
+	/** @deprecated Use `KeyboardButton.RequestPoll` instead. */
+	export type RequestPollButton = RequestPoll;
+	/** @deprecated Use `KeyboardButton.WebApp` instead. */
+	export type WebAppButton = WebApp;
 }
 
 /** This object represents one button of the reply keyboard. At most one of the fields other than text, icon_custom_emoji_id, and style must be used to specify the type of the button. For simple text buttons, String can be used instead of this object to specify the button text. */
