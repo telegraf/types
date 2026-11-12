@@ -1946,29 +1946,76 @@ export interface Link {
 	url: string;
 }
 
-/** At most one of the optional fields can be present in any given object. */
-export interface PollMedia {
-	/** Media is an animation, information about the animation */
-	animation?: Animation;
-	/** Media is an audio file, information about the file; currently, can't be received in a poll option */
-	audio?: Audio;
-	/** Media is a general file, information about the file; currently, can't be received in a poll option */
-	document?: Document;
-	/** The HTTP link attached to the poll option */
-	link?: Link;
-	/** Media is a live photo, information about the live photo */
-	live_photo?: LivePhoto;
-	/** Media is a shared location, information about the location */
-	location?: Location;
-	/** Media is a photo, available sizes of the photo */
-	photo?: PhotoSize[];
-	/** Media is a sticker, information about the sticker; currently, for poll options only */
-	sticker?: Sticker;
-	/** Media is a venue, information about the venue */
-	venue?: Venue;
-	/** Media is a video, information about the video */
-	video?: Video;
+export declare namespace PollMedia {
+	// The fields that hold the media. An object has at most one of them, so each variant excludes the
+	// ones it does not declare, and an object with none of them is this one.
+	export interface NoMedia {
+		animation?: undefined;
+		audio?: undefined;
+		document?: undefined;
+		link?: undefined;
+		live_photo?: undefined;
+		location?: undefined;
+		photo?: undefined;
+		sticker?: undefined;
+		venue?: undefined;
+		video?: undefined;
+	}
+	export interface AnimationMedia extends Omit<NoMedia, "animation"> {
+		/** Media is an animation, information about the animation */
+		animation: Animation;
+	}
+	export interface AudioMedia extends Omit<NoMedia, "audio"> {
+		/** Media is an audio file, information about the file; currently, can't be received in a poll option */
+		audio: Audio;
+	}
+	export interface DocumentMedia extends Omit<NoMedia, "document"> {
+		/** Media is a general file, information about the file; currently, can't be received in a poll option */
+		document: Document;
+	}
+	export interface LinkMedia extends Omit<NoMedia, "link"> {
+		/** The HTTP link attached to the poll option */
+		link: Link;
+	}
+	export interface LivePhotoMedia extends Omit<NoMedia, "live_photo"> {
+		/** Media is a live photo, information about the live photo */
+		live_photo: LivePhoto;
+	}
+	export interface LocationMedia extends Omit<NoMedia, "location"> {
+		/** Media is a shared location, information about the location */
+		location: Location;
+	}
+	export interface PhotoMedia extends Omit<NoMedia, "photo"> {
+		/** Media is a photo, available sizes of the photo */
+		photo: PhotoSize[];
+	}
+	export interface StickerMedia extends Omit<NoMedia, "sticker"> {
+		/** Media is a sticker, information about the sticker; currently, for poll options only */
+		sticker: Sticker;
+	}
+	export interface VenueMedia extends Omit<NoMedia, "venue"> {
+		/** Media is a venue, information about the venue */
+		venue: Venue;
+	}
+	export interface VideoMedia extends Omit<NoMedia, "video"> {
+		/** Media is a video, information about the video */
+		video: Video;
+	}
 }
+
+/** At most one of the optional fields can be present in any given object. */
+export type PollMedia =
+	| PollMedia.AnimationMedia
+	| PollMedia.AudioMedia
+	| PollMedia.DocumentMedia
+	| PollMedia.LinkMedia
+	| PollMedia.LivePhotoMedia
+	| PollMedia.LocationMedia
+	| PollMedia.PhotoMedia
+	| PollMedia.StickerMedia
+	| PollMedia.VenueMedia
+	| PollMedia.VideoMedia
+	| PollMedia.NoMedia;
 
 /** This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
 
@@ -7776,13 +7823,6 @@ export interface BotMethods<F> {
 }
 
 export declare namespace Args {
-	export interface EditEphemeralMessageTextRich<F> extends Omit<EditEphemeralMessageText, "text" | "rich_message"> {
-		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
-		text?: undefined;
-		/** New rich content of the message; required if text isn't specified */
-		rich_message: InputRichMessage<F>;
-	}
-
 	export interface EditEphemeralMessageText {
 		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
@@ -7803,14 +7843,21 @@ export declare namespace Args {
 		/** An object for an inline keyboard */
 		reply_markup?: InlineKeyboardMarkup;
 	}
+
+	export interface EditEphemeralMessageTextRich<F> extends Omit<EditEphemeralMessageText, "text" | "rich_message"> {
+		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
+		text?: undefined;
+		/** New rich content of the message; required if text isn't specified */
+		rich_message: InputRichMessage<F>;
+	}
 }
 
 export interface BotMethods<F> {
 	/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
-	editEphemeralMessageText(args: Args.EditEphemeralMessageTextRich<F>, options?: CallOptions): Promise<true>;
-
-	/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
-	editEphemeralMessageText(args: Args.EditEphemeralMessageText, options?: CallOptions): Promise<true>;
+	editEphemeralMessageText(
+		args: Args.EditEphemeralMessageText | Args.EditEphemeralMessageTextRich<F>,
+		options?: CallOptions,
+	): Promise<true>;
 }
 
 export declare namespace Args {
