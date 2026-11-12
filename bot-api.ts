@@ -7337,7 +7337,7 @@ export declare namespace Args {
 		/** Unique identifier of the target user that can use the button */
 		user_id: number;
 		/** An object describing the button to be saved. The button must be of the type request_users, request_chat, or request_managed_bot. */
-		button: KeyboardButton;
+		button: KeyboardButton.RequestUsers | KeyboardButton.RequestChat | KeyboardButton.RequestManagedBot;
 	}
 }
 
