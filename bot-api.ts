@@ -2637,7 +2637,7 @@ export interface DirectMessagesTopic {
 	/** Unique identifier of the topic */
 	topic_id: number;
 	/** Information about the user that created the topic. Currently, it is always present */
-	user: User;
+	user?: User;
 }
 
 /** This object represent a user's profile pictures. */
