@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # --ignore-scripts so `prepare` does not build the package: every step below reads the sources.
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: bun run fmt:check
+      - run: bun run lint
+      - run: bun run check
+      - run: bun run test
