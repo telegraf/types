@@ -4,6 +4,7 @@ import type {
 	InputMediaAnimation,
 	InputMediaAudio,
 	InputMediaDocument,
+	InputMediaLivePhoto,
 	InputMediaPhoto,
 	InputMediaVideo,
 	InputSticker,
@@ -90,7 +91,11 @@ export type OptsFileFields = Assert<
 			Upload | undefined,
 			Upload | string | undefined,
 			ReadonlyArray<
-				InputMediaAudio<Upload> | InputMediaDocument<Upload> | InputMediaPhoto<Upload> | InputMediaVideo<Upload>
+				| InputMediaAudio<Upload>
+				| InputMediaDocument<Upload>
+				| InputMediaLivePhoto<Upload>
+				| InputMediaPhoto<Upload>
+				| InputMediaVideo<Upload>
 			>,
 			InputMedia<Upload>,
 		]
@@ -156,6 +161,15 @@ export type AllowedUpdates = Assert<
 			| "chat_join_request"
 			| "chat_boost"
 			| "removed_chat_boost"
+			| "business_connection"
+			| "business_message"
+			| "edited_business_message"
+			| "deleted_business_messages"
+			| "guest_message"
+			| "purchased_paid_media"
+			| "managed_bot"
+			| "subscription"
+			| "stopped_message_generation"
 		>
 	>
 >;
@@ -174,11 +188,12 @@ export type RetByKey = Assert<
 		],
 		[
 			UserFromGetMe,
-			Message.TextMessage,
-			Message.PhotoMessage,
+			Message.TextMessage & Message.BusinessSentMessage,
+			Message.PhotoMessage & Message.BusinessSentMessage,
 			ChatFromGetChat,
 			(Update.Edited & Message.TextMessage) | true,
-			(Message.AudioMessage | Message.DocumentMessage | Message.PhotoMessage | Message.VideoMessage)[],
+			((Message.AudioMessage | Message.DocumentMessage | Message.PhotoMessage | Message.VideoMessage) &
+				Message.BusinessSentMessage)[],
 			string,
 			number,
 		]
@@ -258,7 +273,7 @@ export const inputMaskSticker: InputSticker<never> = {
 };
 
 export type InputMediaType = Assert<
-	Equal<InputMedia<Upload>["type"], "photo" | "video" | "animation" | "audio" | "document">
+	Equal<InputMedia<Upload>["type"], "photo" | "video" | "animation" | "audio" | "document" | "live_photo">
 >;
 
 export function mediaFile<F>(media: InputMedia<F>) {
@@ -484,30 +499,31 @@ export type SendResults = Assert<
 			typeof sentGame,
 		],
 		[
-			Message.TextMessage,
-			Message,
+			Message.TextMessage & Message.BusinessSentMessage,
+			Message & Message.BusinessSentMessage,
 			MessageId[],
 			MessageId,
 			MessageId[],
-			Message.PhotoMessage,
-			Message.PhotoMessage,
-			Message.AudioMessage,
-			Message.DocumentMessage,
-			Message.VideoMessage,
-			Message.AnimationMessage,
-			Message.VoiceMessage,
-			Message.VideoNoteMessage,
-			(Message.AudioMessage | Message.DocumentMessage | Message.PhotoMessage | Message.VideoMessage)[],
-			Message.LocationMessage,
-			Message.VenueMessage,
-			Message.ContactMessage,
-			Message.PollMessage,
-			Message.DiceMessage,
+			Message.PhotoMessage & Message.BusinessSentMessage,
+			Message.PhotoMessage & Message.BusinessSentMessage,
+			Message.AudioMessage & Message.BusinessSentMessage,
+			Message.DocumentMessage & Message.BusinessSentMessage,
+			Message.VideoMessage & Message.BusinessSentMessage,
+			Message.AnimationMessage & Message.BusinessSentMessage,
+			Message.VoiceMessage & Message.BusinessSentMessage,
+			Message.VideoNoteMessage & Message.BusinessSentMessage,
+			((Message.AudioMessage | Message.DocumentMessage | Message.PhotoMessage | Message.VideoMessage) &
+				Message.BusinessSentMessage)[],
+			Message.LocationMessage & Message.BusinessSentMessage,
+			Message.VenueMessage & Message.BusinessSentMessage,
+			Message.ContactMessage & Message.BusinessSentMessage,
+			Message.PollMessage & Message.BusinessSentMessage,
+			Message.DiceMessage & Message.BusinessSentMessage,
 			true,
 			true,
-			Message.StickerMessage,
-			Message.InvoiceMessage,
-			Message.GameMessage,
+			Message.StickerMessage & Message.BusinessSentMessage,
+			Message.InvoiceMessage & Message.BusinessSentMessage,
+			Message.GameMessage & Message.BusinessSentMessage,
 		]
 	>
 >;
@@ -581,11 +597,11 @@ export type EditResults = Assert<
 		[
 			(Update.Edited & Message.TextMessage) | true,
 			(Update.Edited & Message.TextMessage) | true,
-			(Update.Edited & Message.CaptionableMessage) | true,
-			(Update.Edited & Message) | true,
-			(Update.Edited & Message) | true,
-			(Update.Edited & Message.LocationMessage) | true,
-			(Update.Edited & Message.LocationMessage) | true,
+			(Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage) | true,
+			(Update.Edited & Message & Message.BusinessSentMessage) | true,
+			(Update.Edited & Message & Message.BusinessSentMessage) | true,
+			(Update.Edited & Message.LocationMessage & Message.BusinessSentMessage) | true,
+			(Update.Edited & Message.LocationMessage & Message.BusinessSentMessage) | true,
 			Poll,
 			true,
 			true,
@@ -817,6 +833,7 @@ export const rightsSet = api.setMyDefaultAdministratorRights({
 		can_post_stories: false,
 		can_edit_stories: false,
 		can_delete_stories: false,
+		can_send_welcome_messages: false,
 	},
 	for_channels: false,
 });
@@ -896,6 +913,7 @@ export const stickerSetThumbnailSet = api.setStickerSetThumbnail({
 	name: "weather_by_weather_bot",
 	user_id: 123456789,
 	thumbnail: upload,
+	format: "static",
 });
 export const customEmojiThumbnailSet = api.setCustomEmojiStickerSetThumbnail({
 	name: "weather_emoji_by_weather_bot",
@@ -1019,7 +1037,11 @@ export const highScores = api.getGameHighScores({ user_id: 123456789, chat_id: 1
 export type GameResults = Assert<
 	Equal<
 		[typeof scoreSet, typeof inlineScoreSet, typeof highScores],
-		[(Update.Edited & Message.GameMessage) | true, (Update.Edited & Message.GameMessage) | true, GameHighScore[]]
+		[
+			(Update.Edited & Message.GameMessage & Message.BusinessSentMessage) | true,
+			(Update.Edited & Message.GameMessage & Message.BusinessSentMessage) | true,
+			GameHighScore[],
+		]
 	>
 >;
 
@@ -1091,7 +1113,7 @@ export function callWithRequiredArguments() {
 	});
 	api.setStickerKeywords({ sticker: "CAACAgIAAxkBAAI" });
 	api.setStickerMaskPosition({ sticker: "CAACAgIAAxkBAAI" });
-	api.setStickerSetThumbnail({ name: "weather_by_weather_bot", user_id: 123456789 });
+	api.setStickerSetThumbnail({ name: "weather_by_weather_bot", user_id: 123456789, format: "static" });
 	api.setCustomEmojiStickerSetThumbnail({ name: "weather_emoji_by_weather_bot" });
 	api.answerInlineQuery({ inline_query_id: "1234567890123456789", results: [] });
 	api.sendInvoice({

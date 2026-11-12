@@ -335,6 +335,7 @@ export type MessageEntityType = Assert<
 		| "phone_number"
 		| "bold"
 		| "blockquote"
+		| "expandable_blockquote"
 		| "italic"
 		| "underline"
 		| "strikethrough"
@@ -344,6 +345,7 @@ export type MessageEntityType = Assert<
 		| "text_link"
 		| "text_mention"
 		| "custom_emoji"
+		| "date_time"
 	>
 >;
 
@@ -391,6 +393,7 @@ export function commonOf(entity: MessageEntity) {
 		case "text_link":
 		case "text_mention":
 		case "custom_emoji":
+		case "date_time":
 			return undefined;
 		default:
 			return entity;
@@ -480,8 +483,8 @@ export const contact: Contact = {
 export const dice: Dice = { emoji: "🎲", value: 6 };
 
 export const pollOptions: PollOption[] = [
-	{ text: "Rain", voter_count: 3 },
-	{ text: "Sun", voter_count: 5 },
+	{ persistent_id: "0", text: "Rain", voter_count: 3 },
+	{ persistent_id: "1", text: "Sun", voter_count: 5 },
 ];
 
 export const poll: Poll = {
@@ -493,20 +496,24 @@ export const poll: Poll = {
 	is_anonymous: true,
 	type: "regular",
 	allows_multiple_answers: false,
+	allows_revoting: true,
+	members_only: false,
 };
 
 export const quiz: Poll = {
 	id: "5432109876543211",
 	question: "Wettest month in Berlin?",
 	options: [
-		{ text: "June", voter_count: 4 },
-		{ text: "July", voter_count: 1 },
+		{ persistent_id: "0", text: "June", voter_count: 4 },
+		{ persistent_id: "1", text: "July", voter_count: 1 },
 	],
 	total_voter_count: 5,
 	is_closed: true,
 	is_anonymous: false,
 	type: "quiz",
 	allows_multiple_answers: false,
+	allows_revoting: false,
+	members_only: false,
 	correct_option_id: 0,
 	explanation: "June has the most rain",
 	explanation_entities: [{ type: "bold", offset: 0, length: 4 }],
@@ -514,9 +521,19 @@ export const quiz: Poll = {
 	close_date: 1709251260,
 };
 
-export const pollAnswer: PollAnswer = { poll_id: "5432109876543210", user, option_ids: [1] };
+export const pollAnswer: PollAnswer = {
+	poll_id: "5432109876543210",
+	user,
+	option_ids: [1],
+	option_persistent_ids: ["1"],
+};
 
-export const anonymousPollAnswer: PollAnswer = { poll_id: "5432109876543210", voter_chat: channel, option_ids: [] };
+export const anonymousPollAnswer: PollAnswer = {
+	poll_id: "5432109876543210",
+	voter_chat: channel,
+	option_ids: [],
+	option_persistent_ids: [],
+};
 
 export const commonLocation: Location.CommonLocation = { latitude: 52.52, longitude: 13.405, horizontal_accuracy: 25 };
 
@@ -735,7 +752,7 @@ export type EmptyServiceContents = Assert<
 			keyof VideoChatStarted,
 			keyof GiveawayCreated,
 		],
-		[never, never, never, never, never, never]
+		[never, never, never, never, never, "prize_star_count"]
 	>
 >;
 
@@ -1253,13 +1270,17 @@ export type CommonMessageBundleMembers = Assert<
 		CommonMessageBundle,
 		| Message.AnimationMessage
 		| Message.AudioMessage
+		| Message.ChecklistMessage
 		| Message.ContactMessage
 		| Message.DiceMessage
 		| Message.DocumentMessage
 		| Message.GameMessage
+		| Message.LivePhotoMessage
 		| Message.LocationMessage
+		| Message.PaidMediaMessage
 		| Message.PhotoMessage
 		| Message.PollMessage
+		| Message.RichMessageMessage
 		| Message.StickerMessage
 		| Message.StoryMessage
 		| Message.TextMessage
@@ -1309,6 +1330,28 @@ export type ServiceMessageBundleMembers = Assert<
 		| Message.VideoChatEndedMessage
 		| Message.VideoChatParticipantsInvitedMessage
 		| Message.WebAppDataMessage
+		| Message.ChatOwnerLeftMessage
+		| Message.ChatOwnerChangedMessage
+		| Message.RefundedPaymentMessage
+		| Message.GiftMessage
+		| Message.UniqueGiftMessage
+		| Message.GiftUpgradeSentMessage
+		| Message.ChatBackgroundSetMessage
+		| Message.ChecklistTasksDoneMessage
+		| Message.ChecklistTasksAddedMessage
+		| Message.CommunityChatAddedMessage
+		| Message.CommunityChatJoinedMessage
+		| Message.CommunityChatRemovedMessage
+		| Message.DirectMessagePriceChangedMessage
+		| Message.PaidMessagePriceChangedMessage
+		| Message.PollOptionAddedMessage
+		| Message.PollOptionDeletedMessage
+		| Message.SuggestedPostApprovedMessage
+		| Message.SuggestedPostApprovalFailedMessage
+		| Message.SuggestedPostDeclinedMessage
+		| Message.SuggestedPostPaidMessage
+		| Message.SuggestedPostRefundedMessage
+		| Message.ManagedBotCreatedMessage
 	>
 >;
 
@@ -1446,6 +1489,8 @@ export function readCaption(message: Message) {
 			| Message.AnimationMessage
 			| Message.AudioMessage
 			| Message.DocumentMessage
+			| Message.LivePhotoMessage
+			| Message.PaidMediaMessage
 			| Message.PhotoMessage
 			| Message.VideoMessage
 			| Message.VoiceMessage

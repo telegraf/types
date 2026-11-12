@@ -75,7 +75,7 @@ export const inlineKeyboard: InlineKeyboardMarkup = {
 };
 
 export type AbstractInlineKeyboardButtonKeys = Assert<
-	Equal<keyof InlineKeyboardButton.AbstractInlineKeyboardButton, "text">
+	Equal<keyof InlineKeyboardButton.AbstractInlineKeyboardButton, "text" | "icon_custom_emoji_id" | "style">
 >;
 
 export type InlineButtonsAreAbstract = Assert<
@@ -239,6 +239,7 @@ export const requestChat: KeyboardButtonRequestChat = {
 		can_post_stories: false,
 		can_edit_stories: false,
 		can_delete_stories: false,
+		can_send_welcome_messages: false,
 	},
 	bot_is_member: true,
 };

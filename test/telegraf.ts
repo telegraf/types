@@ -363,6 +363,15 @@ export type UpdateTypeMembers = Assert<
 		| "chat_join_request"
 		| "chat_boost"
 		| "removed_chat_boost"
+		| "business_connection"
+		| "business_message"
+		| "edited_business_message"
+		| "deleted_business_messages"
+		| "guest_message"
+		| "purchased_paid_media"
+		| "managed_bot"
+		| "subscription"
+		| "stopped_message_generation"
 	>
 >;
 
@@ -423,6 +432,33 @@ export type MessageSubTypeMembers = Assert<
 		| "video_chat_ended"
 		| "video_chat_participants_invited"
 		| "web_app_data"
+		| "show_caption_above_media"
+		| "checklist"
+		| "live_photo"
+		| "paid_media"
+		| "rich_message"
+		| "chat_owner_left"
+		| "chat_owner_changed"
+		| "refunded_payment"
+		| "gift"
+		| "unique_gift"
+		| "gift_upgrade_sent"
+		| "chat_background_set"
+		| "checklist_tasks_done"
+		| "checklist_tasks_added"
+		| "community_chat_added"
+		| "community_chat_joined"
+		| "community_chat_removed"
+		| "direct_message_price_changed"
+		| "paid_message_price_changed"
+		| "poll_option_added"
+		| "poll_option_deleted"
+		| "suggested_post_approved"
+		| "suggested_post_approval_failed"
+		| "suggested_post_declined"
+		| "suggested_post_paid"
+		| "suggested_post_refunded"
+		| "managed_bot_created"
 	>
 >;
 
@@ -766,6 +802,7 @@ export type ToReactionTypesResult = Assert<Equal<ReturnType<typeof toReactionTyp
 
 export function inspectReaction(reaction: Deunionize<tg.ReactionType>) {
 	if (reaction.type === "custom_emoji") return `Custom(${reaction.custom_emoji_id})`;
+	if (reaction.type === "paid") return "Paid";
 	return reaction.emoji;
 }
 
@@ -1103,10 +1140,10 @@ export type TelegramResults = Assert<
 		[
 			tg.Update[],
 			true,
-			tg.Message.TextMessage,
-			tg.Message.PhotoMessage,
-			tg.Message.VideoNoteMessage,
-			tg.Message.InvoiceMessage,
+			tg.Message.TextMessage & tg.Message.BusinessSentMessage,
+			tg.Message.PhotoMessage & tg.Message.BusinessSentMessage,
+			tg.Message.VideoNoteMessage & tg.Message.BusinessSentMessage,
+			tg.Message.InvoiceMessage & tg.Message.BusinessSentMessage,
 			true,
 			(tg.Update.Edited & tg.Message.TextMessage) | true,
 			true,

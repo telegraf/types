@@ -2,6 +2,7 @@ import type {
 	AbstractChatBoostSource,
 	AbstractChatMember,
 	AbstractReactionType,
+	AcceptedGiftTypes,
 	BotCommand,
 	Chat,
 	ChatAdministratorRights,
@@ -217,6 +218,14 @@ export const chatLocation: ChatLocation = {
 	address: "Berlin, Germany",
 };
 
+const acceptedGiftTypes: AcceptedGiftTypes = {
+	unlimited_gifts: true,
+	limited_gifts: true,
+	unique_gifts: true,
+	premium_subscription: false,
+	gifts_from_channels: false,
+};
+
 export const privateGetChat: Chat.PrivateGetChat = {
 	...privateChat,
 	photo: chatPhoto,
@@ -229,6 +238,8 @@ export const privateGetChat: Chat.PrivateGetChat = {
 	has_private_forwards: true,
 	has_restricted_voice_and_video_messages: true,
 	message_auto_delete_time: 86400,
+	max_reaction_count: 11,
+	accepted_gift_types: acceptedGiftTypes,
 };
 
 export const groupGetChat: Chat.GroupGetChat = {
@@ -239,6 +250,8 @@ export const groupGetChat: Chat.GroupGetChat = {
 	permissions,
 	available_reactions: [{ type: "emoji", emoji: "👍" }],
 	has_protected_content: true,
+	max_reaction_count: 11,
+	accepted_gift_types: acceptedGiftTypes,
 };
 
 export const supergroupGetChat: Chat.SupergroupGetChat = {
@@ -257,6 +270,8 @@ export const supergroupGetChat: Chat.SupergroupGetChat = {
 	sticker_set_name: "weather_stickers",
 	custom_emoji_sticker_set_name: "weather_emoji",
 	location: chatLocation,
+	max_reaction_count: 11,
+	accepted_gift_types: acceptedGiftTypes,
 };
 
 export const channelGetChat: Chat.ChannelGetChat = {
@@ -267,6 +282,8 @@ export const channelGetChat: Chat.ChannelGetChat = {
 	profile_background_custom_emoji_id: "5368324170671202286",
 	description: "Daily forecasts",
 	linked_chat_id: -1001234567890,
+	max_reaction_count: 11,
+	accepted_gift_types: acceptedGiftTypes,
 };
 
 export const chatsFromGetChat: ChatFromGetChat[] = [privateGetChat, groupGetChat, supergroupGetChat, channelGetChat];
@@ -468,6 +485,7 @@ export const adminRights: ChatAdministratorRights = {
 	can_edit_stories: true,
 	can_delete_stories: true,
 	can_manage_topics: true,
+	can_send_welcome_messages: true,
 };
 
 export const owner: ChatMemberOwner = { status: "creator", user, is_anonymous: false, custom_title: "Founder" };
@@ -496,6 +514,8 @@ export const restricted: ChatMemberRestricted = {
 	can_send_polls: false,
 	can_send_other_messages: false,
 	can_add_web_page_previews: false,
+	can_react_to_messages: true,
+	can_edit_tag: false,
 	can_change_info: false,
 	can_invite_users: false,
 	can_pin_messages: false,
@@ -568,8 +588,8 @@ export type ChatMemberFields = Assert<
 export const memberWithUntilDate: ChatMember = {
 	status: "member",
 	user,
-	// @ts-expect-error — until_date belongs to restricted and banned members, and `status` discriminates the union
-	until_date: 0,
+	// A member who joined through a subscription link has the date the subscription expires
+	until_date: 1735689600,
 };
 
 export const bannedMember: ChatMember = {
@@ -621,7 +641,7 @@ export const customEmojiReaction: ReactionTypeCustomEmoji = {
 
 export const reactions: ReactionType[] = [emojiReaction, customEmojiReaction];
 
-export type ReactionTypeType = Assert<Equal<ReactionType["type"], "emoji" | "custom_emoji">>;
+export type ReactionTypeType = Assert<Equal<ReactionType["type"], "emoji" | "custom_emoji" | "paid">>;
 
 export type AbstractReactionTypeFields = Assert<
 	Equal<[keyof AbstractReactionType, AbstractReactionType["type"]], ["type", string]>
@@ -631,6 +651,7 @@ export type ReactionsAreAbstract = Assert<Extends<ReactionType, AbstractReaction
 
 export function reactionKey(reaction: ReactionType) {
 	if (reaction.type === "emoji") return reaction.emoji;
+	if (reaction.type === "paid") return reaction.type;
 	return reaction.custom_emoji_id;
 }
 

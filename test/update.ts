@@ -137,20 +137,22 @@ export const pollUpdate: Update.PollUpdate = {
 		id: "5432109876543210",
 		question: "Weather tomorrow?",
 		options: [
-			{ text: "Rain", voter_count: 3 },
-			{ text: "Sun", voter_count: 5 },
+			{ persistent_id: "0", text: "Rain", voter_count: 3 },
+			{ persistent_id: "1", text: "Sun", voter_count: 5 },
 		],
 		total_voter_count: 8,
 		is_closed: true,
 		is_anonymous: true,
 		type: "regular",
 		allows_multiple_answers: false,
+		allows_revoting: true,
+		members_only: false,
 	},
 };
 
 export const pollAnswerUpdate: Update.PollAnswerUpdate = {
 	update_id: 10012,
-	poll_answer: { poll_id: "5432109876543210", user, option_ids: [1] },
+	poll_answer: { poll_id: "5432109876543210", user, option_ids: [1], option_persistent_ids: ["1"] },
 };
 
 const memberUpdate = {
@@ -243,6 +245,15 @@ export type UpdateMembers = Assert<
 		| Update.ChatJoinRequestUpdate
 		| Update.ChatBoostUpdate
 		| Update.RemovedChatBoostUpdate
+		| Update.BusinessConnectionUpdate
+		| Update.BusinessMessageUpdate
+		| Update.EditedBusinessMessageUpdate
+		| Update.DeletedBusinessMessagesUpdate
+		| Update.GuestMessageUpdate
+		| Update.PurchasedPaidMediaUpdate
+		| Update.ManagedBotUpdate
+		| Update.SubscriptionUpdate
+		| Update.StoppedMessageGenerationUpdate
 	>
 >;
 
@@ -269,6 +280,15 @@ export type UpdateType = Assert<
 		| "chat_join_request"
 		| "chat_boost"
 		| "removed_chat_boost"
+		| "business_connection"
+		| "business_message"
+		| "edited_business_message"
+		| "deleted_business_messages"
+		| "guest_message"
+		| "purchased_paid_media"
+		| "managed_bot"
+		| "subscription"
+		| "stopped_message_generation"
 	>
 >;
 
@@ -332,7 +352,7 @@ export type PayloadTypes = Assert<
 			Update.MessageReactionCountUpdate["message_reaction_count"]["reactions"][number]["total_count"],
 		],
 		[
-			"emoji" | "custom_emoji",
+			"emoji" | "custom_emoji" | "paid",
 			string,
 			string,
 			string,
