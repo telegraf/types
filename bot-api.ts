@@ -4388,7 +4388,7 @@ export interface InputMediaPhoto<F> {
 export interface InputMediaSticker<F> {
 	/** Type of the media, must be sticker */
 	type: "sticker";
-	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a.WEBP sticker from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one.WEBP,.TGS, or.WEBM sticker using multipart/form-data under <file_attach_name> name. */
+	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a .WEBP sticker from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
 	/** Emoji associated with the sticker; only for just uploaded stickers */
 	emoji?: string;
