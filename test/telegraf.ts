@@ -1145,7 +1145,11 @@ export type TelegramResults = Assert<
 			tg.Message.VideoNoteMessage & tg.Message.BusinessSentMessage,
 			tg.Message.InvoiceMessage & tg.Message.BusinessSentMessage,
 			true,
-			(tg.Update.Edited & tg.Message.TextMessage) | true,
+			(
+				| (tg.Update.Edited & tg.Message.TextMessage & tg.Message.BusinessSentMessage)
+				| (tg.Update.Edited & tg.Message.RichMessageMessage & tg.Message.BusinessSentMessage)
+				| true
+			),
 			true,
 			tg.ChatMember,
 			string,

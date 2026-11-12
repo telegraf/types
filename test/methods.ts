@@ -191,7 +191,11 @@ export type RetByKey = Assert<
 			Message.TextMessage & Message.BusinessSentMessage,
 			Message.PhotoMessage & Message.BusinessSentMessage,
 			ChatFromGetChat,
-			(Update.Edited & Message.TextMessage) | true,
+			(
+				| (Update.Edited & Message.TextMessage & Message.BusinessSentMessage)
+				| (Update.Edited & Message.RichMessageMessage & Message.BusinessSentMessage)
+				| true
+			),
 			((Message.AudioMessage | Message.DocumentMessage | Message.PhotoMessage | Message.VideoMessage) &
 				Message.BusinessSentMessage)[],
 			string,
@@ -595,8 +599,16 @@ export type EditResults = Assert<
 			typeof deletedMessages,
 		],
 		[
-			(Update.Edited & Message.TextMessage) | true,
-			(Update.Edited & Message.TextMessage) | true,
+			(
+				| (Update.Edited & Message.TextMessage & Message.BusinessSentMessage)
+				| (Update.Edited & Message.RichMessageMessage & Message.BusinessSentMessage)
+				| true
+			),
+			(
+				| (Update.Edited & Message.TextMessage & Message.BusinessSentMessage)
+				| (Update.Edited & Message.RichMessageMessage & Message.BusinessSentMessage)
+				| true
+			),
 			(Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage) | true,
 			(Update.Edited & Message & Message.BusinessSentMessage) | true,
 			(Update.Edited & Message & Message.BusinessSentMessage) | true,
@@ -616,8 +628,8 @@ export function editedTextOf(result: typeof editedText) {
 
 export type EditedTextOfResult = Assert<Equal<ReturnType<typeof editedTextOf>, number | undefined>>;
 
-// @ts-expect-error — the new text is required
-export const editWithoutText = api.editMessageText({ chat_id, message_id: 42 });
+// A rich message can replace the text
+export const editWithoutText = api.editMessageText({ chat_id, message_id: 42, rich_message: { html: "<b>10 °C</b>" } });
 
 // Files and profile photos
 
@@ -1133,12 +1145,8 @@ export function callWithRequiredArguments() {
 		currency: "EUR",
 		prices: [{ label: "Umbrella", amount: 1999 }],
 	});
-	api.answerShippingQuery({
-		shipping_query_id: "8329742398",
-		ok: true,
-		shipping_options: [{ id: "dhl", title: "DHL", prices: [{ label: "Shipping", amount: 499 }] }],
-	});
-	api.answerPreCheckoutQuery({ pre_checkout_query_id: "8329742399", ok: false, error_message: "Out of stock" });
+	api.answerShippingQuery({ shipping_query_id: "8329742398", ok: true });
+	api.answerPreCheckoutQuery({ pre_checkout_query_id: "8329742399", ok: false });
 	api.sendGame({ chat_id: 123456789, game_short_name: "snake" });
 	api.setGameScore({ user_id: 123456789, score: 120, inline_message_id: "AgAAAPx" });
 	api.getGameHighScores({ user_id: 123456789, inline_message_id: "AgAAAPx" });

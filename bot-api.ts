@@ -11173,39 +11173,55 @@ type Equal<A, B> = (<T>() => T extends A ? 1 : 2) extends <T>() => T extends B ?
 
 type Id<T> = { [K in keyof T]: T[K] };
 
+// The keys of `T` that can't be omitted.
+type RequiredKeys<T> = { [K in keyof T]-?: {} extends Pick<T, K> ? never : K }[keyof T];
+
+// The keys of a method's arms that at least one arm does not require.
+type ConditionalKeys<T, All extends PropertyKey = UnionKeys<T>> = T extends unknown
+	? Exclude<All, RequiredKeys<T>>
+	: never;
+
+// Every type a key has in the arms that declare it.
+type ArmValue<T, K extends PropertyKey> = T extends unknown ? (K extends keyof T ? T[K] : never) : never;
+
+// The arms of a method as one object, the way `ApiMethods` declared a method before its arms
+// were told apart: a key every arm requires stays required, and every other key is optional.
+type MergedArms<T> = Id<
+	{ [K in Exclude<UnionKeys<T>, ConditionalKeys<T>>]: ArmValue<T, K> } & {
+		[K in ConditionalKeys<T>]?: Exclude<ArmValue<T, K>, undefined>;
+	}
+>;
+
+// A single arm stays as declared, which keeps its doc comments; `MergedArms` loses them.
+type LooseArgs<A, U = A> = A extends unknown ? ([U] extends [A] ? Id<A> : MergedArms<U>) : never;
+
 type Back1<Fn> = Fn extends (args: infer A, options?: CallOptions) => Promise<infer R>
 	? [] extends Parameters<Fn>
 		? Equal<NonNullable<A>, NoArgs> extends true
 			? () => R
-			: (args?: Id<NonNullable<A>>) => R
-		: (args: Id<A>) => R
+			: (args?: LooseArgs<NonNullable<A>>) => R
+		: (args: LooseArgs<A>) => R
 	: never;
 
-// The methods `ApiMethods` declares with their overloads, as it did before `BotMethods`.
-type ApiMethodsOverloads = "editMessageText" | "editEphemeralMessageText";
-
-// Up to three signatures for the methods in `ApiMethodsOverloads`, in order; for every other
-// overloaded method, one signature taking any arm and returning any result. Matched against three
-// signatures, a method with fewer repeats its first in the slots it lacks, so equal neighbours
-// are one signature.
-type Back3<Fn, K> = Fn extends {
+// One signature per method: the arguments of every overload as `LooseArgs`, and the result of any
+// overload. Code written for telegraf 4 passes a method all its conditional arguments at once and
+// tells the results apart itself. Matched against three signatures, a method with fewer repeats
+// its first in the slots it lacks, so equal neighbours are one signature, which keeps its
+// optional `args`.
+type Back3<Fn> = Fn extends {
 	(args: infer A1, options?: CallOptions): Promise<infer R1>;
 	(args: infer A2, options?: CallOptions): Promise<infer R2>;
 	(args: infer A3, options?: CallOptions): Promise<infer R3>;
 }
 	? Equal<[A2, R2], [A3, R3]> extends true
 		? Back1<Fn>
-		: K extends ApiMethodsOverloads
-			? Equal<[A1, R1], [A2, R2]> extends true
-				? { (args: Id<A2>): R2; (args: Id<A3>): R3 }
-				: { (args: Id<A1>): R1; (args: Id<A2>): R2; (args: Id<A3>): R3 }
-			: Back1<(args: A1 | A2 | A3, options?: CallOptions) => Promise<R1 | R2 | R3>>
+		: Back1<(args: A1 | A2 | A3, options?: CallOptions) => Promise<R1 | R2 | R3>>
 	: never;
 
 /** Wrapper type to bundle all methods of the Telegram Bot API
- * @deprecated Use `BotMethods` instead. */
+ * @deprecated Use `BotMethods` instead. It checks the arguments that depend on each other, which are all optional here. */
 export type ApiMethods<F> = {
-	[K in keyof BotMethods<F>]: Back3<BotMethods<F>[K], K>;
+	[K in keyof BotMethods<F>]: Back3<BotMethods<F>[K]>;
 };
 
 /** Extracts the parameters of a given method name */
