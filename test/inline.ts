@@ -186,7 +186,15 @@ export type MessageContentFields = Assert<
 			InputInvoiceMessageContent["provider_token"],
 			InputInvoiceMessageContent["prices"][number]["amount"],
 		],
-		[string, "Markdown" | "MarkdownV2" | "HTML" | undefined, number | undefined, string, string, string, number]
+		[
+			string,
+			"Markdown" | "MarkdownV2" | "HTML" | undefined,
+			number | undefined,
+			string,
+			string,
+			string | undefined,
+			number,
+		]
 	>
 >;
 
@@ -210,7 +218,6 @@ export const article: InlineQueryResultArticle = {
 	input_message_content: textContent,
 	reply_markup: keyboard,
 	url: "https://example.com/berlin",
-	hide_url: true,
 	description: "12°C, light rain",
 	thumbnail_url: "https://example.com/rain.png",
 	thumbnail_width: 64,
@@ -618,10 +625,7 @@ export type InputContactMessageContentRequiredFields = Assert<
 	Extends<"first_name" | "phone_number", RequiredKeys<InputContactMessageContent>>
 >;
 export type InputInvoiceMessageContentRequiredFields = Assert<
-	Extends<
-		"currency" | "description" | "payload" | "prices" | "provider_token" | "title",
-		RequiredKeys<InputInvoiceMessageContent>
-	>
+	Extends<"currency" | "description" | "payload" | "prices" | "title", RequiredKeys<InputInvoiceMessageContent>>
 >;
 export type InputLocationMessageContentRequiredFields = Assert<
 	Extends<"latitude" | "longitude", RequiredKeys<InputLocationMessageContent>>

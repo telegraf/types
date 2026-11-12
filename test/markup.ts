@@ -236,6 +236,9 @@ export const requestChat: KeyboardButtonRequestChat = {
 		can_promote_members: false,
 		can_change_info: false,
 		can_invite_users: true,
+		can_post_stories: false,
+		can_edit_stories: false,
+		can_delete_stories: false,
 	},
 	bot_is_member: true,
 };

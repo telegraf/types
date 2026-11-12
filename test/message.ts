@@ -63,6 +63,7 @@ import type {
 	ReplyParameters,
 	SentWebAppMessage,
 	ServiceMessageBundle,
+	SharedUser,
 	Sticker,
 	StickerSet,
 	Story,
@@ -208,8 +209,6 @@ export const stickerSet: StickerSet = {
 	name: "weather_stickers_by_weather_bot",
 	title: "Weather",
 	sticker_type: "regular",
-	is_animated: false,
-	is_video: false,
 	stickers: [sticker],
 	thumbnail,
 };
@@ -643,7 +642,7 @@ export const generalForumTopicHidden: GeneralForumTopicHidden = {};
 
 export const generalForumTopicUnhidden: GeneralForumTopicUnhidden = {};
 
-export const usersShared: UsersShared = { request_id: 1, user_ids: [234567890, 345678901] };
+export const usersShared: UsersShared = { request_id: 1, users: [{ user_id: 234567890 }, { user_id: 345678901 }] };
 
 export const chatShared: ChatShared = { request_id: 2, chat_id: -1001234567890 };
 
@@ -695,7 +694,7 @@ export type ServiceContentFields = Assert<
 			ChatBoostAdded["boost_count"],
 			ForumTopicCreated["icon_color"],
 			ForumTopicEdited["name"],
-			UsersShared["user_ids"],
+			UsersShared["users"],
 			ChatShared["chat_id"],
 			WriteAccessAllowed["web_app_name"],
 			VideoChatScheduled["start_date"],
@@ -712,7 +711,7 @@ export type ServiceContentFields = Assert<
 			number,
 			number,
 			string | undefined,
-			number[],
+			SharedUser[],
 			number,
 			string | undefined,
 			number,
@@ -1864,11 +1863,11 @@ export type StickerRequiredFields = Assert<
 	>
 >;
 export type StickerSetRequiredFields = Assert<
-	Extends<"is_animated" | "is_video" | "name" | "sticker_type" | "stickers" | "title", RequiredKeys<StickerSet>>
+	Extends<"name" | "sticker_type" | "stickers" | "title", RequiredKeys<StickerSet>>
 >;
 export type StoryRequiredFields = Assert<Extends<"chat" | "id", RequiredKeys<Story>>>;
 export type TextQuoteRequiredFields = Assert<Extends<"position" | "text", RequiredKeys<TextQuote>>>;
-export type UsersSharedRequiredFields = Assert<Extends<"request_id" | "user_ids", RequiredKeys<UsersShared>>>;
+export type UsersSharedRequiredFields = Assert<Extends<"request_id" | "users", RequiredKeys<UsersShared>>>;
 export type VenueRequiredFields = Assert<Extends<"address" | "location" | "title", RequiredKeys<Venue>>>;
 export type VideoRequiredFields = Assert<
 	Extends<"duration" | "file_id" | "file_unique_id" | "height" | "width", RequiredKeys<Video>>

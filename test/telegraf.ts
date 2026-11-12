@@ -227,7 +227,7 @@ const replyParameters = { message_id: 42 };
 const callbackKeyboard = { inline_keyboard: [[{ text: "Refresh", callback_data: "refresh" }]] };
 
 export const extraAddStickerToSet: ExtraAddStickerToSet = {
-	sticker: { sticker: "CAACAgIAAxkBAAI", emoji_list: ["🌧"] },
+	sticker: { sticker: "CAACAgIAAxkBAAI", format: "static", emoji_list: ["🌧"] },
 };
 export const extraAnimation: ExtraAnimation = { caption, has_spoiler: true, thumbnail: { source: "/tmp/t.jpg" } };
 export const extraAnswerCbQuery: ExtraAnswerCbQuery = { show_alert: true, url: "https://t.me/weather_bot?game=snake" };
@@ -247,8 +247,7 @@ export const newInvoiceLinkParameters: NewInvoiceLinkParameters = {
 	prices: [{ label: "Umbrella", amount: 1999 }],
 };
 export const extraCreateNewStickerSet: ExtraCreateNewStickerSet = {
-	stickers: [{ sticker: { source: "/tmp/s.webp" }, emoji_list: ["🌧"] }],
-	sticker_format: "static",
+	stickers: [{ sticker: { source: "/tmp/s.webp" }, format: "static", emoji_list: ["🌧"] }],
 };
 export const extraDice: ExtraDice = { emoji: "🎰", disable_notification: true };
 export const extraDocument: ExtraDocument = { caption, disable_content_type_detection: true };

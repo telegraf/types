@@ -26,7 +26,16 @@ import type {
 	UserProfilePhotos,
 	WebhookInfo,
 } from "../manage.ts";
-import type { GameHighScore, Message, MessageId, Poll, SentWebAppMessage, Sticker, StickerSet } from "../message.ts";
+import type {
+	GameHighScore,
+	InputPollOption,
+	Message,
+	MessageId,
+	Poll,
+	SentWebAppMessage,
+	Sticker,
+	StickerSet,
+} from "../message.ts";
 import type { BotDescription, BotName, BotShortDescription, MenuButton } from "../settings.ts";
 import type { Update } from "../update.ts";
 import type { Assert, Equal, Extends, RequiredKeys } from "./assert.ts";
@@ -103,7 +112,7 @@ export type OptsFields = Assert<
 		[
 			number | string,
 			string,
-			number,
+			number | string,
 			number | undefined,
 			(
 				| "typing"
@@ -120,7 +129,7 @@ export type OptsFields = Assert<
 			),
 			0x6fb9f0 | 0xffd67e | 0xcb86db | 0x8eee98 | 0xff93b2 | 0xfb6f5f | undefined,
 			"static" | "animated" | "video",
-			readonly string[],
+			readonly InputPollOption<Upload>[],
 		]
 	>
 >;
@@ -236,12 +245,14 @@ export const inputMedia: InputMedia<Upload>[] = [inputPhoto, inputVideo, inputAn
 
 export const inputSticker: InputSticker<Upload> = {
 	sticker: upload,
+	format: "static",
 	emoji_list: ["🌧", "☔"],
 	keywords: ["rain", "umbrella"],
 };
 
 export const inputMaskSticker: InputSticker<never> = {
 	sticker: "CAACAgIAAxkBAAI",
+	format: "static",
 	emoji_list: ["😎"],
 	mask_position: { point: "eyes", x_shift: 0, y_shift: 0, scale: 1 },
 };
@@ -413,9 +424,9 @@ export const sentContact = api.sendContact({
 export const sentPoll = api.sendPoll({
 	chat_id,
 	question: "Wettest month in Berlin?",
-	options: ["June", "July"],
+	options: [{ text: "June" }, { text: "July" }],
 	type: "quiz",
-	correct_option_id: 0,
+	correct_option_ids: [0],
 	explanation: "June has the most rain",
 	explanation_parse_mode: "MarkdownV2",
 	open_period: 60,
@@ -510,10 +521,15 @@ export const uploadWithoutF = fileIdApi.sendPhoto({ chat_id, photo: upload });
 // @ts-expect-error — "sleeping" is not a chat action
 export const unknownChatAction = api.sendChatAction({ chat_id, action: "sleeping" });
 
-// @ts-expect-error — "survey" is not a poll type
-export const surveyPoll = api.sendPoll({ chat_id, question: "?", options: ["a", "b"], type: "survey" });
+export const surveyPoll = api.sendPoll({
+	chat_id,
+	question: "?",
+	options: [{ text: "a" }, { text: "b" }],
+	// @ts-expect-error — "survey" is not a poll type
+	type: "survey",
+});
 
-// @ts-expect-error — games are sent by numeric chat id only
+// A game can be sent to a chat named by its username
 export const gameToUsername = api.sendGame({ chat_id: "@erika", game_short_name: "snake" });
 
 export const mediaGroupWithAnimation = api.sendMediaGroup({
@@ -798,6 +814,9 @@ export const rightsSet = api.setMyDefaultAdministratorRights({
 		can_promote_members: false,
 		can_change_info: false,
 		can_invite_users: true,
+		can_post_stories: false,
+		can_edit_stories: false,
+		can_delete_stories: false,
 	},
 	for_channels: false,
 });
@@ -856,7 +875,6 @@ export const createdStickerSet = api.createNewStickerSet({
 	name: "weather_by_weather_bot",
 	title: "Weather",
 	stickers: [inputSticker],
-	sticker_format: "static",
 	sticker_type: "regular",
 });
 export const stickerAdded = api.addStickerToSet({
@@ -1029,7 +1047,7 @@ export function callWithRequiredArguments() {
 	api.stopMessageLiveLocation({ inline_message_id: "AgAAAPx" });
 	api.sendVenue({ chat_id, latitude: 52.52, longitude: 13.405, title: "Berlin", address: "Berlin" });
 	api.sendContact({ chat_id, phone_number: "+4930123456", first_name: "Erika" });
-	api.sendPoll({ chat_id, question: "Rain?", options: ["Yes", "No"] });
+	api.sendPoll({ chat_id, question: "Rain?", options: [{ text: "Yes" }, { text: "No" }] });
 	api.sendDice({ chat_id });
 	api.sendChatAction({ chat_id, action: "typing" });
 	api.setMessageReaction({ chat_id, message_id: 1 });
@@ -1070,7 +1088,6 @@ export function callWithRequiredArguments() {
 		name: "weather_by_weather_bot",
 		title: "Weather",
 		stickers: [inputMaskSticker],
-		sticker_format: "static",
 	});
 	api.setStickerKeywords({ sticker: "CAACAgIAAxkBAAI" });
 	api.setStickerMaskPosition({ sticker: "CAACAgIAAxkBAAI" });
