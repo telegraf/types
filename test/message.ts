@@ -452,10 +452,13 @@ export const replyWithQuoteEntities: ReplyParameters = {
 	quote_entities: [{ type: "bold", offset: 0, length: 5 }],
 };
 
+// An ephemeral message is named by its own identifier, in place of message_id
+export const replyToEphemeralMessage: ReplyParameters = { ephemeral_message_id: 7 };
+
 export type ReplyParametersFields = Assert<
 	Equal<
 		[ReplyParameters["message_id"], ReplyParameters["chat_id"], ReplyParameters["quote_entities"]],
-		[number, number | string | undefined, MessageEntity[] | undefined]
+		[number | undefined, number | string | undefined, MessageEntity[] | undefined]
 	>
 >;
 
