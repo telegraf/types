@@ -704,9 +704,9 @@ export declare namespace Message {
 		message_id: number;
 		/** Unique identifier of a message thread or a forum topic to which the message belongs; for supergroups only */
 		message_thread_id?: number;
-		/** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
 		/** Information about the direct messages chat topic that contains the message */
 		direct_messages_topic?: DirectMessagesTopic;
+		/** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
 		from?: User;
 		/** Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
 		sender_chat?: Chat;
