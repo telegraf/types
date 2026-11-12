@@ -761,14 +761,24 @@ export const giveawayWithoutChats: Giveaway = { winners_selection_date: 17119296
 
 // Origins
 
-export const originUser: MessageOriginUser = { type: "user", sender_user: otherUser };
+export const originUser: MessageOriginUser = { type: "user", date: 1709164800, sender_user: otherUser };
 
-export const originHiddenUser: MessageOriginHiddenUser = { type: "hidden_user", sender_user_name: "Anonymous" };
+export const originHiddenUser: MessageOriginHiddenUser = {
+	type: "hidden_user",
+	date: 1709164800,
+	sender_user_name: "Anonymous",
+};
 
-export const originChat: MessageOriginChat = { type: "chat", sender_chat: supergroup, author_signature: "Admin" };
+export const originChat: MessageOriginChat = {
+	type: "chat",
+	date: 1709164800,
+	sender_chat: supergroup,
+	author_signature: "Admin",
+};
 
 export const originChannel: MessageOriginChannel = {
 	type: "channel",
+	date: 1709164800,
 	chat: channel,
 	message_id: 99,
 	author_signature: "Weather desk",
@@ -1561,7 +1571,7 @@ export type InaccessibleMessageFields = Assert<
 			MessageId["message_id"],
 			SentWebAppMessage["inline_message_id"],
 		],
-		[0, number, number, string]
+		[0, number, number, string | undefined]
 	>
 >;
 
@@ -1639,9 +1649,7 @@ export type ExternalReplyVideoNoteRequiredFields = Assert<
 >;
 export type ExternalReplyVoiceRequiredFields = Assert<Extends<"origin" | "voice", RequiredKeys<ExternalReplyVoice>>>;
 export type ForumTopicCreatedRequiredFields = Assert<Extends<"icon_color" | "name", RequiredKeys<ForumTopicCreated>>>;
-export type GameRequiredFields = Assert<
-	Extends<"animation" | "description" | "photo" | "text" | "text_entities" | "title", RequiredKeys<Game>>
->;
+export type GameRequiredFields = Assert<Extends<"description" | "photo" | "title", RequiredKeys<Game>>>;
 export type GameHighScoreRequiredFields = Assert<Extends<"position" | "score" | "user", RequiredKeys<GameHighScore>>>;
 export type GiveawayRequiredFields = Assert<
 	Extends<"chats" | "winner_count" | "winners_selection_date", RequiredKeys<Giveaway>>
@@ -1900,7 +1908,6 @@ export type ProximityAlertTriggeredRequiredFields = Assert<
 	Extends<"distance" | "traveler" | "watcher", RequiredKeys<ProximityAlertTriggered>>
 >;
 export type ReplyParametersRequiredFields = Assert<Extends<"message_id", RequiredKeys<ReplyParameters>>>;
-export type SentWebAppMessageRequiredFields = Assert<Extends<"inline_message_id", RequiredKeys<SentWebAppMessage>>>;
 export type StickerRequiredFields = Assert<
 	Extends<
 		"file_id" | "file_unique_id" | "height" | "is_animated" | "is_video" | "type" | "width",

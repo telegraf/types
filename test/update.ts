@@ -323,9 +323,8 @@ export type EnvelopeFields = Assert<
 			Update.NonChannel["author_signature"],
 			Update.New["edit_date"],
 			Update.Edited["edit_date"],
-			Update.Edited["forward_date"],
 		],
-		[undefined, string | undefined, undefined, undefined, number, undefined]
+		[undefined, string | undefined, undefined, undefined, number]
 	>
 >;
 

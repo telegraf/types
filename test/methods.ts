@@ -97,7 +97,7 @@ export type OptsFileFields = Assert<
 				| InputMediaPhoto<Upload>
 				| InputMediaVideo<Upload>
 			>,
-			InputMedia<Upload>,
+			InputMedia<Upload> | InputMedia<never>,
 		]
 	>
 >;
@@ -743,7 +743,7 @@ export type AdministrationResults = Assert<
 			ChatMember,
 			true,
 			true,
-			UserChatBoosts[],
+			UserChatBoosts,
 		]
 	>
 >;
@@ -1133,8 +1133,12 @@ export function callWithRequiredArguments() {
 		currency: "EUR",
 		prices: [{ label: "Umbrella", amount: 1999 }],
 	});
-	api.answerShippingQuery({ shipping_query_id: "8329742398", ok: true });
-	api.answerPreCheckoutQuery({ pre_checkout_query_id: "8329742399", ok: false });
+	api.answerShippingQuery({
+		shipping_query_id: "8329742398",
+		ok: true,
+		shipping_options: [{ id: "dhl", title: "DHL", prices: [{ label: "Shipping", amount: 499 }] }],
+	});
+	api.answerPreCheckoutQuery({ pre_checkout_query_id: "8329742399", ok: false, error_message: "Out of stock" });
 	api.sendGame({ chat_id: 123456789, game_short_name: "snake" });
 	api.setGameScore({ user_id: 123456789, score: 120, inline_message_id: "AgAAAPx" });
 	api.getGameHighScores({ user_id: 123456789, inline_message_id: "AgAAAPx" });

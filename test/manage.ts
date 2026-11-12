@@ -245,6 +245,7 @@ export const privateGetChat: Chat.PrivateGetChat = {
 export const groupGetChat: Chat.GroupGetChat = {
 	...groupChat,
 	photo: chatPhoto,
+	accent_color_id: 1,
 	description: "Family chat",
 	invite_link: "https://t.me/+AbCdEfGhIjK",
 	permissions,
@@ -257,6 +258,7 @@ export const groupGetChat: Chat.GroupGetChat = {
 export const supergroupGetChat: Chat.SupergroupGetChat = {
 	...supergroupChat,
 	active_usernames: ["weather_fans"],
+	accent_color_id: 4,
 	description: "Talk about the weather",
 	permissions,
 	can_set_sticker_set: true,
@@ -426,7 +428,7 @@ export const pollingWebhookInfo: WebhookInfo = { url: "", has_custom_certificate
 export type WebhookInfoFields = Assert<
 	Equal<
 		[WebhookInfo["url"], WebhookInfo["pending_update_count"], WebhookInfo["allowed_updates"]],
-		[string | undefined, number, string[] | undefined]
+		[string, number, string[] | undefined]
 	>
 >;
 
