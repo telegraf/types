@@ -15,6 +15,7 @@ export type {
 	ReplyKeyboardMarkup,
 	ReplyKeyboardRemove,
 	RichMessageButton,
+	RichMessageButtonText,
 	SwitchInlineQueryChosenChat,
 	WebAppInfo,
 } from "./bot-api.js";

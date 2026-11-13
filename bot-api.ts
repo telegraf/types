@@ -8406,29 +8406,35 @@ export interface RichMessage {
 export declare namespace InputRichMessage {
 	interface AbstractInputRichMessage<F> {
 		/** List of media that are specified in the markdown or html fields using tg://photo?id=, tg://video?id=, tg://document?id=, and tg://audio?id= links */
-		media?: InputRichMessageMedia<F>[];
+		media?: readonly InputRichMessageMedia<F>[];
 		/** Pass True if the rich message must be shown right-to-left */
 		is_rtl?: boolean;
 		/** Pass True to skip automatic detection of entities (e.g., URLs, email addresses, username mentions, hashtags, cashtags, bot commands, or phone numbers) in the text */
 		skip_entity_detection?: boolean;
 	}
-	export interface BlocksMessage<F> extends AbstractInputRichMessage<F> {
+	export interface BlocksMessage<F, Draft extends boolean = false> extends AbstractInputRichMessage<F> {
 		/** Content of the rich message to send described as a list of blocks */
-		blocks: InputRichBlock<F>[];
+		blocks: readonly InputRichBlock<F, Draft>[];
+		html?: undefined;
+		markdown?: undefined;
 	}
 	export interface HtmlMessage<F> extends AbstractInputRichMessage<F> {
 		/** Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use media field to specify the media used in the message. */
 		html: string;
+		markdown?: undefined;
+		blocks?: undefined;
 	}
 	export interface MarkdownMessage<F> extends AbstractInputRichMessage<F> {
 		/** Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message. */
 		markdown: string;
+		html?: undefined;
+		blocks?: undefined;
 	}
 }
 
 /** Describes a rich message to be sent. Exactly one of the fields html, markdown, or blocks must be used. */
-export type InputRichMessage<F> =
-	| InputRichMessage.BlocksMessage<F>
+export type InputRichMessage<F, Draft extends boolean = false> =
+	| InputRichMessage.BlocksMessage<F, Draft>
 	| InputRichMessage.HtmlMessage<F>
 	| InputRichMessage.MarkdownMessage<F>;
 
@@ -8486,7 +8492,7 @@ export interface BotMethods<F> {
 }
 
 export declare namespace Args {
-	export interface SendRichMessageDraft<F> {
+	export interface SendRichMessageDraft {
 		/** Unique identifier for the target private chat */
 		chat_id: number;
 		/** Unique identifier for the target message thread */
@@ -8494,7 +8500,7 @@ export declare namespace Args {
 		/** Unique identifier of the message draft; must be non-zero. Changes to drafts with the same identifier are animated. Otherwise, the draft is replaced without animation. */
 		draft_id: number;
 		/** The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported. */
-		rich_message: InputRichMessage<F>;
+		rich_message: InputRichMessage<never, true>;
 		/** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
 		can_stop?: boolean;
 		/** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
@@ -8504,21 +8510,23 @@ export declare namespace Args {
 
 export interface BotMethods<F> {
 	/** Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendRichMessage with the complete message to persist it in the user's chat. Returns True on success. */
-	sendRichMessageDraft(args: Args.SendRichMessageDraft<F>, options?: CallOptions): Promise<true>;
+	sendRichMessageDraft(args: Args.SendRichMessageDraft, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace RichMessageButton {
 	interface AbstractRichMessageButton {
 		/** Text of the button. May contain only plain text, RichTextCustomEmoji and RichTextDateTime entities. */
-		text: RichText;
+		text: RichMessageButtonText;
 		/** Style of the button. Must be one of “danger”, “success”, “primary”, or “link” (the button is shown as a regular link without borders). Apps may use theme-specific colors for the button background and text based on the style. The style “link” is allowed only for callback buttons. */
-		style?: "danger" | "success" | "primary" | "link";
+		style?: "danger" | "success" | "primary";
 	}
 	export interface UrlButton extends AbstractRichMessageButton {
 		/** HTTP or tg:// URL to be opened when the button is pressed. Links tg://user?id=<user_id> can be used to mention a user by their identifier without using a username, if this is allowed by their privacy settings. */
 		url: string;
 	}
-	export interface CallbackButton extends AbstractRichMessageButton {
+	export interface CallbackButton extends Omit<AbstractRichMessageButton, "style"> {
+		/** Style of the button. Must be one of “danger”, “success”, “primary”, or “link” (the button is shown as a regular link without borders). Apps may use theme-specific colors for the button background and text based on the style. The style “link” is allowed only for callback buttons. */
+		style?: "danger" | "success" | "primary" | "link";
 		/** Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes */
 		callback_data: string;
 	}
@@ -8528,7 +8536,7 @@ export declare namespace RichMessageButton {
 	}
 	export interface LoginButton extends AbstractRichMessageButton {
 		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages. */
-		login_url: LoginUrl;
+		login_url: Omit<LoginUrl, "bot_username"> & { bot_username?: undefined };
 	}
 	export interface SwitchInlineButton extends AbstractRichMessageButton {
 		/** If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account. */
@@ -8563,6 +8571,13 @@ export type RichMessageButton =
 	| RichMessageButton.SwitchInlineChosenChatButton
 	| RichMessageButton.CopyButton
 	| RichMessageButton.Disabled;
+
+/** The text of a RichMessageButton: plain text, and RichTextCustomEmoji and RichTextDateTime entities. */
+export type RichMessageButtonText =
+	| string
+	| RichMessageButtonText[]
+	| RichTextCustomEmoji
+	| (Omit<RichTextDateTime, "text"> & { text: RichMessageButtonText });
 
 /** This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of RichText, or any of the following types:
 
@@ -9201,9 +9216,9 @@ export interface RichBlockThinking {
 }
 
 /** An item of a list to be sent. */
-export interface InputRichBlockListItem<F> {
+export interface InputRichBlockListItem<F, Draft extends boolean = false> {
 	/** The content of the item */
-	blocks: InputRichBlock<F>[];
+	blocks: readonly InputRichBlock<F, Draft>[];
 	/** Pass True if the item has a checkbox */
 	has_checkbox?: true;
 	/** Pass True if the item has a checked checkbox */
@@ -9241,7 +9256,7 @@ export interface InputRichBlockListItem<F> {
 - InputRichBlockVoiceNote
 - InputRichBlockThinking
  */
-export type InputRichBlock<F> =
+export type InputRichBlock<F, Draft extends boolean = false> =
 	| InputRichBlockParagraph
 	| InputRichBlockSectionHeading
 	| InputRichBlockPreformatted
@@ -9249,14 +9264,14 @@ export type InputRichBlock<F> =
 	| InputRichBlockDivider
 	| InputRichBlockMathematicalExpression
 	| InputRichBlockAnchor
-	| InputRichBlockList<F>
-	| InputRichBlockBlockQuotation<F>
+	| InputRichBlockList<F, Draft>
+	| InputRichBlockBlockQuotation<F, Draft>
 	| InputRichBlockExpandableBlockQuotation
 	| InputRichBlockPullQuotation
-	| InputRichBlockCollage<F>
-	| InputRichBlockSlideshow<F>
+	| InputRichBlockCollage<F, Draft>
+	| InputRichBlockSlideshow<F, Draft>
 	| InputRichBlockTable
-	| InputRichBlockDetails<F>
+	| InputRichBlockDetails<F, Draft>
 	| InputRichBlockMap
 	| InputRichBlockButtons
 	| InputRichBlockAnimation<F>
@@ -9265,7 +9280,7 @@ export type InputRichBlock<F> =
 	| InputRichBlockPhoto<F>
 	| InputRichBlockVideo<F>
 	| InputRichBlockVoiceNote<F>
-	| InputRichBlockThinking;
+	| (Draft extends true ? InputRichBlockThinking : never);
 
 /** A text paragraph, corresponding to the HTML tag <p>. */
 export interface InputRichBlockParagraph {
@@ -9326,19 +9341,19 @@ export interface InputRichBlockAnchor {
 }
 
 /** A list of blocks, corresponding to the HTML tag <ul> or <ol> with multiple nested tags <li>. */
-export interface InputRichBlockList<F> {
+export interface InputRichBlockList<F, Draft extends boolean = false> {
 	/** Type of the block, always “list” */
 	type: "list";
 	/** Items of the list */
-	items: InputRichBlockListItem<F>[];
+	items: readonly InputRichBlockListItem<F, Draft>[];
 }
 
 /** A block quotation, corresponding to the HTML tag <blockquote>. */
-export interface InputRichBlockBlockQuotation<F> {
+export interface InputRichBlockBlockQuotation<F, Draft extends boolean = false> {
 	/** Type of the block, always “blockquote” */
 	type: "blockquote";
 	/** Content of the block */
-	blocks: InputRichBlock<F>[];
+	blocks: readonly InputRichBlock<F, Draft>[];
 	/** Credit of the block */
 	credit?: RichText;
 }
@@ -9364,21 +9379,21 @@ export interface InputRichBlockPullQuotation {
 }
 
 /** A collage, corresponding to the custom HTML tag <tg-collage>. */
-export interface InputRichBlockCollage<F> {
+export interface InputRichBlockCollage<F, Draft extends boolean = false> {
 	/** Type of the block, always “collage” */
 	type: "collage";
 	/** Elements of the collage */
-	blocks: InputRichBlock<F>[];
+	blocks: readonly InputRichBlock<F, Draft>[];
 	/** Caption of the block */
 	caption?: RichBlockCaption;
 }
 
 /** A slideshow, corresponding to the custom HTML tag <tg-slideshow>. */
-export interface InputRichBlockSlideshow<F> {
+export interface InputRichBlockSlideshow<F, Draft extends boolean = false> {
 	/** Type of the block, always “slideshow” */
 	type: "slideshow";
 	/** Elements of the slideshow */
-	blocks: InputRichBlock<F>[];
+	blocks: readonly InputRichBlock<F, Draft>[];
 	/** Caption of the block */
 	caption?: RichBlockCaption;
 }
@@ -9388,7 +9403,7 @@ export interface InputRichBlockTable {
 	/** Type of the block, always “table” */
 	type: "table";
 	/** Cells of the table */
-	cells: RichBlockTableCell[][];
+	cells: readonly (readonly RichBlockTableCell[])[];
 	/** Pass True if the table has borders */
 	is_bordered?: true;
 	/** Pass True if the table is striped */
@@ -9400,13 +9415,13 @@ export interface InputRichBlockTable {
 }
 
 /** An expandable block for details disclosure, corresponding to the HTML tag <details>. */
-export interface InputRichBlockDetails<F> {
+export interface InputRichBlockDetails<F, Draft extends boolean = false> {
 	/** Type of the block, always “details” */
 	type: "details";
 	/** Always shown summary of the block */
 	summary: RichText;
 	/** Content of the block */
-	blocks: InputRichBlock<F>[];
+	blocks: readonly InputRichBlock<F, Draft>[];
 	/** Pass True if the content of the block is visible by default */
 	is_open?: true;
 }
@@ -9432,7 +9447,7 @@ export interface InputRichBlockButtons {
 	/** Type of the block, always “buttons” */
 	type: "buttons";
 	/** List of 1-8 buttons to send */
-	buttons: RichMessageButton[];
+	buttons: readonly RichMessageButton[];
 	/** Horizontal alignment of the buttons. Currently, must be one of “left”, “center”, or “right”. */
 	align?: "left" | "center" | "right";
 }
