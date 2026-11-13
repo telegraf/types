@@ -18,4 +18,4 @@ export type {
 	RichMessageButtonText,
 	SwitchInlineQueryChosenChat,
 	WebAppInfo,
-} from "./bot-api.js";
+} from "./types.js";

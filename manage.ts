@@ -84,4 +84,4 @@ export type {
 	UserProfilePhotos,
 	UserRating,
 	WebhookInfo,
-} from "./bot-api.js";
+} from "./types.js";

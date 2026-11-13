@@ -190,4 +190,4 @@ export type {
 	Voice,
 	WebAppData,
 	WriteAccessAllowed,
-} from "./bot-api.js";
+} from "./types.js";

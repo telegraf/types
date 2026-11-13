@@ -33,4 +33,4 @@ export type {
 	InputRichMessageContent,
 	InputTextMessageContent,
 	InputVenueMessageContent,
-} from "./bot-api.js";
+} from "./types.js";

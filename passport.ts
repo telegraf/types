@@ -13,4 +13,4 @@ export type {
 	PassportElementErrorTranslationFiles,
 	PassportElementErrorUnspecified,
 	PassportFile,
-} from "./bot-api.js";
+} from "./types.js";
