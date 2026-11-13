@@ -7563,6 +7563,8 @@ export declare namespace Args {
 }
 
 export interface BotMethods<F> {
+	// TODO: in v6, add `Message.GameMessage` to the result. The method edits `Game.text` too, and
+	// adding it breaks code that reads `text` off the result without narrowing.
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(
 		args: Args.EditMessageText,
