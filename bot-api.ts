@@ -24,6 +24,8 @@ export declare namespace Update {
 	export interface Biz {
 		/** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
 		business_connection_id: string;
+		// A reply can be to a message a bot sent on behalf of the account.
+		reply_to_message?: ReplyMessage & Message.BusinessSentMessage;
 	}
 	/** Internal type holding properties that updates about guest messages share. */
 	export interface Guest {
@@ -439,7 +441,7 @@ export declare namespace ChatFullInfo {
 		/** For private chats with business accounts, the opening hours of the business */
 		business_opening_hours?: BusinessOpeningHours;
 		/** For private chats, the personal channel of the user */
-		personal_chat?: ChatFullInfo.ChannelChat;
+		personal_chat?: Chat.ChannelChat;
 		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of emoji chosen by the chat for the reply header and link preview background */
@@ -448,9 +450,9 @@ export declare namespace ChatFullInfo {
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
-		/** Custom emoji identifier of emoji status of the other party in a private chat */
+		/** Custom emoji identifier of the emoji status of the chat or the other party in a private chat */
 		emoji_status_custom_emoji_id?: string;
-		/** Expiration date of the emoji status of the other party in a private chat in Unix time, if any */
+		/** Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any */
 		emoji_status_expiration_date?: number;
 		/** Bio of the other party in a private chat */
 		bio?: string;
@@ -546,6 +548,10 @@ export declare namespace ChatFullInfo {
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
+		/** Custom emoji identifier of the emoji status of the chat or the other party in a private chat */
+		emoji_status_custom_emoji_id?: string;
+		/** Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any */
+		emoji_status_expiration_date?: number;
 		/** True, if users need to join the supergroup before they can send messages */
 		join_to_send_messages?: true;
 		/** True, if all users directly joining the supergroup need to be approved by supergroup administrators */
@@ -613,6 +619,10 @@ export declare namespace ChatFullInfo {
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
+		/** Custom emoji identifier of the emoji status of the chat or the other party in a private chat */
+		emoji_status_custom_emoji_id?: string;
+		/** Expiration date of the emoji status of the chat or the other party in a private chat, in Unix time, if any */
+		emoji_status_expiration_date?: number;
 		/** Description, for groups, supergroups and channel chats */
 		description?: string;
 		/** Primary invite link, for groups, supergroups and channel chats */
@@ -3082,7 +3092,10 @@ export interface CopyTextButton {
 	text: string;
 }
 /** This object represents a disabled button which does nothing. Currently holds no information. */
-export interface DisabledButton {}
+export interface DisabledButton {
+	// An empty interface takes any value but null and undefined, `true` among them.
+	[key: string]: never;
+}
 
 export declare namespace CallbackQuery {
 	interface AbstractQuery {
@@ -5673,7 +5686,7 @@ export declare namespace Args {
 		/** An object for description of the message to reply to */
 		reply_parameters?: ReplyParameters;
 		/** An object for an inline keyboard */
-		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
+		reply_markup?: InlineKeyboardMarkup;
 	}
 }
 
@@ -11126,7 +11139,10 @@ export interface Game {
 }
 
 /** A placeholder, currently holds no information. Use BotFather to set up your game. */
-export interface CallbackGame {}
+export interface CallbackGame {
+	// An empty interface takes any value but null and undefined, `true` among them.
+	[key: string]: never;
+}
 
 // Methods in documentation order; merged into the exported `BotMethods` interface.
 export declare namespace Args {
