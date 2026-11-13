@@ -181,7 +181,7 @@ export type Update =
 	| Update.SubscriptionUpdate
 	| Update.StoppedMessageGenerationUpdate;
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface GetUpdates {
 		/** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will forgotten. */
@@ -197,7 +197,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
 
   Notes
@@ -227,7 +227,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
 
   If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
@@ -248,12 +248,12 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns True on success. */
 	deleteWebhook(args?: Args.DeleteWebhook, options?: CallOptions): Promise<true>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
 	getWebhookInfo(args?: NoArgs, options?: CallOptions): Promise<WebhookInfo>;
 }
@@ -4702,18 +4702,18 @@ export interface InputStoryContentVideo<F> {
 	is_animation?: boolean;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
-export interface BotMethods<F> {
+// Methods in documentation order; merged into the exported `BotApi` interface.
+export interface BotApi<F> {
 	/** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object. */
 	getMe(args?: NoArgs, options?: CallOptions): Promise<UserFromGetMe>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to log out from the cloud Bot API server before launching the bot locally. You must log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns True on success. Requires no parameters. */
 	logOut(args?: NoArgs, options?: CallOptions): Promise<true>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns True on success. Requires no parameters. */
 	close(args?: NoArgs, options?: CallOptions): Promise<true>;
 }
@@ -4755,7 +4755,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send text messages. On success, the sent Message is returned. */
 	sendMessage(
 		args: Args.SendMessage,
@@ -4788,7 +4788,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to forward messages of any kind. Service messages can't be forwarded. On success, the sent Message is returned. */
 	forwardMessage(args: Args.ForwardMessage, options?: CallOptions): Promise<Message & Message.BusinessSentMessage>;
 }
@@ -4812,7 +4812,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned. */
 	forwardMessages(args: Args.ForwardMessages, options?: CallOptions): Promise<MessageId[]>;
 }
@@ -4856,7 +4856,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
 	copyMessage(args: Args.CopyMessage, options?: CallOptions): Promise<MessageId>;
 }
@@ -4882,7 +4882,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
 	copyMessages(args: Args.CopyMessages, options?: CallOptions): Promise<MessageId[]>;
 }
@@ -4928,7 +4928,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send photos. On success, the sent Message is returned. */
 	sendPhoto(
 		args: Args.SendPhoto<F>,
@@ -4979,7 +4979,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send live photos. On success, the sent Message is returned. */
 	sendLivePhoto(
 		args: Args.SendLivePhoto<F>,
@@ -5032,7 +5032,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 
   For sending voice messages, use the sendVoice method instead. */
@@ -5083,7 +5083,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
 	sendDocument(
 		args: Args.SendDocument<F>,
@@ -5146,7 +5146,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
 	sendVideo(
 		args: Args.SendVideo<F>,
@@ -5203,7 +5203,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
 	sendAnimation(
 		args: Args.SendAnimation<F>,
@@ -5250,7 +5250,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
 	sendVoice(
 		args: Args.SendVoice<F>,
@@ -5295,7 +5295,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send video messages. On success, the sent Message is returned.
   As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. */
 	sendVideoNote(
@@ -5343,7 +5343,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send paid media. On success, the sent Message is returned. */
 	sendPaidMedia(
 		args: Args.SendPaidMedia<F>,
@@ -5378,7 +5378,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Message objects that were sent is returned. */
 	sendMediaGroup(
 		args: Args.SendMediaGroup<F>,
@@ -5439,7 +5439,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send point on the map. On success, the sent Message is returned. */
 	sendLocation(
 		args: Args.SendLocation | Args.SendLocationEphemeral,
@@ -5492,7 +5492,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send information about a venue. On success, the sent Message is returned. */
 	sendVenue(args: Args.SendVenue, options?: CallOptions): Promise<Message.VenueMessage & Message.BusinessSentMessage>;
 }
@@ -5534,7 +5534,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send phone contacts. On success, the sent Message is returned. */
 	sendContact(
 		args: Args.SendContact,
@@ -5655,7 +5655,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send a native poll. On success, the sent Message is returned. */
 	sendPoll(
 		args:
@@ -5690,7 +5690,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send a checklist on behalf of a connected business account. On success, the sent Message is returned. */
 	sendChecklist(
 		args: Args.SendChecklist,
@@ -5727,7 +5727,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned. */
 	sendDice(args: Args.SendDice, options?: CallOptions): Promise<Message.DiceMessage & Message.BusinessSentMessage>;
 }
@@ -5753,7 +5753,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendMessage with the complete message to persist it in the user's chat. Returns True on success. */
 	sendMessageDraft(args: Args.SendMessageDraft, options?: CallOptions): Promise<true>;
 }
@@ -5782,7 +5782,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
 
   Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use sendChatAction with action = upload_photo. The user will see a "sending photo" status for the bot.
@@ -5804,7 +5804,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the chosen reactions on a message. Service messages of some types can't be reacted to. Automatically forwarded messages from a channel to its discussion group have the same available reactions as messages in the channel. Bots can't use paid reactions. Returns True on success. */
 	setMessageReaction(args: Args.SetMessageReaction, options?: CallOptions): Promise<true>;
 }
@@ -5820,7 +5820,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object. */
 	getUserProfilePhotos(args: Args.GetUserProfilePhotos, options?: CallOptions): Promise<UserProfilePhotos>;
 }
@@ -5836,7 +5836,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get a list of profile audios for a user. Returns a UserProfileAudios object. */
 	getUserProfileAudios(args: Args.GetUserProfileAudios, options?: CallOptions): Promise<UserProfileAudios>;
 }
@@ -5852,7 +5852,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success. */
 	setUserEmojiStatus(args: Args.SetUserEmojiStatus, options?: CallOptions): Promise<true>;
 }
@@ -5864,7 +5864,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
 
   Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received. */
@@ -5875,7 +5875,7 @@ export declare namespace Args {
 	export interface KickChatMember extends BanChatMember {}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success.
 	 * @deprecated Use `banChatMember` instead. */
 	kickChatMember(args: Args.KickChatMember, options?: CallOptions): Promise<true>;
@@ -5894,7 +5894,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	banChatMember(args: Args.BanChatMember, options?: CallOptions): Promise<true>;
 }
@@ -5910,7 +5910,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to unban a previously banned user in a supergroup or channel. The user will not return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be removed from the chat. If you don't want this, use the parameter only_if_banned. Returns True on success. */
 	unbanChatMember(args: Args.UnbanChatMember, options?: CallOptions): Promise<true>;
 }
@@ -5930,7 +5930,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate administrator rights. Pass True for all permissions to lift restrictions from a user. Returns True on success. */
 	restrictChatMember(args: Args.RestrictChatMember, options?: CallOptions): Promise<true>;
 }
@@ -5980,7 +5980,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Pass False for all boolean parameters to demote a user. Returns True on success. */
 	promoteChatMember(args: Args.PromoteChatMember, options?: CallOptions): Promise<true>;
 }
@@ -5996,7 +5996,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns True on success. */
 	setChatAdministratorCustomTitle(args: Args.SetChatAdministratorCustomTitle, options?: CallOptions): Promise<true>;
 }
@@ -6012,7 +6012,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set a tag for a regular member in a group or a supergroup. The bot must be an administrator in the chat for this to work and must have the can_manage_tags administrator right. Returns True on success. */
 	setChatMemberTag(args: Args.SetChatMemberTag, options?: CallOptions): Promise<true>;
 }
@@ -6026,7 +6026,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
 	banChatSenderChat(args: Args.BanChatSenderChat, options?: CallOptions): Promise<true>;
 }
@@ -6040,7 +6040,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to unban a previously banned channel chat in a supergroup or channel. The bot must be an administrator for this to work and must have the appropriate administrator rights. Returns True on success. */
 	unbanChatSenderChat(args: Args.UnbanChatSenderChat, options?: CallOptions): Promise<true>;
 }
@@ -6056,7 +6056,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the can_restrict_members administrator rights. Returns True on success. */
 	setChatPermissions(args: Args.SetChatPermissions, options?: CallOptions): Promise<true>;
 }
@@ -6068,7 +6068,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 
   Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again. */
@@ -6100,7 +6100,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
 	createChatInviteLink(
 		args: Args.CreateChatInviteLink | Args.CreateChatInviteLinkJoinRequest,
@@ -6135,7 +6135,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
 	editChatInviteLink(
 		args: Args.EditChatInviteLink | Args.EditChatInviteLinkJoinRequest,
@@ -6156,7 +6156,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
 	createChatSubscriptionInviteLink(
 		args: Args.CreateChatSubscriptionInviteLink,
@@ -6175,7 +6175,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object. */
 	editChatSubscriptionInviteLink(
 		args: Args.EditChatSubscriptionInviteLink,
@@ -6192,7 +6192,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object. */
 	revokeChatInviteLink(args: Args.RevokeChatInviteLink, options?: CallOptions): Promise<ChatInviteLink>;
 }
@@ -6206,7 +6206,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to approve a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
 	approveChatJoinRequest(args: Args.ApproveChatJoinRequest, options?: CallOptions): Promise<true>;
 }
@@ -6220,7 +6220,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to decline a chat join request. The bot must be an administrator in the chat for this to work and must have the can_invite_users administrator right. Returns True on success. */
 	declineChatJoinRequest(args: Args.DeclineChatJoinRequest, options?: CallOptions): Promise<true>;
 }
@@ -6234,7 +6234,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to process a received chat join request query. Returns True on success. */
 	answerChatJoinRequestQuery(args: Args.AnswerChatJoinRequestQuery, options?: CallOptions): Promise<true>;
 }
@@ -6248,7 +6248,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns True on success. */
 	sendChatJoinRequestWebApp(args: Args.SendChatJoinRequestWebApp, options?: CallOptions): Promise<true>;
 }
@@ -6262,7 +6262,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	setChatPhoto(args: Args.SetChatPhoto<F>, options?: CallOptions): Promise<true>;
 }
@@ -6274,7 +6274,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	deleteChatPhoto(args: Args.DeleteChatPhoto, options?: CallOptions): Promise<true>;
 }
@@ -6288,7 +6288,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	setChatTitle(args: Args.SetChatTitle, options?: CallOptions): Promise<true>;
 }
@@ -6302,7 +6302,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	setChatDescription(args: Args.SetChatDescription, options?: CallOptions): Promise<true>;
 }
@@ -6320,7 +6320,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to add a message to the list of pinned messages in a chat. In private chats and channel direct messages chats, all non-service messages can be pinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to pin messages in groups and channels respectively. Returns True on success. */
 	pinChatMessage(args: Args.PinChatMessage, options?: CallOptions): Promise<true>;
 }
@@ -6343,7 +6343,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to remove a message from the list of pinned messages in a chat. In private chats and channel direct messages chats, all messages can be unpinned. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin messages in groups and channels respectively. Returns True on success. */
 	unpinChatMessage(args: Args.UnpinChatMessage | Args.UnpinChatMessageBusiness, options?: CallOptions): Promise<true>;
 }
@@ -6355,7 +6355,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to clear the list of pinned messages in a chat. In private chats and channel direct messages chats, no additional rights are required to unpin all pinned messages. Conversely, the bot must be an administrator with the 'can_pin_messages' right or the 'can_edit_messages' right to unpin all pinned messages in groups and channels respectively. Returns True on success. */
 	unpinAllChatMessages(args: Args.UnpinAllChatMessages, options?: CallOptions): Promise<true>;
 }
@@ -6367,7 +6367,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method for your bot to leave a group, supergroup or channel. Returns True on success. */
 	leaveChat(args: Args.LeaveChat, options?: CallOptions): Promise<true>;
 }
@@ -6379,7 +6379,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get up-to-date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a Chat object on success. */
 	getChat(args: Args.GetChat, options?: CallOptions): Promise<ChatFullInfo>;
 }
@@ -6393,7 +6393,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects. */
 	getChatAdministrators(
 		args: Args.GetChatAdministrators,
@@ -6405,7 +6405,7 @@ export declare namespace Args {
 	export interface GetChatMembersCount extends GetChatMemberCount {}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the number of members in a chat. Returns Int on success.
 	 * @deprecated Use `getChatMemberCount` instead. */
 	getChatMembersCount(args: Args.GetChatMembersCount, options?: CallOptions): Promise<number>;
@@ -6418,7 +6418,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the number of members in a chat. Returns Int on success. */
 	getChatMemberCount(args: Args.GetChatMemberCount, options?: CallOptions): Promise<number>;
 }
@@ -6432,7 +6432,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success. */
 	getChatMember(args: Args.GetChatMember, options?: CallOptions): Promise<ChatMember>;
 }
@@ -6446,7 +6446,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of Message objects is returned. */
 	getUserPersonalChatMessages(args: Args.GetUserPersonalChatMessages, options?: CallOptions): Promise<Message[]>;
 }
@@ -6460,7 +6460,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set ly returned in getChat requests to check if the bot can use this method. Returns True on success. */
 	setChatStickerSet(args: Args.SetChatStickerSet, options?: CallOptions): Promise<true>;
 }
@@ -6472,12 +6472,12 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set ly returned in getChat requests to check if the bot can use this method. Returns True on success. */
 	deleteChatStickerSet(args: Args.DeleteChatStickerSet, options?: CallOptions): Promise<true>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
 	getForumTopicIconStickers(args?: NoArgs, options?: CallOptions): Promise<Sticker[]>;
 }
@@ -6495,7 +6495,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a ForumTopic object. */
 	createForumTopic(args: Args.CreateForumTopic, options?: CallOptions): Promise<ForumTopic>;
 }
@@ -6513,7 +6513,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 	editForumTopic(args: Args.EditForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6527,7 +6527,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to close an open topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 	closeForumTopic(args: Args.CloseForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6541,7 +6541,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to reopen a closed topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 	reopenForumTopic(args: Args.ReopenForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6555,7 +6555,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success. */
 	deleteForumTopic(args: Args.DeleteForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6569,7 +6569,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
 	unpinAllForumTopicMessages(args: Args.UnpinAllForumTopicMessages, options?: CallOptions): Promise<true>;
 }
@@ -6583,7 +6583,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success. */
 	editGeneralForumTopic(args: Args.EditGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6595,7 +6595,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to close an open 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
 	closeGeneralForumTopic(args: Args.CloseGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6607,7 +6607,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to reopen a closed 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically unhidden if it was hidden. Returns True on success. */
 	reopenGeneralForumTopic(args: Args.ReopenGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6619,7 +6619,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to hide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. The topic will be automatically closed if it was open. Returns True on success. */
 	hideGeneralForumTopic(args: Args.HideGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6631,7 +6631,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to unhide the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
 	unhideGeneralForumTopic(args: Args.UnhideGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
@@ -6643,7 +6643,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to clear the list of pinned messages in a General forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
 	unpinAllGeneralForumTopicMessages(args: Args.UnpinAllGeneralForumTopicMessages, options?: CallOptions): Promise<true>;
 }
@@ -6665,7 +6665,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
 
   Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via @BotFather and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
@@ -6681,7 +6681,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to reply to a received guest message. On success, a SentGuestMessage object is returned. */
 	answerGuestQuery(args: Args.AnswerGuestQuery, options?: CallOptions): Promise<SentGuestMessage>;
 }
@@ -6695,7 +6695,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
 	getUserChatBoosts(args: Args.GetUserChatBoosts, options?: CallOptions): Promise<UserChatBoosts>;
 }
@@ -6707,7 +6707,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	getBusinessConnection(args: Args.GetBusinessConnection, options?: CallOptions): Promise<BusinessConnection>;
 }
 
@@ -6718,7 +6718,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the token of a managed bot. Returns the token as String on success. */
 	getManagedBotToken(args: Args.GetManagedBotToken, options?: CallOptions): Promise<string>;
 }
@@ -6730,7 +6730,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to revoke the current token of a managed bot and generate a new one. Returns the new token as String on success. */
 	replaceManagedBotToken(args: Args.ReplaceManagedBotToken, options?: CallOptions): Promise<string>;
 }
@@ -6742,7 +6742,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the access settings of a managed bot. Returns a BotAccessSettings object on success. */
 	getManagedBotAccessSettings(
 		args: Args.GetManagedBotAccessSettings,
@@ -6761,7 +6761,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the access settings of a managed bot. Returns True on success. */
 	setManagedBotAccessSettings(args: Args.SetManagedBotAccessSettings, options?: CallOptions): Promise<true>;
 }
@@ -6777,7 +6777,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
 	setMyCommands(args: Args.SetMyCommands, options?: CallOptions): Promise<true>;
 }
@@ -6791,7 +6791,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
 	deleteMyCommands(args: Args.DeleteMyCommands, options?: CallOptions): Promise<true>;
 }
@@ -6805,7 +6805,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned. */
 	getMyCommands(args: Args.GetMyCommands, options?: CallOptions): Promise<BotCommand[]>;
 }
@@ -6819,7 +6819,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the bot's name. Returns True on success. */
 	setMyName(args: Args.SetMyName, options?: CallOptions): Promise<true>;
 }
@@ -6831,7 +6831,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current bot name for the given user language. Returns BotName on success. */
 	getMyName(args: Args.GetMyName, options?: CallOptions): Promise<BotName>;
 }
@@ -6845,7 +6845,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the bot's description, which is shown in the chat with the bot if the chat is empty. Returns True on success. */
 	setMyDescription(args: Args.SetMyDescription, options?: CallOptions): Promise<true>;
 }
@@ -6857,7 +6857,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current bot description for the given user language. Returns BotDescription on success. */
 	getMyDescription(args: Args.GetMyDescription, options?: CallOptions): Promise<BotDescription>;
 }
@@ -6871,7 +6871,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the bot's short description, which is shown on the bot's profile page and is sent together with the link when users share the bot. Returns True on success. */
 	setMyShortDescription(args: Args.SetMyShortDescription, options?: CallOptions): Promise<true>;
 }
@@ -6883,7 +6883,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success. */
 	getMyShortDescription(args: Args.GetMyShortDescription, options?: CallOptions): Promise<BotShortDescription>;
 }
@@ -6895,12 +6895,12 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the profile photo of the bot. Returns True on success. */
 	setMyProfilePhoto(args: Args.SetMyProfilePhoto<F>, options?: CallOptions): Promise<true>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Removes the profile photo of the bot. Requires no parameters. Returns True on success. */
 	removeMyProfilePhoto(args?: NoArgs, options?: CallOptions): Promise<true>;
 }
@@ -6914,7 +6914,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the bot's menu button in a private chat, or the default menu button. Returns True on success. */
 	setChatMenuButton(args: Args.SetChatMenuButton, options?: CallOptions): Promise<true>;
 }
@@ -6926,7 +6926,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success. */
 	getChatMenuButton(args: Args.GetChatMenuButton, options?: CallOptions): Promise<MenuButton>;
 }
@@ -6940,7 +6940,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the default administrator rights requested by the bot when it's added as an administrator to groups or channels. These rights will be suggested to users, but they are free to modify the list before adding the bot. Returns True on success. */
 	setMyDefaultAdministratorRights(args: Args.SetMyDefaultAdministratorRights, options?: CallOptions): Promise<true>;
 }
@@ -6952,7 +6952,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success. */
 	getMyDefaultAdministratorRights(
 		args: Args.GetMyDefaultAdministratorRights,
@@ -6960,7 +6960,7 @@ export interface BotMethods<F> {
 	): Promise<ChatAdministratorRights>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
 	getAvailableGifts(args?: NoArgs, options?: CallOptions): Promise<Gifts>;
 }
@@ -6991,7 +6991,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Sends a gift to the given user or channel chat. The gift can't be converted to Telegram Stars by the receiver. Returns True on success. */
 	sendGift(args: Args.SendGift | Args.SendGiftToChat, options?: CallOptions): Promise<true>;
 }
@@ -7013,7 +7013,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Gifts a Telegram Premium subscription to the given user. Returns True on success. */
 	giftPremiumSubscription(args: Args.GiftPremiumSubscription, options?: CallOptions): Promise<true>;
 }
@@ -7027,7 +7027,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Verifies a user on behalf of the organization which is represented by the bot. Returns True on success. */
 	verifyUser(args: Args.VerifyUser, options?: CallOptions): Promise<true>;
 }
@@ -7041,7 +7041,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success. */
 	verifyChat(args: Args.VerifyChat, options?: CallOptions): Promise<true>;
 }
@@ -7053,7 +7053,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success. */
 	removeUserVerification(args: Args.RemoveUserVerification, options?: CallOptions): Promise<true>;
 }
@@ -7065,7 +7065,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success. */
 	removeChatVerification(args: Args.RemoveChatVerification, options?: CallOptions): Promise<true>;
 }
@@ -7081,7 +7081,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Marks incoming message as read on behalf of a business account. Requires the can_read_messages business bot right. Returns True on success. */
 	readBusinessMessage(args: Args.ReadBusinessMessage, options?: CallOptions): Promise<true>;
 }
@@ -7095,7 +7095,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Delete messages on behalf of a business account. Requires the can_delete_sent_messages business bot right to delete messages sent by the bot itself, or the can_delete_all_messages business bot right to delete any message. Returns True on success. */
 	deleteBusinessMessages(args: Args.DeleteBusinessMessages, options?: CallOptions): Promise<true>;
 }
@@ -7111,7 +7111,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the first and last name of a managed business account. Requires the can_change_name business bot right. Returns True on success. */
 	setBusinessAccountName(args: Args.SetBusinessAccountName, options?: CallOptions): Promise<true>;
 }
@@ -7125,7 +7125,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the username of a managed business account. Requires the can_change_username business bot right. Returns True on success. */
 	setBusinessAccountUsername(args: Args.SetBusinessAccountUsername, options?: CallOptions): Promise<true>;
 }
@@ -7139,7 +7139,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the bio of a managed business account. Requires the can_change_bio business bot right. Returns True on success. */
 	setBusinessAccountBio(args: Args.SetBusinessAccountBio, options?: CallOptions): Promise<true>;
 }
@@ -7155,7 +7155,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success. */
 	setBusinessAccountProfilePhoto(args: Args.SetBusinessAccountProfilePhoto<F>, options?: CallOptions): Promise<true>;
 }
@@ -7169,7 +7169,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Removes the current profile photo of a managed business account. Requires the can_edit_profile_photo business bot right. Returns True on success. */
 	removeBusinessAccountProfilePhoto(args: Args.RemoveBusinessAccountProfilePhoto, options?: CallOptions): Promise<true>;
 }
@@ -7185,7 +7185,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Changes the privacy settings pertaining to incoming gifts in a managed business account. Requires the can_change_gift_settings business bot right. Returns True on success. */
 	setBusinessAccountGiftSettings(args: Args.SetBusinessAccountGiftSettings, options?: CallOptions): Promise<true>;
 }
@@ -7197,7 +7197,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the amount of Telegram Stars owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns StarAmount on success. */
 	getBusinessAccountStarBalance(args: Args.GetBusinessAccountStarBalance, options?: CallOptions): Promise<StarAmount>;
 }
@@ -7211,7 +7211,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Transfers Telegram Stars from the business account balance to the bot's balance. Requires the can_transfer_stars business bot right. Returns True on success. */
 	transferBusinessAccountStars(args: Args.TransferBusinessAccountStars, options?: CallOptions): Promise<true>;
 }
@@ -7246,7 +7246,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the gifts received and owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns OwnedGifts on success. */
 	getBusinessAccountGifts(args: Args.GetBusinessAccountGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
@@ -7274,7 +7274,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the gifts owned and hosted by a user. Returns OwnedGifts on success. */
 	getUserGifts(args: Args.GetUserGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
@@ -7306,7 +7306,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the gifts owned by a chat. Returns OwnedGifts on success. */
 	getChatGifts(args: Args.GetChatGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
@@ -7320,7 +7320,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Converts a given regular gift to Telegram Stars. Requires the can_convert_gifts_to_stars business bot right. Returns True on success. */
 	convertGiftToStars(args: Args.ConvertGiftToStars, options?: CallOptions): Promise<true>;
 }
@@ -7338,7 +7338,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Upgrades a given regular gift to a unique gift. Requires the can_transfer_and_upgrade_gifts business bot right. Additionally requires the can_transfer_stars business bot right if the upgrade is paid. Returns True on success. */
 	upgradeGift(args: Args.UpgradeGift, options?: CallOptions): Promise<true>;
 }
@@ -7356,7 +7356,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts business bot right. Requires can_transfer_stars business bot right if the transfer is paid. Returns True on success. */
 	transferGift(args: Args.TransferGift, options?: CallOptions): Promise<true>;
 }
@@ -7384,7 +7384,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
 	postStory(args: Args.PostStory<F>, options?: CallOptions): Promise<Story>;
 }
@@ -7406,7 +7406,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success. */
 	repostStory(args: Args.RepostStory, options?: CallOptions): Promise<Story>;
 }
@@ -7430,7 +7430,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
 	editStory(args: Args.EditStory<F>, options?: CallOptions): Promise<Story>;
 }
@@ -7444,7 +7444,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Deletes a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns True on success. */
 	deleteStory(args: Args.DeleteStory, options?: CallOptions): Promise<true>;
 }
@@ -7458,7 +7458,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
 	answerWebAppQuery(args: Args.AnswerWebAppQuery, options?: CallOptions): Promise<SentWebAppMessage>;
 }
@@ -7480,7 +7480,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
 	savePreparedInlineMessage(
 		args: Args.SavePreparedInlineMessage,
@@ -7497,7 +7497,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Stores a keyboard button that can be used by a user within a Mini App. Returns a PreparedKeyboardButton object. */
 	savePreparedKeyboardButton(
 		args: Args.SavePreparedKeyboardButton,
@@ -7562,7 +7562,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	// TODO: in v6, add `Message.GameMessage` to the result. The method edits `Game.text` too, and
 	// adding it breaks code that reads `text` off the result without narrowing.
 	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
@@ -7619,7 +7619,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageCaption(
 		args: Args.EditMessageCaption,
@@ -7659,7 +7659,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(
 		args: Args.EditMessageMedia<F>,
@@ -7709,7 +7709,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	editMessageLiveLocation(
 		args: Args.EditMessageLiveLocation,
@@ -7747,7 +7747,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
 	stopMessageLiveLocation(
 		args: Args.StopMessageLiveLocation,
@@ -7773,7 +7773,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned. */
 	editMessageChecklist(
 		args: Args.EditMessageChecklist,
@@ -7808,7 +7808,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageReplyMarkup(
 		args: Args.EditMessageReplyMarkup,
@@ -7832,7 +7832,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
 	stopPoll(args: Args.StopPoll, options?: CallOptions): Promise<Poll>;
 }
@@ -7867,7 +7867,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit an ephemeral text or rich message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
 	editEphemeralMessageText(
 		args: Args.EditEphemeralMessageText | Args.EditEphemeralMessageTextRich<F>,
@@ -7890,7 +7890,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit the media of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
 	editEphemeralMessageMedia(args: Args.EditEphemeralMessageMedia<F>, options?: CallOptions): Promise<true>;
 }
@@ -7916,7 +7916,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit the caption of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
 	editEphemeralMessageCaption(args: Args.EditEphemeralMessageCaption, options?: CallOptions): Promise<true>;
 }
@@ -7934,7 +7934,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to edit only the reply markup of an ephemeral message. Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline. On success, True is returned. */
 	editEphemeralMessageReplyMarkup(args: Args.EditEphemeralMessageReplyMarkup, options?: CallOptions): Promise<true>;
 }
@@ -7950,7 +7950,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to approve a suggested post in a direct messages chat. The bot must have the 'can_post_messages' administrator right in the corresponding channel chat. Returns True on success. */
 	approveSuggestedPost(args: Args.ApproveSuggestedPost, options?: CallOptions): Promise<true>;
 }
@@ -7966,7 +7966,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to decline a suggested post in a direct messages chat. The bot must have the 'can_manage_direct_messages' administrator right in the corresponding channel chat. Returns True on success. */
 	declineSuggestedPost(args: Args.DeclineSuggestedPost, options?: CallOptions): Promise<true>;
 }
@@ -7980,7 +7980,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a message, including service messages, with the following limitations:
   - A message can only be deleted if it was sent less than 48 hours ago.
   - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
@@ -8003,7 +8003,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete multiple messages simultaneously. If some of the specified messages can't be found, they are skipped. Returns True on success. */
 	deleteMessages(args: Args.DeleteMessages, options?: CallOptions): Promise<true>;
 }
@@ -8019,7 +8019,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete an ephemeral message. Note that it is not guaranteed that the user will receive the message deletion event, especially if they are offline. Returns True on success. */
 	deleteEphemeralMessage(args: Args.DeleteEphemeralMessage, options?: CallOptions): Promise<true>;
 }
@@ -8037,7 +8037,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to remove a reaction from a message in a group or a supergroup chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
 	deleteMessageReaction(args: Args.DeleteMessageReaction, options?: CallOptions): Promise<true>;
 }
@@ -8053,7 +8053,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to remove up to 10000 recent reactions in a group or a supergroup chat added by a given user or chat. The bot must have the 'can_delete_messages' administrator right in the chat. Returns True on success. */
 	deleteAllMessageReactions(args: Args.DeleteAllMessageReactions, options?: CallOptions): Promise<true>;
 }
@@ -8132,7 +8132,7 @@ export interface InputSticker<F> {
 	keywords?: string[];
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SendSticker<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -8166,7 +8166,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
 	sendSticker(
 		args: Args.SendSticker<F>,
@@ -8181,7 +8181,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get a sticker set. On success, a StickerSet object is returned. */
 	getStickerSet(args: Args.GetStickerSet, options?: CallOptions): Promise<StickerSet>;
 }
@@ -8193,7 +8193,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects. */
 	getCustomEmojiStickers(args: Args.GetCustomEmojiStickers, options?: CallOptions): Promise<Sticker[]>;
 }
@@ -8209,7 +8209,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success. */
 	uploadStickerFile(args: Args.UploadStickerFile<F>, options?: CallOptions): Promise<File>;
 }
@@ -8231,7 +8231,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. Returns True on success. */
 	createNewStickerSet(args: Args.CreateNewStickerSet<F>, options?: CallOptions): Promise<true>;
 }
@@ -8247,7 +8247,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to add a new sticker to a set created by the bot. Emoji sticker sets can have up to 200 stickers. Other sticker sets can have up to 120 stickers. Returns True on success. */
 	addStickerToSet(args: Args.AddStickerToSet<F>, options?: CallOptions): Promise<true>;
 }
@@ -8261,7 +8261,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to move a sticker in a set created by the bot to a specific position. Returns True on success. */
 	setStickerPositionInSet(args: Args.SetStickerPositionInSet, options?: CallOptions): Promise<true>;
 }
@@ -8273,7 +8273,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a sticker from a set created by the bot. Returns True on success. */
 	deleteStickerFromSet(args: Args.DeleteStickerFromSet, options?: CallOptions): Promise<true>;
 }
@@ -8291,7 +8291,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success. */
 	replaceStickerInSet(args: Args.ReplaceStickerInSet<F>, options?: CallOptions): Promise<true>;
 }
@@ -8305,7 +8305,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the list of emoji assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success. */
 	setStickerEmojiList(args: Args.SetStickerEmojiList, options?: CallOptions): Promise<true>;
 }
@@ -8319,7 +8319,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change search keywords assigned to a regular or custom emoji sticker. The sticker must belong to a sticker set created by the bot. Returns True on success. */
 	setStickerKeywords(args: Args.SetStickerKeywords, options?: CallOptions): Promise<true>;
 }
@@ -8333,7 +8333,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success. */
 	setStickerMaskPosition(args: Args.SetStickerMaskPosition, options?: CallOptions): Promise<true>;
 }
@@ -8347,7 +8347,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set the title of a created sticker set. Returns True on success. */
 	setStickerSetTitle(args: Args.SetStickerSetTitle, options?: CallOptions): Promise<true>;
 }
@@ -8365,7 +8365,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set the thumbnail of a regular or mask sticker set. The format of the thumbnail file must match the format of the stickers in the set. Returns True on success. */
 	setStickerSetThumbnail(args: Args.SetStickerSetThumbnail<F>, options?: CallOptions): Promise<true>;
 }
@@ -8379,7 +8379,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set the thumbnail of a custom emoji sticker set. Returns True on success. */
 	setCustomEmojiStickerSetThumbnail(args: Args.SetCustomEmojiStickerSetThumbnail, options?: CallOptions): Promise<true>;
 }
@@ -8391,7 +8391,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to delete a sticker set that was created by the bot. Returns True on success. */
 	deleteStickerSet(args: Args.DeleteStickerSet, options?: CallOptions): Promise<true>;
 }
@@ -8451,7 +8451,7 @@ export interface InputRichMessageMedia<F> {
 		| InputMediaVideo<F>
 		| InputMediaVoiceNote<F>;
 }
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SendRichMessage<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages. */
@@ -8483,7 +8483,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent Message is returned. */
 	sendRichMessage(
 		args: Args.SendRichMessage<F>,
@@ -8508,7 +8508,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendRichMessage with the complete message to persist it in the user's chat. Returns True on success. */
 	sendRichMessageDraft(args: Args.SendRichMessageDraft, options?: CallOptions): Promise<true>;
 }
@@ -9536,7 +9536,7 @@ export interface InlineQuery {
 	location?: Location;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface AnswerInlineQuery {
 		/** Unique identifier for the answered query */
@@ -9554,7 +9554,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send answers to an inline query. On success, True is returned.
   No more than 50 results per query are allowed.
 
@@ -10296,7 +10296,7 @@ export interface ChosenInlineResult {
 	query: string;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SendInvoice {
 		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
@@ -10364,7 +10364,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send invoices. On success, the sent Message is returned. */
 	sendInvoice(
 		args: Args.SendInvoice,
@@ -10428,7 +10428,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to create a link for an invoice. Returns the created invoice link as String on success. */
 	createInvoiceLink(
 		args: Args.CreateInvoiceLink | Args.CreateInvoiceLinkSubscription,
@@ -10461,7 +10461,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
 	answerShippingQuery(
 		args: Args.AnswerShippingQuery | Args.AnswerShippingQueryError,
@@ -10487,7 +10487,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
 	answerPreCheckoutQuery(
 		args: Args.AnswerPreCheckoutQuery | Args.AnswerPreCheckoutQueryError,
@@ -10495,7 +10495,7 @@ export interface BotMethods<F> {
 	): Promise<true>;
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
 	getMyStarBalance(args?: NoArgs, options?: CallOptions): Promise<StarAmount>;
 }
@@ -10509,7 +10509,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
 	getStarTransactions(args: Args.GetStarTransactions, options?: CallOptions): Promise<StarTransactions>;
 }
@@ -10523,7 +10523,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Refunds a successful payment in Telegram Stars. Returns True on success. */
 	refundStarPayment(args: Args.RefundStarPayment, options?: CallOptions): Promise<true>;
 }
@@ -10539,7 +10539,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Allows the bot to cancel or re-enable extension of a subscription paid in Telegram Stars. Returns True on success. */
 	editUserStarSubscription(args: Args.EditUserStarSubscription, options?: CallOptions): Promise<true>;
 }
@@ -10941,7 +10941,7 @@ export interface EncryptedCredentials {
 	secret: string;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SetPassportDataErrors {
 		/** User identifier */
@@ -10951,7 +10951,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns True on success.
 
   Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues. */
@@ -11108,7 +11108,7 @@ export interface PassportElementErrorUnspecified {
 	message: string;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SendGame {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
@@ -11134,7 +11134,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to send a game. On success, the sent Message is returned. */
 	sendGame(args: Args.SendGame, options?: CallOptions): Promise<Message.GameMessage & Message.BusinessSentMessage>;
 }
@@ -11161,7 +11161,7 @@ export interface CallbackGame {
 	[key: string]: never;
 }
 
-// Methods in documentation order; merged into the exported `BotMethods` interface.
+// Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SetGameScore {
 		/** User identifier */
@@ -11190,7 +11190,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
 	setGameScore(
 		args: Args.SetGameScore,
@@ -11226,7 +11226,7 @@ export declare namespace Args {
 	}
 }
 
-export interface BotMethods<F> {
+export interface BotApi<F> {
 	/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
 
   This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
@@ -11311,9 +11311,9 @@ type Back3<Fn> = Fn extends {
 	: never;
 
 /** Wrapper type to bundle all methods of the Telegram Bot API
- * @deprecated Use `BotMethods` instead. It checks the arguments that depend on each other, which are all optional here. */
+ * @deprecated Use `BotApi` instead. It checks the arguments that depend on each other, which are all optional here. */
 export type ApiMethods<F> = {
-	[K in keyof BotMethods<F>]: Back3<BotMethods<F>[K]>;
+	[K in keyof BotApi<F>]: Back3<BotApi<F>[K]>;
 };
 
 /** Extracts the parameters of a given method name */
@@ -11325,7 +11325,7 @@ export type Opts<F> = {
 	[M in keyof ApiMethods<F>]: Params<F, M>[0] extends undefined ? {} : NonNullable<Params<F, M>[0]>;
 };
 
-/** @deprecated Use `Awaited<ReturnType<BotMethods<F>[M]>>` instead. */
+/** @deprecated Use `Awaited<ReturnType<BotApi<F>[M]>>` instead. */
 export type Ret<F> = {
 	[M in keyof ApiMethods<F>]: ReturnType<ApiMethods<F>[M]>;
 };

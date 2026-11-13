@@ -2,7 +2,7 @@ export type {
 	AbortSignalLike,
 	ApiMethods,
 	Args,
-	BotMethods,
+	BotApi,
 	CallOptions,
 	InputMedia,
 	InputMediaAnimation,
