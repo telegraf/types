@@ -1,10 +1,10 @@
 # Types for the Telegram Bot API
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v9.2-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v10.3-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
 
-This project keeps Telegram Bot API types updated for Telegraf. This project provides TypeScript types for the entire [Telegram Bot API](https://core.telegram.org/bots/api).
+This package provides TypeScript types for the whole [Telegram Bot API](https://core.telegram.org/bots/api), maintained for Telegraf.
 
-It contains zero bytes of executable code.
+The package ships type declarations only.
 
 ## Installation
 
@@ -12,100 +12,142 @@ It contains zero bytes of executable code.
 npm install --save-dev @telegraf/types
 ```
 
-## Available Types
+## Types
 
-Generally, this package just exposes a huge load of `interface`s that correspond to the **types** used throughout the Telegram Bot API.
+Types from the Bot API documentation are declared under the same name, like `Message`, `User` and `InlineKeyboardMarkup`.
 
-Note that the API specification sometimes only has one name for multiple variants of a type, e.g. there are a number of different `Update`s you can receive, but they're all just called `Update`.
-This package represents such types as large unions of all possible options of what an `Update` could be, such that type narrowing can work as expected on your side.
-If you need to access the individual variants of an `Update`, refer to `Update.MessageUpdate` and its siblings.
-
-In fact, this pattern is used for various types, namely:
-
-- `Update`
-- `Message`
-- `CallbackQuery`
-- `Chat`
-- `ChatFromGetChat`
-- `InlineKeyboardButton`
-- `KeyboardButton`
-- `MessageEntity`
-- `Location`
-
-(Naturally, when the API specification is actually modelling types to be unions (e.g. `InlineQueryResult`), this is reflected here as a union type, too.)
-
-## Using API Response objects
-
-The Telegram Bot API does not return just the requested data in the body of the response objects.
-
-Instead, they are wrapped inside an object that has an `ok: boolean` status flag, indicating success or failure of the preceding API request.
-This outer object is modelled in `@telegraf/types` by the `ApiResponse` type.
-
-## Customizing `InputFile` and accessing API methods
-
-The Telegram Bot API lets bots send files in [three different ways](https://core.telegram.org/bots/api#sending-files).
-Two of those ways are by specifying a `string`—either a `file_id` or a URL.
-The third option, however, is by uploading files to the server using multipart/form-data.
-
-The first two means to send a file are already covered by the type annotations across the library.
-In all places where a `file_id` or a URL is permitted, the corresponding property allows a `string`.
-
-We will now look at the type declarations that are relevant for uploading files directly.
-Depending on the code you're using the types for, you may want to support different ways to specify the file to be uploaded.
-As an example, you may want to be able to make calls to `sendDocument` with an object that conforms to `{ path: string }` in order to specify the location of a local file.
-(Your code is then assumed to able to translate calls to `sendDocument` and the like to multipart/form-data uploads when supplied with an object alike `{ path: '/tmp/file.txt' }` in the `document` property of the argument object.)
-
-This library cannot automatically know what objects you want to support as `InputFile`s.
-
-However, you can specify your own version of what an `InputFile` is throughout all affected methods and interfaces.
-
-For instance, let's stick with our example and say that you want to support `InputFile`s of the following type.
+The documentation sometimes has one name for several shapes: there are many kinds of `Update`, and all of them are called `Update`.
+Such a type becomes a union of its variants here, so that it narrows as you check it.
+Variants of a type are written in a namespace named after the type, such as `Update.MessageUpdate` and `Message.TextMessage`.
 
 ```ts
-interface MyInputFile {
-	path: string;
+import type { Update } from "@telegraf/types";
+
+function textOf(update: Update) {
+	if ("message" in update) {
+		// update is Update.MessageUpdate
+		if ("text" in update.message) {
+			// update.message is Message.TextMessage
+			return update.message.text;
+		}
+	}
 }
 ```
 
-You can then customize the types to fit your needs by passing your custom `InputFile` to the `ApiMethods` type.
+The types declared this way are `Update`, `Message`, `Chat`, `ChatFullInfo`, `CallbackQuery`, `MessageEntity`, `InlineKeyboardButton`, `KeyboardButton`, `Location`, `ReplyParameters`, `PollMedia`, `InputRichMessage`, `RichMessageButton` and `TransactionPartnerUser`.
+
+If the documentation describes a union, like `InlineQueryResult`, the type is a union of the documented types.
+
+## Methods
+
+`BotApi` declares all the methods of the Bot API.
+A method takes one object of arguments and returns a `Promise` of its result.
 
 ```ts
-import * as Telegram from "@telegraf/types";
+import type { Args, BotApi } from "@telegraf/types";
 
-type API = Telegram.ApiMethods<MyInputFile>;
+declare const api: BotApi<never>;
+
+const args: Args.SendMessage = { chat_id: 1, text: "Hello" };
+const message = await api.sendMessage({ chat_id: 1, text: "Hello" });
 ```
 
-You can now access all types that must respect `MyInputFile` through the `API` type:
+- `Args` holds the arguments of each method as an interface: `Args.SendMessage`, `Args.GetChat`.
+- Arguments that depend on each other are checked.
+  An edit names a message in a chat or an inline message, not both and not neither.
+- When the result depends on the arguments, so does its type.
+  Example: `editMessageText` returns the edited message for a message in a chat, and `true` for an inline message.
+- A second, optional argument takes `CallOptions`, which holds an abort signal.
+- `BotApi` is an interface and `Args` a namespace of interfaces. You are able to use [Declaration Merging](https://www.typescriptlang.org/docs/handbook/declaration-merging.html) to add new methods or arguments if we're falling behind.
+
+### Files
+
+The Bot API takes a file in [three ways](https://core.telegram.org/bots/api#sending-files): `file_id` for files already on Telegram's servers, a URL for Telegram to download it, or a file upload.
+What an upload looks like depends on the code that sends it.
+
+`BotApi` therefore takes the type of an upload as its parameter, and passes it to fields that can carry a file upload.
 
 ```ts
-// The utility types `Opts` and `Ret`:
-type Opts<M extends keyof API> = Telegram.Opts<MyInputFile>[M];
-type Ret<M extends keyof API> = Telegram.Ret<MyInputFile>[M];
+import type { BotApi, InputMediaPhoto } from "@telegraf/types";
+
+interface LocalFile {
+	path: string;
+}
+
+declare const api: BotApi<LocalFile>;
+
+await api.sendDocument({ chat_id: 1, document: { path: "/tmp/file.txt" } });
+const photo: InputMediaPhoto<LocalFile> = { type: "photo", media: { path: "/tmp/photo.png" } };
 ```
 
-Each method takes just a single argument with a structure that corresponds to the object expected by Telegram.
-If you need to directly access that type, consider using `Opts<M>` where `M` is the method name (e.g. `Opts<'getMe'>`).
+If you pass `never` as the parameter, uploads are not accepted; only strings.
+The types that can carry a file take the same parameter, such as `InputMedia`, `InputSticker` and `InputRichMessage`.
+All other types are not generic.
 
-Each method returns the object that is specified by Telegram.
-If you directly need to access the return type of a method, consider using `Ret<M>` where `M` is the method name (e.g. `Opts<'getMe'>`).
+### Responses
 
-```ts
-// The adjusted `InputMedia*` types:
-type InputMedia = Telegram.InputMedia<MyInputFile>;
-type InputMediaPhoto = Telegram.InputMediaPhoto<MyInputFile>;
-type InputMediaVideo = Telegram.InputMediaVideo<MyInputFile>;
-type InputMediaAnimation = Telegram.InputMediaAnimation<MyInputFile>;
-type InputMediaAudio = Telegram.InputMediaAudio<MyInputFile>;
-type InputMediaDocument = Telegram.InputMediaDocument<MyInputFile>;
-```
+The Bot API wraps every result in an object with an `ok` flag.
+`ApiResponse` is that object: `ApiSuccess` with the result, or `ApiError` with a description.
 
-Note that interfaces other than the ones mentioned above are unaffected by the customization through `MyInputFile`.
-They can simply continue to be imported directly.
+### Deprecated
+
+`ApiMethods`, `Opts` and `Ret` are the older way to reach the methods. They keep working until Telegraf's next major version.
+They are less strict, and do not check arguments that depend on each other: each method takes one object, and every argument that's conditionally accepted is optional.
+
+Use `BotApi`, `Args.<Method>` and `Awaited<ReturnType<BotApi<F>[M]>>` instead. They model the API's behaviour more accurately, restricting types based on the documentation. For instance, `editMessageText` can send text or rich text at a time, but not both (the deprecated types allow sending both at once).
+
+## Compatibility
+
+This package is versioned after the Bot API: 10.3.x of `@telegraf/types` types Bot API 10.3.
+
+### Correctness
+
+The Bot API documentation decides what a type is.
+Whenever it states a rule in the text, such as "required if `inline_message_id` is not specified", our types enforce the rule if TypeScript can express it.
+A rule that can only be enforced by breaking correct code usually waits for a breaking release.
+
+A type that disagrees with the documentation is a bug.
+It can be corrected in any release, patch, minor, or major.
+Code that relied on the mistake will stop compiling, so the bug can be fixed in user code.
+
+### Deprecations
+
+- A renamed type keeps its old name as a deprecated alias.
+  Example: `type PrivateGetChat = ChatFullInfo.PrivateChat`.
+- A field the Bot API renames or removes is renamed or removed.
+  The old field is not necessarily kept. This may cause new compile errors so users can fix their code, but runtime is unaffected.
+- A deprecated name stays until the next breaking release (see below).
+
+### Breaking changes
+
+Breaking changes beyond the above correctness criteria are made only when Telegraf needs it in a new major version (example: v4 to v6).
+It also waits for a new major version of the Bot API.
+Removing a deprecated type or method is one such change.
+
+Every other release adds to the types, follows a change in the Bot API, or corrects a type.
 
 ## Development
 
-This project is written for Deno and built for Node. Running `npm prepare` runs the deno2node script to build for Node.
+The sources are TypeScript, built with `tsc`.
+[Bun](https://bun.sh) installs the dependencies and runs the scripts.
 
-## Where do the types come from
+```bash
+bun install
+bun run dev     # format, lint and type-check
+bun run test    # the type tests in test/
+bun run build   # emit the declaration files
+```
 
-They're handwritten. [Typegram](https://github.com/KnorpelSenf/typegram) was started by [@KnorpelSenf](https://github.com/KnorpelSenf), who eventually used it as a starting point for grammY's [types](https://github.com/grammyjs/types) package. `@telegraf/types` started as a fork of Typegram, specialised for Telegraf. It is now independently maintained and updated from the Bot API directly.
+`types.ts` holds all the type declarations in the same order as the Bot API documentation.
+The other files re-export from it, one per subpath, such as `@telegraf/types/message`.
+This is for backwards compatibility, and will be broken when Telegraf and types release a new major version.
+If you depend on this package directly, start using `@telegraf/types` directly now.
+
+## Origin
+
+The types are written by hand and checked against the Bot API documentation.
+
+[Typegram](https://github.com/KnorpelSenf/typegram) was originally created by [@KnorpelSenf](https://github.com/KnorpelSenf), a former Telegraf contributor, and Telegraf depended on it.
+Typegram was used as the starting point of grammY's [types](https://github.com/grammyjs/types) package.
+`@telegraf/types` was forked from Typegram for Telegraf to maintain its own types independently.
+It is now updated from the Bot API directly.

@@ -1,1 +1,1 @@
-export type { ApiError, ApiResponse, ApiSuccess, ResponseParameters } from "./bot-api.js";
+export type { ApiError, ApiResponse, ApiSuccess, ResponseParameters } from "./types.js";
