@@ -3,6 +3,7 @@ export type {
 	AbstractChatMember,
 	AbstractReactionType,
 	AcceptedGiftTypes,
+	AreaPosition,
 	Birthdate,
 	BotAccessSettings,
 	BotCommand,

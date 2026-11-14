@@ -3,6 +3,7 @@ import type {
 	AbstractChatMember,
 	AbstractReactionType,
 	AcceptedGiftTypes,
+	AreaPosition,
 	BotCommand,
 	Chat,
 	ChatAdministratorRights,
@@ -34,6 +35,8 @@ import type {
 	ReactionType,
 	ReactionTypeCustomEmoji,
 	ReactionTypeEmoji,
+	StoryArea,
+	StoryAreaPosition,
 	TelegramEmoji,
 	User,
 	UserChatBoosts,
@@ -800,6 +803,24 @@ export type BoostFields = Assert<
 
 // @ts-expect-error — a premium boost names its user
 export const premiumWithoutUser: ChatBoostSourcePremium = { source: "premium" };
+
+// Story areas
+
+export const storyAreaPosition: StoryAreaPosition = {
+	x_percentage: 50,
+	y_percentage: 40,
+	width_percentage: 30,
+	height_percentage: 10,
+	rotation_angle: 0,
+	corner_radius_percentage: 2,
+};
+
+export const storyArea: StoryArea = {
+	position: storyAreaPosition,
+	type: { type: "link", url: "https://telegraf.js.org" },
+};
+
+export type StoryAreaPositionName = Assert<Equal<StoryAreaPosition, AreaPosition>>;
 
 // Required fields
 
