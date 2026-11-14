@@ -5,6 +5,11 @@ on:
     tags:
       - v*
 
+permissions:
+  contents: read
+  # npm takes the OIDC token of the run in place of a stored token: trusted publishing.
+  id-token: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -14,6 +19,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+      # Trusted publishing needs npm 11.5.1 or later, which Node 24 bundles and Node 22 does not.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
       # --ignore-scripts so `prepare` does not run here; the build is an explicit step
       # below, which keeps a build failure distinguishable from an install failure.
@@ -22,8 +33,4 @@ jobs:
 
       # npm is used only to publish — bun does the install and build.
       - name: Publish to npm
-        run: |
-          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-          npm publish --ignore-scripts --access=public
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --ignore-scripts --access=public
