@@ -52,6 +52,7 @@ export type {
 	ExternalReplyVideo,
 	ExternalReplyVideoNote,
 	ExternalReplyVoice,
+	ExternalReplyWidget,
 	ForumTopicClosed,
 	ForumTopicCreated,
 	ForumTopicEdited,
@@ -190,5 +191,6 @@ export type {
 	VideoQuality,
 	Voice,
 	WebAppData,
+	Widget,
 	WriteAccessAllowed,
 } from "./types.js";

@@ -11,10 +11,14 @@ import type {
 	LoginUrl,
 	ReplyKeyboardMarkup,
 	ReplyKeyboardRemove,
+	SharedWidgetQuery,
 	SwitchInlineQueryChosenChat,
 	WebAppInfo,
+	WidgetQuery,
+	WidgetQueryType,
+	WidgetQueryWallet,
 } from "../markup.ts";
-import type { Assert, Equal, Extends, RequiredKeys } from "./assert.ts";
+import { type Assert, type Equal, expectType, type Extends, type RequiredKeys } from "./assert.ts";
 
 // Inline keyboards
 
@@ -206,6 +210,116 @@ export const queryWithoutPayload: CallbackQuery = {
 	id: "4382bfdwdsb323b2dc",
 	from: { id: 123456789, is_bot: false, first_name: "Erika" },
 	chat_instance: "-4237498273498",
+};
+
+// Widget queries
+
+export const widgetQueryWallet: WidgetQueryWallet = {
+	address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+	amount: "2500000000",
+};
+
+export const messageWidgetQuery: WidgetQuery = {
+	id: "7c1d0a52b6e94f02",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	chat: { id: 123456789, type: "private", first_name: "Erika" },
+	message_id: 7,
+	chat_instance: "-4237498273498",
+	type: { type: "data" },
+	data: "refresh:berlin",
+	widget_id: "AQADwidget",
+};
+
+export const inlineWidgetQuery: WidgetQuery = {
+	id: "7c1d0a52b6e94f03",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	inline_message_id: "AgAAAPx",
+	chat_instance: "-4237498273498",
+	chat_type: "sender",
+	type: { type: "sign_data", wallet: widgetQueryWallet, sign_data: '{"type":"text","text":"Confirm"}' },
+	data: "sign",
+};
+
+export const sharedWidgetQuery: SharedWidgetQuery = {
+	id: "7c1d0a52b6e94f04",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	type: { type: "data" },
+	data: "refresh:berlin",
+	widget_id: "AQADwidget",
+};
+
+// A widget is in a chat message or in an inline message, and `inline_message_id` tells which.
+export function messageOf(query: WidgetQuery) {
+	if (query.inline_message_id === undefined) {
+		expectType<WidgetQuery.MessageQuery>()(query);
+		return { chat_id: query.chat.id, message_id: query.message_id };
+	}
+	expectType<WidgetQuery.InlineMessageQuery>()(query);
+	return { inline_message_id: query.inline_message_id };
+}
+
+// Each variant declares the fields of the other as undefined, so they can be read before narrowing.
+export type WidgetQueryFields = Assert<
+	Equal<
+		[WidgetQuery["message_id"], WidgetQuery["inline_message_id"], WidgetQuery["chat_type"]],
+		[number | undefined, string | undefined, "sender" | "private" | "group" | "supergroup" | "channel" | undefined]
+	>
+>;
+
+export type WidgetQueryRequiredFields = Assert<
+	Equal<
+		[
+			Extends<"chat" | "message_id", RequiredKeys<WidgetQuery.MessageQuery>>,
+			Extends<"inline_message_id" | "chat_type", RequiredKeys<WidgetQuery.InlineMessageQuery>>,
+		],
+		[true, true]
+	>
+>;
+
+export type InlineWidgetQueryFields = Assert<
+	Equal<[WidgetQuery.InlineMessageQuery["chat"], WidgetQuery.InlineMessageQuery["message_id"]], [undefined, undefined]>
+>;
+
+// @ts-expect-error — a widget can't be in a chat message and in an inline message at once
+export const widgetQueryInBothMessages: WidgetQuery = { ...messageWidgetQuery, inline_message_id: "AgAAAPx" };
+
+// @ts-expect-error — a query names the message that contains its widget
+export const widgetQueryWithoutMessage: WidgetQuery = {
+	id: "7c1d0a52b6e94f06",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	chat_instance: "-4237498273498",
+	type: { type: "data" },
+	data: "refresh:berlin",
+};
+
+// @ts-expect-error — a query from a widget in an inline message states the type of its chat
+export const inlineWidgetQueryWithoutChatType: WidgetQuery = {
+	id: "7c1d0a52b6e94f07",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	inline_message_id: "AgAAAPx",
+	chat_instance: "-4237498273498",
+	type: { type: "data" },
+	data: "refresh:berlin",
+};
+
+// @ts-expect-error — the chat type is given for widgets in inline messages only
+export const messageWidgetQueryWithChatType: WidgetQuery.MessageQuery = { ...messageWidgetQuery, chat_type: "group" };
+
+export function walletOf(type: WidgetQueryType) {
+	if (type.type === "data") return undefined;
+	return type.wallet;
+}
+
+export type WalletOfResult = Assert<Equal<ReturnType<typeof walletOf>, WidgetQueryWallet | undefined>>;
+
+export type WidgetQueryTypes = Assert<Equal<WidgetQueryType["type"], "data" | "sign_data" | "sent_transaction">>;
+
+// @ts-expect-error — a query from a shared widget names the widget
+export const sharedWidgetQueryWithoutWidget: SharedWidgetQuery = {
+	id: "7c1d0a52b6e94f05",
+	from: { id: 123456789, is_bot: false, first_name: "Erika" },
+	type: { type: "data" },
+	data: "refresh:berlin",
 };
 
 // Reply keyboards

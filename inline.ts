@@ -31,6 +31,8 @@ export type {
 	InputLocationMessageContent,
 	InputMessageContent,
 	InputRichMessageContent,
+	InputSharedWidgetMessageContent,
 	InputTextMessageContent,
 	InputVenueMessageContent,
+	InputWidgetMessageContent,
 } from "./types.js";

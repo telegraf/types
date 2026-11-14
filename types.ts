@@ -95,6 +95,14 @@ export declare namespace Update {
 		/** New incoming callback query */
 		callback_query: C;
 	}
+	export interface WidgetQueryUpdate extends AbstractUpdate {
+		/** New incoming query from a widget in a message sent by the bot or via the bot */
+		widget_query: WidgetQuery;
+	}
+	export interface SharedWidgetQueryUpdate extends AbstractUpdate {
+		/** New incoming query from a forwarded message with a shared widget */
+		shared_widget_query: SharedWidgetQuery;
+	}
 	export interface ShippingQueryUpdate extends AbstractUpdate {
 		/** New incoming shipping query. Only for invoices with flexible price */
 		shipping_query: ShippingQuery;
@@ -167,6 +175,8 @@ export type Update =
 	| Update.InlineQueryUpdate
 	| Update.ChosenInlineResultUpdate
 	| Update.CallbackQueryUpdate
+	| Update.WidgetQueryUpdate
+	| Update.SharedWidgetQueryUpdate
 	| Update.ShippingQueryUpdate
 	| Update.PreCheckoutQueryUpdate
 	| Update.PurchasedPaidMediaUpdate
@@ -745,7 +755,8 @@ export type CommonMessageBundle =
 	| Message.VenueMessage
 	| Message.VideoMessage
 	| Message.VideoNoteMessage
-	| Message.VoiceMessage;
+	| Message.VoiceMessage
+	| Message.WidgetMessage;
 
 /** Helper type that represents a message which occurs in a `reply_to_message` field. */
 type ReplyMessage = ServiceMessageBundle | (CommonMessageBundle & { reply_to_message: undefined });
@@ -836,7 +847,7 @@ export declare namespace Message {
 		entities?: MessageEntity[];
 	}
 	export interface CaptionableMessage extends CommonMessage {
-		/** Caption for the animation, audio, document, photo, video or voice */
+		/** Caption for the animation, audio, document, live photo, paid media, photo, video, voice, or widget */
 		caption?: string;
 		/** For messages with a caption, special entities like usernames, URLs, bot commands, etc. that appear in the caption */
 		caption_entities?: MessageEntity[];
@@ -864,13 +875,13 @@ export declare namespace Message {
 	export interface AnimationMessage extends DocumentMessage {
 		/** Message is an animation, information about the animation. For backward compatibility, when this field is set, the document field will also be set */
 		animation: Animation;
-		/** True, if the caption must be shown above the message media */
+		/** True, if the caption must be shown above the message media or the widget */
 		show_caption_above_media?: true;
 	}
 	export interface PhotoMessage extends MediaMessage {
 		/** Message is a photo, available sizes of the photo */
 		photo: PhotoSize[];
-		/** True, if the caption must be shown above the message media */
+		/** True, if the caption must be shown above the message media or the widget */
 		show_caption_above_media?: true;
 	}
 	export interface LivePhotoMessage extends PhotoMessage {
@@ -888,7 +899,7 @@ export declare namespace Message {
 	export interface VideoMessage extends MediaMessage {
 		/** Message is a video, information about the video */
 		video: Video;
-		/** True, if the caption must be shown above the message media */
+		/** True, if the caption must be shown above the message media or the widget */
 		show_caption_above_media?: true;
 	}
 	export interface VideoNoteMessage extends CommonMessage {
@@ -898,6 +909,12 @@ export declare namespace Message {
 	export interface VoiceMessage extends CaptionableMessage {
 		/** Message is a voice message, information about the file */
 		voice: Voice;
+	}
+	export interface WidgetMessage extends CaptionableMessage {
+		/** Message is an HTML widget, information about the widget */
+		widget: Widget;
+		/** True, if the caption must be shown above the message media or the widget */
+		show_caption_above_media?: true;
 	}
 	export interface ChecklistMessage extends CommonMessage {
 		/** Message is a checklist */
@@ -1542,6 +1559,11 @@ export interface ExternalReplyVoice extends AbstractExternalReply {
 	voice: Voice;
 }
 
+export interface ExternalReplyWidget extends AbstractExternalReply {
+	/** Message is an HTML widget, information about the widget */
+	widget: Widget;
+}
+
 export interface ExternalReplyChecklist extends AbstractExternalReply {
 	/** Message is a checklist */
 	checklist: Checklist;
@@ -1605,6 +1627,7 @@ export type ExternalReplyInfo =
 	| ExternalReplyVideo
 	| ExternalReplyVideoNote
 	| ExternalReplyVoice
+	| ExternalReplyWidget
 	| ExternalReplyChecklist
 	| ExternalReplyContact
 	| ExternalReplyDice
@@ -1883,6 +1906,22 @@ export interface Voice {
 	mime_type?: string;
 	/** File size in bytes */
 	file_size?: number;
+}
+
+/** This object describes an HTML widget. */
+export interface Widget {
+	/** Unique identifier of the shared widget, which can be used to send the widget again using the method sendSharedWidget; omitted if the widget isn't shared */
+	id?: string;
+	/** Width of the widget in logical pixels; omitted if the widget must occupy the whole width of the message bubble */
+	width?: number;
+	/** Height of the widget in logical pixels; omitted if the height of the widget isn't fixed */
+	height?: number;
+	/** HTML code of the widget */
+	html: string;
+	/** Public data of the widget, which is available wherever the widget is shown. All messages with a shared widget have the same public data. */
+	public_data?: string;
+	/** Data of the widget, which is specific to the message */
+	chat_data?: string;
 }
 
 /** Describes the paid media added to a message. */
@@ -3146,6 +3185,108 @@ export declare namespace CallbackQuery {
  NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters). */
 export type CallbackQuery = CallbackQuery.DataQuery | CallbackQuery.GameQuery;
 
+/** This object describes the type of a query from a widget. Currently, it can be one of
+
+- WidgetQueryTypeData
+- WidgetQueryTypeSignData
+- WidgetQueryTypeSentTransaction
+ */
+export type WidgetQueryType = WidgetQueryTypeData | WidgetQueryTypeSignData | WidgetQueryTypeSentTransaction;
+
+/** The query contains data for the bot. */
+export interface WidgetQueryTypeData {
+	/** Type of the query, always “data” */
+	type: "data";
+	/** TON wallet card of the user who sent the query, if it was sent to the bot along with the query */
+	wallet_card?: TonWalletCard;
+}
+
+/** The query contains data signed by a TON wallet of the user who sent the query. The data is signed for the domain bot<bot_id>, where <bot_id> is the identifier of the bot. */
+export interface WidgetQueryTypeSignData {
+	/** Type of the query, always “sign_data” */
+	type: "sign_data";
+	/** The wallet that signed the data */
+	wallet: WidgetQueryWallet;
+	/** JSON-serialized signed data */
+	sign_data: string;
+}
+
+/** The query notifies the bot about a transaction sent from a TON wallet of the user who sent the query. */
+export interface WidgetQueryTypeSentTransaction {
+	/** Type of the query, always “sent_transaction” */
+	type: "sent_transaction";
+	/** The wallet from which the transaction was sent */
+	wallet: WidgetQueryWallet;
+	/** Value of msg_hash of the transaction */
+	msg_hash: string;
+}
+
+/** This object describes a TON wallet of the user, which is used in a query from a widget. */
+export interface WidgetQueryWallet {
+	/** Address of the wallet */
+	address: string;
+	/** Balance of the wallet, in the smallest units of the cryptocurrency, as a decimal number */
+	amount: string;
+	/** Hex-encoded public key of the wallet; omitted if unknown */
+	public_key?: string;
+	/** Base64-encoded serialized StateInit of the wallet contract; omitted if and only if public_key is omitted */
+	state_init?: string;
+}
+
+export declare namespace WidgetQuery {
+	interface Common {
+		/** Unique identifier for this query */
+		id: string;
+		/** Sender */
+		from: User;
+		/** Global identifier, uniquely corresponding to the chat to which the message with the widget was sent */
+		chat_instance: string;
+		/** Type of the query */
+		type: WidgetQueryType;
+		/** Data of the query, 1-64 bytes */
+		data: string;
+		/** Unique identifier of the shared widget, which sent the query; omitted if the widget isn't shared */
+		widget_id?: string;
+	}
+	export interface MessageQuery extends Common {
+		/** Chat with the message containing the widget; omitted if the widget is in an inline message */
+		chat: Chat;
+		/** Identifier of the message containing the widget; omitted if the widget is in an inline message */
+		message_id: number;
+		/** Identifier of the inline message containing the widget */
+		inline_message_id?: undefined;
+		/** For widgets in inline messages, type of the chat to which the message was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. */
+		chat_type?: undefined;
+	}
+	export interface InlineMessageQuery extends Common {
+		/** Chat with the message containing the widget; omitted if the widget is in an inline message */
+		chat?: undefined;
+		/** Identifier of the message containing the widget; omitted if the widget is in an inline message */
+		message_id?: undefined;
+		/** Identifier of the inline message containing the widget */
+		inline_message_id: string;
+		/** For widgets in inline messages, type of the chat to which the message was sent. Can be either “sender” for a private chat with the inline query sender, “private”, “group”, “supergroup”, or “channel”. */
+		chat_type: "sender" | Chat["type"];
+	}
+}
+
+/** This object represents an incoming query from a widget in a message sent by the bot or via the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
+export type WidgetQuery = WidgetQuery.MessageQuery | WidgetQuery.InlineMessageQuery;
+
+/** This object represents an incoming query from a forwarded message with a shared widget created by the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
+export interface SharedWidgetQuery {
+	/** Unique identifier for this query */
+	id: string;
+	/** Sender */
+	from: User;
+	/** Type of the query */
+	type: WidgetQueryType;
+	/** Data of the query, 1-64 bytes */
+	data: string;
+	/** Unique identifier of the shared widget, which sent the query */
+	widget_id: string;
+}
+
 /** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode.
 
 Example: A poll bot for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:
@@ -3377,7 +3518,7 @@ export interface ChatMemberRestricted extends AbstractChatMember {
 	can_send_voice_notes: boolean;
 	/** True, if the user is allowed to send polls and checklists */
 	can_send_polls: boolean;
-	/** True, if the user is allowed to send animations, games, stickers and use inline bots */
+	/** True, if the user is allowed to send animations, games, stickers, widgets and use inline bots */
 	can_send_other_messages: boolean;
 	/** True, if the user is allowed to add web page previews to their messages */
 	can_add_web_page_previews: boolean;
@@ -3445,7 +3586,7 @@ export interface ChatPermissions {
 	can_send_voice_notes?: boolean;
 	/** True, if the user is allowed to send polls and checklists */
 	can_send_polls?: boolean;
-	/** True, if the user is allowed to send animations, games, stickers and use inline bots */
+	/** True, if the user is allowed to send animations, games, stickers, widgets and use inline bots */
 	can_send_other_messages?: boolean;
 	/** True, if the user is allowed to add web page previews to their messages */
 	can_add_web_page_previews?: boolean;
@@ -5374,6 +5515,92 @@ export interface BotApi<F> {
 }
 
 export declare namespace Args {
+	export interface SendWidget {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+		message_thread_id?: number;
+		/** HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes when compressed by zlib with the maximum compression level. */
+		html: string;
+		/** Width of the widget in logical pixels; omit if the widget must occupy the whole width of the message bubble. The width is clamped by the app to the range from 200 to the maximum width of the message bubble. */
+		width?: number;
+		/** Height of the widget in logical pixels; omit if the height of the widget isn't fixed. The height is clamped by the app to the range 50-600. */
+		height?: number;
+		/** Public data of the widget, 0-1024 bytes, which will be available wherever the widget is shown. If the widget is shared, then all messages with it will have the same public data. */
+		public_data?: string;
+		/** Data of the widget, which is specific to the message, 0-1024 bytes */
+		chat_data?: string;
+		/** Widget caption, 0-1024 characters after entities parsing */
+		caption?: string;
+		/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+		caption_entities?: MessageEntity[];
+		/** Pass True if the caption must be shown above the widget */
+		show_caption_above_media?: boolean;
+		/** Pass True to allow the widget to send queries to the bot */
+		allow_queries?: boolean;
+		/** Pass True to create a shared widget, which can be sent again using the method sendSharedWidget */
+		is_shared?: boolean;
+		/** Sends the message silently. Users will receive a notification with no sound. */
+		disable_notification?: boolean;
+		/** Protects the contents of the sent message from forwarding and saving */
+		protect_content?: boolean;
+		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		allow_paid_broadcast?: boolean;
+		/** Unique identifier of the message effect to be added to the message; for private chats only */
+		message_effect_id?: string;
+		/** Description of the message to reply to */
+		reply_parameters?: ReplyParameters;
+		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to send a message with an HTML widget. Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
+	sendWidget(args: Args.SendWidget, options?: CallOptions): Promise<Message.WidgetMessage>;
+}
+
+export declare namespace Args {
+	export interface SendSharedWidget {
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
+		chat_id: number | string;
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
+		message_thread_id?: number;
+		/** Unique identifier of the shared widget */
+		widget_id: string;
+		/** Data of the widget, which is specific to the message, 0-1024 bytes */
+		chat_data?: string;
+		/** Widget caption, 0-1024 characters after entities parsing */
+		caption?: string;
+		/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+		parse_mode?: ParseMode;
+		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
+		caption_entities?: MessageEntity[];
+		/** Pass True if the caption must be shown above the widget */
+		show_caption_above_media?: boolean;
+		/** Sends the message silently. Users will receive a notification with no sound. */
+		disable_notification?: boolean;
+		/** Protects the contents of the sent message from forwarding and saving */
+		protect_content?: boolean;
+		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		allow_paid_broadcast?: boolean;
+		/** Unique identifier of the message effect to be added to the message; for private chats only */
+		message_effect_id?: string;
+		/** Description of the message to reply to */
+		reply_parameters?: ReplyParameters;
+		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to send again a shared widget created by the bot. Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
+	sendSharedWidget(args: Args.SendSharedWidget, options?: CallOptions): Promise<Message.WidgetMessage>;
+}
+
+export declare namespace Args {
 	export interface SendPaidMedia<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
@@ -6742,6 +6969,20 @@ export interface BotApi<F> {
 }
 
 export declare namespace Args {
+	export interface AnswerWidgetQuery {
+		/** Unique identifier for the query to be answered */
+		widget_query_id: string;
+		/** Data to be returned to the widget, 0-1024 bytes */
+		data?: string;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to send an answer to a query from a widget. The query must be answered within 15 seconds. The answer is received only by the widget that sent the query and doesn't change data of the widget; use editMessageWidgetData or editSharedWidgetData to change it. On success, True is returned. */
+	answerWidgetQuery(args: Args.AnswerWidgetQuery, options?: CallOptions): Promise<true>;
+}
+
+export declare namespace Args {
 	export interface AnswerGuestQuery {
 		/** Unique identifier for the query to be answered */
 		guest_query_id: string;
@@ -7848,6 +8089,57 @@ export interface BotApi<F> {
 		args: Args.EditMessageChecklist,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.ChecklistMessage & Message.BusinessSentMessage>;
+}
+
+export declare namespace Args {
+	export interface EditMessageWidgetData {
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target supergroup in the format `@username`. */
+		chat_id: number | string;
+		/** Required if inline_message_id is not specified. Identifier of the message with the widget. */
+		message_id: number;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+		inline_message_id?: undefined;
+		/** New public data of the widget, 0-1024 bytes; pass an empty string to remove the public data. If omitted, then the public data isn't changed. */
+		public_data?: string;
+		/** New data of the widget, which is specific to the message, 0-1024 bytes; pass an empty string to remove the data. If omitted, then the data isn't changed. */
+		chat_data?: string;
+	}
+
+	export interface EditMessageWidgetDataInline extends Omit<
+		EditMessageWidgetData,
+		"chat_id" | "message_id" | "inline_message_id"
+	> {
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target supergroup in the format `@username`. */
+		chat_id?: undefined;
+		/** Required if inline_message_id is not specified. Identifier of the message with the widget. */
+		message_id?: undefined;
+		/** Required if chat_id and message_id are not specified. Identifier of the inline message. */
+		inline_message_id: string;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to edit data of a widget in a message sent by the bot or via the bot (for inline bots). Public data of a shared widget can be changed at most once per second. On success, True is returned. */
+	editMessageWidgetData(
+		args: Args.EditMessageWidgetData | Args.EditMessageWidgetDataInline,
+		options?: CallOptions,
+	): Promise<true>;
+}
+
+export declare namespace Args {
+	export interface EditSharedWidgetData {
+		/** Unique identifier of the shared widget */
+		widget_id: string;
+		/** New public data of the widget, 0-1024 bytes; pass an empty string to remove the public data */
+		public_data: string;
+		/** The maximum amount of time in seconds that the public data of the widget may be cached client-side; 5-3600. If omitted, then the current value is kept, which is 30 by default. */
+		cache_time?: number;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to edit public data of a shared widget created by the bot. A shared widget can be edited at most once per second. On success, True is returned. */
+	editSharedWidgetData(args: Args.EditSharedWidgetData, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
@@ -10238,7 +10530,9 @@ export type InputMessageContent =
 	| InputLocationMessageContent
 	| InputVenueMessageContent
 	| InputContactMessageContent
-	| InputInvoiceMessageContent;
+	| InputInvoiceMessageContent
+	| InputWidgetMessageContent
+	| InputSharedWidgetMessageContent;
 
 /** Represents the content of a text message to be sent as the result of an inline query. */
 export interface InputTextMessageContent {
@@ -10347,6 +10641,48 @@ export interface InputInvoiceMessageContent {
 	send_email_to_provider?: boolean;
 	/** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
 	is_flexible?: boolean;
+}
+
+/** Represents the content of a message with an HTML widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
+export interface InputWidgetMessageContent {
+	/** HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes when compressed by zlib with the maximum compression level. */
+	html: string;
+	/** Width of the widget in logical pixels; omit if the widget must occupy the whole width of the message bubble. The width is clamped by the app to the range from 200 to the maximum width of the message bubble. */
+	width?: number;
+	/** Height of the widget in logical pixels; omit if the height of the widget isn't fixed. The height is clamped by the app to the range 50-600. */
+	height?: number;
+	/** Public data of the widget, 0-1024 bytes, which will be available wherever the widget is shown. If the widget is shared, then all messages with it will have the same public data. */
+	public_data?: string;
+	/** Data of the widget, which is specific to the message, 0-1024 bytes */
+	chat_data?: string;
+	/** Widget caption, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Pass True if the caption must be shown above the widget */
+	show_caption_above_media?: boolean;
+	/** Pass True to allow the widget to send queries to the bot */
+	allow_queries?: boolean;
+	/** Pass True to create a shared widget. Each message sent from the result creates a separate shared widget, whose identifier is received by the bot only in the field widget_id of queries from the widget. To send an existing shared widget in response to an inline query, use InputSharedWidgetMessageContent instead. */
+	is_shared?: boolean;
+}
+
+/** Represents the content of a message with a shared widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
+export interface InputSharedWidgetMessageContent {
+	/** Unique identifier of the shared widget created by the bot */
+	widget_id: string;
+	/** Data of the widget, which is specific to the message, 0-1024 bytes */
+	chat_data?: string;
+	/** Widget caption, 0-1024 characters after entities parsing */
+	caption?: string;
+	/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+	parse_mode?: ParseMode;
+	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
+	caption_entities?: MessageEntity[];
+	/** Pass True if the caption must be shown above the widget */
+	show_caption_above_media?: boolean;
 }
 
 /** Represents a result of an inline query that was chosen by the user and sent to their chat partner.

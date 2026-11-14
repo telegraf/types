@@ -29,6 +29,7 @@ import type {
 	ExternalReplyVideo,
 	ExternalReplyVideoNote,
 	ExternalReplyVoice,
+	ExternalReplyWidget,
 	ForumTopicClosed,
 	ForumTopicCreated,
 	ForumTopicEdited,
@@ -78,6 +79,7 @@ import type {
 	VideoNote,
 	Voice,
 	WebAppData,
+	Widget,
 	WriteAccessAllowed,
 } from "../message.ts";
 import { type Assert, type Equal, expectType, type Extends, type RequiredKeys } from "./assert.ts";
@@ -164,6 +166,15 @@ export const voice: Voice = {
 	duration: 5,
 	mime_type: "audio/ogg",
 	file_size: 18432,
+};
+
+export const widget: Widget = {
+	id: "AQADwidget",
+	width: 320,
+	height: 120,
+	html: "<b>Berlin</b>: 12°C",
+	public_data: "berlin",
+	chat_data: "celsius",
 };
 
 export const maskPosition: MaskPosition = { point: "eyes", x_shift: 0, y_shift: -0.5, scale: 1.2 };
@@ -851,6 +862,8 @@ export const externalVideoNote: ExternalReplyVideoNote = { origin: originUser, v
 
 export const externalVoice: ExternalReplyVoice = { origin: originHiddenUser, voice };
 
+export const externalWidget: ExternalReplyWidget = { origin: originUser, widget };
+
 export const externalContact: ExternalReplyContact = { origin: originUser, contact };
 
 export const externalDice: ExternalReplyDice = { origin: originUser, dice };
@@ -888,6 +901,7 @@ export const externalReplies: ExternalReplyInfo[] = [
 	externalVideo,
 	externalVideoNote,
 	externalVoice,
+	externalWidget,
 	externalContact,
 	externalDice,
 	externalGame,
@@ -1014,6 +1028,16 @@ export const videoMessage: Message.VideoMessage = { ...inGroup, video, media_gro
 export const videoNoteMessage: Message.VideoNoteMessage = { ...inPrivate, video_note: videoNote };
 
 export const voiceMessage: Message.VoiceMessage = { ...inPrivate, voice, caption: "Forecast" };
+
+export const widgetMessage: Message.WidgetMessage = {
+	...inPrivate,
+	widget,
+	caption: "Forecast",
+	show_caption_above_media: true,
+};
+
+// @ts-expect-error — a widget always has its HTML code
+export const widgetWithoutHtml: Widget = { id: "AQADwidget" };
 
 export const contactMessage: Message.ContactMessage = { ...inPrivate, contact };
 
@@ -1244,6 +1268,7 @@ export const commonMessages: CommonMessageBundle[] = [
 	videoMessage,
 	videoNoteMessage,
 	voiceMessage,
+	widgetMessage,
 ];
 
 export const serviceMessages: ServiceMessageBundle[] = [
@@ -1312,6 +1337,7 @@ export type CommonMessageBundleMembers = Assert<
 		| Message.VideoMessage
 		| Message.VideoNoteMessage
 		| Message.VoiceMessage
+		| Message.WidgetMessage
 	>
 >;
 
@@ -1519,6 +1545,7 @@ export function readCaption(message: Message) {
 			| Message.PhotoMessage
 			| Message.VideoMessage
 			| Message.VoiceMessage
+			| Message.WidgetMessage
 		>()(message);
 		return message.caption;
 	}

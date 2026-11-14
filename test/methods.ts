@@ -170,6 +170,8 @@ export type AllowedUpdates = Assert<
 			| "managed_bot"
 			| "subscription"
 			| "stopped_message_generation"
+			| "widget_query"
+			| "shared_widget_query"
 		>
 	>
 >;
@@ -980,6 +982,55 @@ export const webAppAnswered = api.answerWebAppQuery({
 });
 
 export type InlineResults = Assert<Equal<[typeof inlineAnswered, typeof webAppAnswered], [true, SentWebAppMessage]>>;
+
+// Widgets
+
+export const widgetSent = api.sendWidget({
+	chat_id,
+	html: "<b>Berlin</b>: 12°C",
+	width: 320,
+	height: 120,
+	public_data: "berlin",
+	caption: "Forecast",
+	allow_queries: true,
+	is_shared: true,
+});
+export const sharedWidgetSent = api.sendSharedWidget({ chat_id, widget_id: "AQADwidget", chat_data: "celsius" });
+export const widgetQueryAnswered = api.answerWidgetQuery({ widget_query_id: "7c1d0a52b6e94f03", data: "12°C" });
+export const widgetDataEdited = api.editMessageWidgetData({ chat_id, message_id: 51, chat_data: "fahrenheit" });
+export const inlineWidgetDataEdited = api.editMessageWidgetData({ inline_message_id: "AgAAAPx", public_data: "" });
+export const sharedWidgetDataEdited = api.editSharedWidgetData({
+	widget_id: "AQADwidget",
+	public_data: "hamburg",
+	cache_time: 60,
+});
+export const inlineWidgetsAnswered = api.answerInlineQuery({
+	inline_query_id: "1234567890123456789",
+	results: [
+		{ type: "article", id: "new", title: "Forecast", input_message_content: { html: "<b>Berlin</b>: 12°C" } },
+		{ type: "article", id: "shared", title: "Forecast", input_message_content: { widget_id: "AQADwidget" } },
+	],
+});
+
+export type WidgetResults = Assert<
+	Equal<
+		[
+			typeof widgetSent,
+			typeof sharedWidgetSent,
+			typeof widgetQueryAnswered,
+			typeof widgetDataEdited,
+			typeof inlineWidgetDataEdited,
+			typeof sharedWidgetDataEdited,
+			typeof inlineWidgetsAnswered,
+		],
+		[Message.WidgetMessage, Message.WidgetMessage, true, true, true, true, true]
+	>
+>;
+
+// @ts-expect-error — a widget needs its HTML code
+export const widgetSentWithoutHtml = api.sendWidget({ chat_id });
+// @ts-expect-error — removing the public data of a shared widget takes an empty string
+export const sharedWidgetDataEditedWithoutData = api.editSharedWidgetData({ widget_id: "AQADwidget" });
 
 // Payments
 
