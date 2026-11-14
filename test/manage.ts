@@ -14,6 +14,7 @@ import type {
 	ChatBoostSourcePremium,
 	ChatBoostUpdated,
 	ChatFromGetChat,
+	ChatFullInfo,
 	ChatInviteLink,
 	ChatJoinRequest,
 	ChatLocation,
@@ -38,6 +39,8 @@ import type {
 	StoryArea,
 	StoryAreaPosition,
 	TelegramEmoji,
+	TonNft,
+	TonWalletCard,
 	User,
 	UserChatBoosts,
 	UserFromGetMe,
@@ -821,6 +824,37 @@ export const storyArea: StoryArea = {
 };
 
 export type StoryAreaPositionName = Assert<Equal<StoryAreaPosition, AreaPosition>>;
+
+// TON wallet
+
+export const tonNft: TonNft = {
+	address: "EQCA14o1-VWhS2efqoh_9M1b_A9DtKTuoqfmkn83AbJzwnPi",
+	index: "42",
+	name: "Plush Pepe #42",
+	description: "A collectible gift",
+	attributes: [{ trait_type: "Backdrop", value: "Onyx Black" }],
+};
+
+export const tonWalletCard: TonWalletCard = {
+	address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+	amount: "2500000000",
+	stickers: [{ position: storyAreaPosition, nft: tonNft }],
+	background_nft_address: tonNft.address,
+};
+
+export const privateChatWithWalletCard: ChatFullInfo.PrivateChat = {
+	...privateGetChat,
+	ton_wallet_card: tonWalletCard,
+};
+
+export const groupChatWithWalletCard: ChatFullInfo.GroupChat = {
+	...groupGetChat,
+	// @ts-expect-error — only private chats have a TON wallet card
+	ton_wallet_card: tonWalletCard,
+};
+
+// @ts-expect-error — a wallet card lists its stickers, even when there are none
+export const tonWalletCardWithoutStickers: TonWalletCard = { address: tonWalletCard.address, amount: "0" };
 
 // Required fields
 

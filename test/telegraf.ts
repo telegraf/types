@@ -459,6 +459,7 @@ export type MessageSubTypeMembers = Assert<
 		| "suggested_post_paid"
 		| "suggested_post_refunded"
 		| "managed_bot_created"
+		| "ton_wallet_transfer"
 	>
 >;
 

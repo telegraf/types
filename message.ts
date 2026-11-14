@@ -177,6 +177,7 @@ export type {
 	SuggestedPostPaid,
 	SuggestedPostRefunded,
 	TextQuote,
+	TonWalletTransfer,
 	UniqueGiftInfo,
 	UsersShared,
 	Venue,

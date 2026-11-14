@@ -1217,6 +1217,16 @@ export const videoChatParticipantsInvitedMessage: Message.VideoChatParticipantsI
 
 export const webAppDataMessage: Message.WebAppDataMessage = { ...inPrivate, web_app_data: webAppData };
 
+export const tonWalletTransferMessage: Message.TonWalletTransferMessage = {
+	...inPrivate,
+	ton_wallet_transfer: {
+		transaction_id: "6f1c2a9e",
+		peer_address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+		amount: "-1500000000",
+		comment: "Lunch",
+	},
+};
+
 export const commonMessages: CommonMessageBundle[] = [
 	animationMessage,
 	audioMessage,
@@ -1273,6 +1283,7 @@ export const serviceMessages: ServiceMessageBundle[] = [
 	videoChatEndedMessage,
 	videoChatParticipantsInvitedMessage,
 	webAppDataMessage,
+	tonWalletTransferMessage,
 ];
 
 export const messages: Message[] = [...commonMessages, ...serviceMessages];
@@ -1365,6 +1376,7 @@ export type ServiceMessageBundleMembers = Assert<
 		| Message.SuggestedPostPaidMessage
 		| Message.SuggestedPostRefundedMessage
 		| Message.ManagedBotCreatedMessage
+		| Message.TonWalletTransferMessage
 	>
 >;
 
