@@ -1215,8 +1215,9 @@ export interface InaccessibleMessage {
 
 /** This object describes a message that can be inaccessible to the bot. It can be one of
 
-- Message
-- InaccessibleMessage */
+- {@link Message}
+- {@link InaccessibleMessage}
+ */
 export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 
 export declare namespace MessageEntity {
@@ -1751,10 +1752,10 @@ export interface AbstractMessageOrigin {
 
 /** This object describes the origin of a message. It can be one of
 
-- MessageOriginUser
-- MessageOriginHiddenUser
-- MessageOriginChat
-- MessageOriginChannel
+- {@link MessageOriginUser}
+- {@link MessageOriginHiddenUser}
+- {@link MessageOriginChat}
+- {@link MessageOriginChannel}
  */
 export type MessageOrigin = MessageOriginUser | MessageOriginHiddenUser | MessageOriginChat | MessageOriginChannel;
 
@@ -1997,9 +1998,10 @@ export interface PaidMediaInfo {
 
 /** This object describes paid media. Currently, it can be one of
 
-- PaidMediaPhoto
-- PaidMediaPreview
-- PaidMediaVideo
+- {@link PaidMediaLivePhoto}
+- {@link PaidMediaPhoto}
+- {@link PaidMediaPreview}
+- {@link PaidMediaVideo}
  */
 export type PaidMedia = PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
 /** The paid media is a {@link LivePhoto live photo}. */
@@ -2138,14 +2140,14 @@ export type PollMedia =
 
 /** This object represents the content of a poll description or a quiz explanation to be sent. It should be one of
 
-- InputMediaAnimation
-- InputMediaAudio
-- InputMediaDocument
-- InputMediaLivePhoto
-- InputMediaLocation
-- InputMediaPhoto
-- InputMediaVenue
-- InputMediaVideo
+- {@link InputMediaAnimation}
+- {@link InputMediaAudio}
+- {@link InputMediaDocument}
+- {@link InputMediaLivePhoto}
+- {@link InputMediaLocation}
+- {@link InputMediaPhoto}
+- {@link InputMediaVenue}
+- {@link InputMediaVideo}
  */
 export type InputPollMedia<F> =
 	| InputMediaAnimation<F>
@@ -2159,14 +2161,14 @@ export type InputPollMedia<F> =
 
 /** This object represents the content of a poll option to be sent. It should be one of
 
-- InputMediaAnimation
-- InputMediaLink
-- InputMediaLivePhoto
-- InputMediaLocation
-- InputMediaPhoto
-- InputMediaSticker
-- InputMediaVenue
-- InputMediaVideo
+- {@link InputMediaAnimation}
+- {@link InputMediaLink}
+- {@link InputMediaLivePhoto}
+- {@link InputMediaLocation}
+- {@link InputMediaPhoto}
+- {@link InputMediaSticker}
+- {@link InputMediaVenue}
+- {@link InputMediaVideo}
  */
 export type InputPollOptionMedia<F> =
 	| InputMediaAnimation<F>
@@ -2476,10 +2478,10 @@ export interface ChatBoostAdded {
 
 /** This object describes the way a background is filled based on the selected colors. Currently, it can be one of
 
-- BackgroundFillSolid
-- BackgroundFillGradient
-- BackgroundFillFreeformGradient
-*/
+- {@link BackgroundFillSolid}
+- {@link BackgroundFillGradient}
+- {@link BackgroundFillFreeformGradient}
+ */
 export type BackgroundFill = BackgroundFillSolid | BackgroundFillGradient | BackgroundFillFreeformGradient;
 
 /** The background is filled using the selected color. */
@@ -2512,11 +2514,11 @@ export interface BackgroundFillFreeformGradient {
 
 /** This object describes the type of a background. Currently, it can be one of
 
-- BackgroundTypeFill
-- BackgroundTypeWallpaper
-- BackgroundTypePattern
-- BackgroundTypeChatTheme
-*/
+- {@link BackgroundTypeFill}
+- {@link BackgroundTypeWallpaper}
+- {@link BackgroundTypePattern}
+- {@link BackgroundTypeChatTheme}
+ */
 export type BackgroundType =
 	| BackgroundTypeFill
 	| BackgroundTypeWallpaper
@@ -3249,9 +3251,9 @@ export type CallbackQuery = CallbackQuery.DataQuery | CallbackQuery.GameQuery;
 
 /** This object describes the type of a query from a widget. Currently, it can be one of
 
-- WidgetQueryTypeData
-- WidgetQueryTypeSignData
-- WidgetQueryTypeSentTransaction
+- {@link WidgetQueryTypeData}
+- {@link WidgetQueryTypeSignData}
+- {@link WidgetQueryTypeSentTransaction}
  */
 export type WidgetQueryType = WidgetQueryTypeData | WidgetQueryTypeSignData | WidgetQueryTypeSentTransaction;
 
@@ -3480,12 +3482,14 @@ export interface AbstractChatMember {
 }
 
 /** This object contains information about one member of a chat. Currently, the following 6 types of chat members are supported:
-- ChatMemberOwner
-- ChatMemberAdministrator
-- ChatMemberMember
-- ChatMemberRestricted
-- ChatMemberLeft
-- ChatMemberBanned */
+
+- {@link ChatMemberOwner}
+- {@link ChatMemberAdministrator}
+- {@link ChatMemberMember}
+- {@link ChatMemberRestricted}
+- {@link ChatMemberLeft}
+- {@link ChatMemberBanned}
+ */
 export type ChatMember =
 	| ChatMemberOwner
 	| ChatMemberAdministrator
@@ -3795,8 +3799,8 @@ export interface TonWalletCard {
 
 /** This object describes an emoji. Currently, it can be one of
 
-- EmojiTypeEmoji
-- EmojiTypeCustomEmoji
+- {@link EmojiTypeEmoji}
+- {@link EmojiTypeCustomEmoji}
  */
 export type EmojiType = EmojiTypeEmoji | EmojiTypeCustomEmoji;
 
@@ -3818,8 +3822,8 @@ export interface EmojiTypeCustomEmoji {
 
 /** This object describes the theme of the screen for sharing a link to a user or a chat. Currently, it can be one of
 
-- ChatShareThemeEmoji
-- ChatShareThemeUniqueGift
+- {@link ChatShareThemeEmoji}
+- {@link ChatShareThemeUniqueGift}
  */
 export type ChatShareTheme = ChatShareThemeEmoji | ChatShareThemeUniqueGift;
 
@@ -3869,7 +3873,14 @@ export interface LocationAddress {
 	street?: string;
 }
 
-/** Describes the type of a clickable area on a story. Currently, it can be one of */
+/** Describes the type of a clickable area on a story. Currently, it can be one of
+
+- {@link StoryAreaTypeLocation}
+- {@link StoryAreaTypeSuggestedReaction}
+- {@link StoryAreaTypeLink}
+- {@link StoryAreaTypeWeather}
+- {@link StoryAreaTypeUniqueGift}
+ */
 export type StoryAreaType =
 	| StoryAreaTypeLocation
 	| StoryAreaTypeSuggestedReaction
@@ -3951,8 +3962,10 @@ export interface AbstractReactionType {
 }
 
 /** This object describes the type of a reaction. Currently, it can be one of
- * - ReactionTypeEmoji
- * - ReactionTypeCustomEmoji
+
+- {@link ReactionTypeEmoji}
+- {@link ReactionTypeCustomEmoji}
+- {@link ReactionTypePaid}
  */
 export type ReactionType = ReactionTypeEmoji | ReactionTypeCustomEmoji | ReactionTypePaid;
 
@@ -4225,8 +4238,10 @@ export interface UniqueGiftInfo {
 }
 
 /** This object describes a gift received and owned by a user or a chat. Currently, it can be one of
- * - OwnedGiftRegular
- * - OwnedGiftUnique. */
+
+- {@link OwnedGiftRegular}
+- {@link OwnedGiftUnique}
+ */
 export type OwnedGift = OwnedGiftRegular | OwnedGiftUnique;
 
 /** Describes a regular gift owned by a user or a chat. */
@@ -4335,13 +4350,14 @@ export interface BotCommand {
 }
 
 /** This object represents the scope to which bot commands are applied. Currently, the following 7 scopes are supported:
-- BotCommandScopeDefault
-- BotCommandScopeAllPrivateChats
-- BotCommandScopeAllGroupChats
-- BotCommandScopeAllChatAdministrators
-- BotCommandScopeChat
-- BotCommandScopeChatAdministrators
-- BotCommandScopeChatMember
+
+- {@link BotCommandScopeDefault}
+- {@link BotCommandScopeAllPrivateChats}
+- {@link BotCommandScopeAllGroupChats}
+- {@link BotCommandScopeAllChatAdministrators}
+- {@link BotCommandScopeChat}
+- {@link BotCommandScopeChatAdministrators}
+- {@link BotCommandScopeChatMember}
 
 ## Determining list of commands
 
@@ -4446,9 +4462,10 @@ export interface BotShortDescription {
 }
 
 /** This object describes the bot's menu button in a private chat. It should be one of
-- MenuButtonCommands
-- MenuButtonWebApp
-- MenuButtonDefault
+
+- {@link MenuButtonCommands}
+- {@link MenuButtonWebApp}
+- {@link MenuButtonDefault}
 
 If a menu button other than {@link MenuButtonDefault} is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands. */
 export type MenuButton = MenuButtonCommands | MenuButtonWebApp | MenuButtonDefault;
@@ -4482,10 +4499,10 @@ export interface AbstractChatBoostSource {
 
 /** This object describes the source of a chat boost. It can be one of
 
-- ChatBoostSourcePremium
-- ChatBoostSourceGiftCode
-- ChatBoostSourceGiveaway
-*/
+- {@link ChatBoostSourcePremium}
+- {@link ChatBoostSourceGiftCode}
+- {@link ChatBoostSourceGiveaway}
+ */
 export type ChatBoostSource = ChatBoostSourcePremium | ChatBoostSourceGiftCode | ChatBoostSourceGiveaway;
 
 /** The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user. */
@@ -4676,11 +4693,14 @@ export interface ResponseParameters {
 }
 
 /** This object represents the content of a media message to be sent. It should be one of
-  - InputMediaAnimation
-  - InputMediaDocument
-  - InputMediaAudio
-  - InputMediaPhoto
-  - InputMediaVideo */
+
+- {@link InputMediaAnimation}
+- {@link InputMediaAudio}
+- {@link InputMediaDocument}
+- {@link InputMediaLivePhoto}
+- {@link InputMediaPhoto}
+- {@link InputMediaVideo}
+ */
 export type InputMedia<F> =
 	| InputMediaAnimation<F>
 	| InputMediaAudio<F>
@@ -4891,8 +4911,11 @@ export interface InputMediaVoiceNote<F> {
 }
 
 /** This object describes the paid media to be sent. Currently, it can be one of
-- InputPaidMediaPhoto
-- InputPaidMediaVideo */
+
+- {@link InputPaidMediaLivePhoto}
+- {@link InputPaidMediaPhoto}
+- {@link InputPaidMediaVideo}
+ */
 export type InputPaidMedia<F> = InputPaidMediaLivePhoto<F> | InputPaidMediaPhoto<F> | InputPaidMediaVideo<F>;
 /** The paid media to send is a live photo. */
 export interface InputPaidMediaLivePhoto<F> {
@@ -4935,8 +4958,10 @@ export interface InputPaidMediaVideo<F> {
 }
 
 /** This object describes a profile photo to set. Currently, it can be one of
-- InputProfilePhotoStatic
-- InputProfilePhotoAnimated */
+
+- {@link InputProfilePhotoStatic}
+- {@link InputProfilePhotoAnimated}
+ */
 export type InputProfilePhoto<F> = InputProfilePhotoStatic<F> | InputProfilePhotoAnimated<F>;
 
 /** A static profile photo in the .JPG format. */
@@ -4958,8 +4983,10 @@ export interface InputProfilePhotoAnimated<F> {
 }
 
 /** This object describes the content of a story to post. Currently, it can be one of
-- InputStoryContentPhoto
-- InputStoryContentVideo */
+
+- {@link InputStoryContentPhoto}
+- {@link InputStoryContentVideo}
+ */
 export type InputStoryContent<F> = InputStoryContentPhoto<F> | InputStoryContentVideo<F>;
 
 /** Describes a photo to post as a story. */
@@ -9174,33 +9201,33 @@ export type RichMessageButtonText =
 
 /** This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of {@link RichText}, or any of the following types:
 
-- RichTextBold
-- RichTextItalic
-- RichTextUnderline
-- RichTextStrikethrough
-- RichTextSpoiler
-- RichTextDateTime
-- RichTextTextMention
-- RichTextSubscript
-- RichTextSuperscript
-- RichTextMarked
-- RichTextCode
-- RichTextCustomEmoji
-- RichTextMathematicalExpression
-- RichTextUrl
-- RichTextEmailAddress
-- RichTextPhoneNumber
-- RichTextBankCardNumber
-- RichTextTonAddress
-- RichTextMention
-- RichTextHashtag
-- RichTextCashtag
-- RichTextBotCommand
-- RichTextButton
-- RichTextAnchor
-- RichTextAnchorLink
-- RichTextReference
-- RichTextReferenceLink
+- {@link RichTextBold}
+- {@link RichTextItalic}
+- {@link RichTextUnderline}
+- {@link RichTextStrikethrough}
+- {@link RichTextSpoiler}
+- {@link RichTextDateTime}
+- {@link RichTextTextMention}
+- {@link RichTextSubscript}
+- {@link RichTextSuperscript}
+- {@link RichTextMarked}
+- {@link RichTextCode}
+- {@link RichTextCustomEmoji}
+- {@link RichTextMathematicalExpression}
+- {@link RichTextUrl}
+- {@link RichTextEmailAddress}
+- {@link RichTextPhoneNumber}
+- {@link RichTextBankCardNumber}
+- {@link RichTextTonAddress}
+- {@link RichTextMention}
+- {@link RichTextHashtag}
+- {@link RichTextCashtag}
+- {@link RichTextBotCommand}
+- {@link RichTextButton}
+- {@link RichTextAnchor}
+- {@link RichTextAnchorLink}
+- {@link RichTextReference}
+- {@link RichTextReferenceLink}
  */
 export type RichText =
 	// The prose, not the bullet list: “either a String for plain text, an Array of
@@ -9525,30 +9552,30 @@ export interface RichBlockListItem {
 
 /** This object represents a block in a rich formatted message. Currently, it can be any of the following types:
 
-- RichBlockParagraph
-- RichBlockSectionHeading
-- RichBlockPreformatted
-- RichBlockFooter
-- RichBlockDivider
-- RichBlockMathematicalExpression
-- RichBlockAnchor
-- RichBlockList
-- RichBlockBlockQuotation
-- RichBlockExpandableBlockQuotation
-- RichBlockPullQuotation
-- RichBlockCollage
-- RichBlockSlideshow
-- RichBlockTable
-- RichBlockDetails
-- RichBlockMap
-- RichBlockButtons
-- RichBlockAnimation
-- RichBlockAudio
-- RichBlockDocument
-- RichBlockPhoto
-- RichBlockVideo
-- RichBlockVoiceNote
-- RichBlockThinking
+- {@link RichBlockParagraph}
+- {@link RichBlockSectionHeading}
+- {@link RichBlockPreformatted}
+- {@link RichBlockFooter}
+- {@link RichBlockDivider}
+- {@link RichBlockMathematicalExpression}
+- {@link RichBlockAnchor}
+- {@link RichBlockList}
+- {@link RichBlockBlockQuotation}
+- {@link RichBlockExpandableBlockQuotation}
+- {@link RichBlockPullQuotation}
+- {@link RichBlockCollage}
+- {@link RichBlockSlideshow}
+- {@link RichBlockTable}
+- {@link RichBlockDetails}
+- {@link RichBlockMap}
+- {@link RichBlockButtons}
+- {@link RichBlockAnimation}
+- {@link RichBlockAudio}
+- {@link RichBlockDocument}
+- {@link RichBlockPhoto}
+- {@link RichBlockVideo}
+- {@link RichBlockVoiceNote}
+- {@link RichBlockThinking}
  */
 export type RichBlock =
 	| RichBlockParagraph
@@ -9836,30 +9863,30 @@ export interface InputRichBlockListItem<F, Draft extends boolean = false> {
 
 /** This object represents a block in a rich formatted message to be sent. Currently, it can be any of the following types:
 
-- InputRichBlockParagraph
-- InputRichBlockSectionHeading
-- InputRichBlockPreformatted
-- InputRichBlockFooter
-- InputRichBlockDivider
-- InputRichBlockMathematicalExpression
-- InputRichBlockAnchor
-- InputRichBlockList
-- InputRichBlockBlockQuotation
-- InputRichBlockExpandableBlockQuotation
-- InputRichBlockPullQuotation
-- InputRichBlockCollage
-- InputRichBlockSlideshow
-- InputRichBlockTable
-- InputRichBlockDetails
-- InputRichBlockMap
-- InputRichBlockButtons
-- InputRichBlockAnimation
-- InputRichBlockAudio
-- InputRichBlockDocument
-- InputRichBlockPhoto
-- InputRichBlockVideo
-- InputRichBlockVoiceNote
-- InputRichBlockThinking
+- {@link InputRichBlockParagraph}
+- {@link InputRichBlockSectionHeading}
+- {@link InputRichBlockPreformatted}
+- {@link InputRichBlockFooter}
+- {@link InputRichBlockDivider}
+- {@link InputRichBlockMathematicalExpression}
+- {@link InputRichBlockAnchor}
+- {@link InputRichBlockList}
+- {@link InputRichBlockBlockQuotation}
+- {@link InputRichBlockExpandableBlockQuotation}
+- {@link InputRichBlockPullQuotation}
+- {@link InputRichBlockCollage}
+- {@link InputRichBlockSlideshow}
+- {@link InputRichBlockTable}
+- {@link InputRichBlockDetails}
+- {@link InputRichBlockMap}
+- {@link InputRichBlockButtons}
+- {@link InputRichBlockAnimation}
+- {@link InputRichBlockAudio}
+- {@link InputRichBlockDocument}
+- {@link InputRichBlockPhoto}
+- {@link InputRichBlockVideo}
+- {@link InputRichBlockVoiceNote}
+- {@link InputRichBlockThinking}
  */
 export type InputRichBlock<F, Draft extends boolean = false> =
 	| InputRichBlockParagraph
@@ -10186,26 +10213,27 @@ Example: An inline bot that sends YouTube videos can ask the user to connect the
 export type InlineQueryResultsButton = InlineQueryResultsWebAppButton | InlineQueryResultsStartButton;
 
 /** This object represents one result of an inline query. Telegram clients currently support results of the following 20 types:
-- InlineQueryResultCachedAudio
-- InlineQueryResultCachedDocument
-- InlineQueryResultCachedGif
-- InlineQueryResultCachedMpeg4Gif
-- InlineQueryResultCachedPhoto
-- InlineQueryResultCachedSticker
-- InlineQueryResultCachedVideo
-- InlineQueryResultCachedVoice
-- InlineQueryResultArticle
-- InlineQueryResultAudio
-- InlineQueryResultContact
-- InlineQueryResultGame
-- InlineQueryResultDocument
-- InlineQueryResultGif
-- InlineQueryResultLocation
-- InlineQueryResultMpeg4Gif
-- InlineQueryResultPhoto
-- InlineQueryResultVenue
-- InlineQueryResultVideo
-- InlineQueryResultVoice
+
+- {@link InlineQueryResultCachedAudio}
+- {@link InlineQueryResultCachedDocument}
+- {@link InlineQueryResultCachedGif}
+- {@link InlineQueryResultCachedMpeg4Gif}
+- {@link InlineQueryResultCachedPhoto}
+- {@link InlineQueryResultCachedSticker}
+- {@link InlineQueryResultCachedVideo}
+- {@link InlineQueryResultCachedVoice}
+- {@link InlineQueryResultArticle}
+- {@link InlineQueryResultAudio}
+- {@link InlineQueryResultContact}
+- {@link InlineQueryResultGame}
+- {@link InlineQueryResultDocument}
+- {@link InlineQueryResultGif}
+- {@link InlineQueryResultLocation}
+- {@link InlineQueryResultMpeg4Gif}
+- {@link InlineQueryResultPhoto}
+- {@link InlineQueryResultVenue}
+- {@link InlineQueryResultVideo}
+- {@link InlineQueryResultVoice}
 
 Note: All URLs passed in inline query results will be available to end users and therefore must be assumed to be public. */
 export type InlineQueryResult =
@@ -10760,12 +10788,15 @@ export interface InlineQueryResultCachedAudio {
 
 /** This object represents the content of a message to be sent as a result of an inline query. Telegram clients currently support the following types:
 
-- InputTextMessageContent
-- InputRichMessageContent
-- InputLocationMessageContent
-- InputVenueMessageContent
-- InputContactMessageContent
-- InputInvoiceMessageContent */
+- {@link InputTextMessageContent}
+- {@link InputRichMessageContent}
+- {@link InputLocationMessageContent}
+- {@link InputVenueMessageContent}
+- {@link InputContactMessageContent}
+- {@link InputInvoiceMessageContent}
+- {@link InputWidgetMessageContent}
+- {@link InputSharedWidgetMessageContent}
+ */
 export type InputMessageContent =
 	| InputTextMessageContent
 	| InputRichMessageContent
@@ -11327,9 +11358,10 @@ export interface PaidMediaPurchased {
 
 /** This object describes the state of a revenue withdrawal operation. Currently, it can be one of
 
-- RevenueWithdrawalStatePending
-- RevenueWithdrawalStateSucceeded
-- RevenueWithdrawalStateFailed */
+- {@link RevenueWithdrawalStatePending}
+- {@link RevenueWithdrawalStateSucceeded}
+- {@link RevenueWithdrawalStateFailed}
+ */
 export type RevenueWithdrawalState =
 	| RevenueWithdrawalStatePending
 	| RevenueWithdrawalStateSucceeded
@@ -11373,13 +11405,14 @@ export interface AffiliateInfo {
 
 /** This object describes the source of a transaction, or its recipient for outgoing transactions. Currently, it can be one of
 
-- TransactionPartnerUser
-- TransactionPartnerChat
-- TransactionPartnerAffiliateProgram
-- TransactionPartnerFragment
-- TransactionPartnerTelegramAds
-- TransactionPartnerTelegramApi
-- TransactionPartnerOther */
+- {@link TransactionPartnerUser}
+- {@link TransactionPartnerChat}
+- {@link TransactionPartnerAffiliateProgram}
+- {@link TransactionPartnerFragment}
+- {@link TransactionPartnerTelegramAds}
+- {@link TransactionPartnerTelegramApi}
+- {@link TransactionPartnerOther}
+ */
 export type TransactionPartner =
 	| TransactionPartnerUser
 	| TransactionPartnerChat
@@ -11604,16 +11637,17 @@ export interface BotApi<F> {
 }
 
 /** This object represents an error in the Telegram Passport element which was submitted that should be resolved by the user. It should be one of:
-- PassportElementErrorDataField
-- PassportElementErrorFrontSide
-- PassportElementErrorReverseSide
-- PassportElementErrorSelfie
-- PassportElementErrorFile
-- PassportElementErrorFiles
-- PassportElementErrorTranslationFile
-- PassportElementErrorTranslationFiles
-- PassportElementErrorUnspecified
-*/
+
+- {@link PassportElementErrorDataField}
+- {@link PassportElementErrorFrontSide}
+- {@link PassportElementErrorReverseSide}
+- {@link PassportElementErrorSelfie}
+- {@link PassportElementErrorFile}
+- {@link PassportElementErrorFiles}
+- {@link PassportElementErrorTranslationFile}
+- {@link PassportElementErrorTranslationFiles}
+- {@link PassportElementErrorUnspecified}
+ */
 export type PassportElementError =
 	| PassportElementErrorDataField
 	| PassportElementErrorFrontSide
