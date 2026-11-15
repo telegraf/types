@@ -80,7 +80,7 @@ export declare namespace Update {
 		message_reaction: MessageReactionUpdated;
 	}
 	export interface MessageReactionCountUpdate extends AbstractUpdate {
-		/** Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify `"message_reaction_count"` in the list of allowed_updates to receive these updates. */
+		/** Reactions to a message with anonymous reactions were changed. The bot must be an administrator in the chat and must explicitly specify "message_reaction_count" in the list of allowed_updates to receive these updates. The updates are grouped and can be sent with delay up to a few minutes. */
 		message_reaction_count: MessageReactionCountUpdated;
 	}
 	export interface InlineQueryUpdate extends AbstractUpdate {
@@ -159,7 +159,7 @@ export declare namespace Update {
 }
 
 /** This object represents an incoming update.
-At most one of the optional parameters can be present in any given update. */
+At most one of the optional fields can be present in any given update. */
 export type Update =
 	| Update.MessageUpdate
 	| Update.EditedMessageUpdate
@@ -286,7 +286,7 @@ export interface WebhookInfo {
 	last_synchronization_error_date?: number;
 	/** The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery */
 	max_connections?: number;
-	/** A list of update types the bot is subscribed to. Defaults to all update types except chat_member */
+	/** A list of update types the bot is subscribed to. Defaults to all update types except chat_member, message_reaction, and message_reaction_count. */
 	allowed_updates?: string[];
 }
 
@@ -322,7 +322,7 @@ export interface UserFromGetMe extends User {
 	supports_guest_queries?: boolean;
 	/** True, if the bot supports inline queries. Returned only in getMe. */
 	supports_inline_queries: boolean;
-	/** True, if the bot can be connected to a Telegram Business account to receive its messages. Returned only in getMe. */
+	/** True, if the bot can be connected to a user account to manage it. Returned only in getMe. */
 	can_connect_to_business?: boolean;
 	/** True, if the bot has a main Web App. Returned only in getMe. */
 	has_main_web_app?: boolean;
@@ -770,21 +770,21 @@ type ReplyMessage = ServiceMessageBundle | (CommonMessageBundle & { reply_to_mes
 
 export declare namespace Message {
 	export interface ServiceMessage {
-		/** Unique message identifier inside this chat */
+		/** Unique message identifier inside this chat; 0 for ephemeral messages. In specific instances (e.g., a message containing a video sent to a big chat), the server might automatically schedule a message instead of sending it immediately. In such cases, this field will be 0 and the relevant message will be unusable until it is actually sent. */
 		message_id: number;
 		/** Unique identifier of a message thread or a forum topic to which the message belongs; for supergroups only */
 		message_thread_id?: number;
 		/** Information about the direct messages chat topic that contains the message */
 		direct_messages_topic?: DirectMessagesTopic;
-		/** Sender of the message; empty for messages sent to channels. For backward compatibility, the field contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
+		/** Sender of the message; may be empty for messages sent to channels. For backward compatibility, if the message was sent on behalf of a chat, the field contains a fake sender user in non-channel chats. */
 		from?: User;
-		/** Sender of the message, sent on behalf of a chat. For example, the channel itself for channel posts, the supergroup itself for messages from anonymous group administrators, the linked channel for messages automatically forwarded to the discussion group. For backward compatibility, the field from contains a fake sender user in non-channel chats, if the message was sent on behalf of a chat. */
+		/** Sender of the message when sent on behalf of a chat. For example, the supergroup itself for messages sent by its anonymous administrators or a linked channel for messages automatically forwarded to the channel's discussion group. For backward compatibility, if the message was sent on behalf of a chat, the field from contains a fake sender user in non-channel chats. */
 		sender_chat?: Chat;
 		/** Date the message was sent in Unix time. It is always a positive number, representing a valid date. */
 		date: number;
 		/** Chat the message belongs to */
 		chat: Chat;
-		/** True, if the message is sent to a forum topic */
+		/** True, if the message is sent to a topic in a forum supergroup or a private chat with the bot */
 		is_topic_message?: true;
 	}
 	export interface CommonMessage extends ServiceMessage {
@@ -804,7 +804,7 @@ export declare namespace Message {
 		forward_origin?: MessageOrigin;
 		/** True, if the message is a channel post that was automatically forwarded to the connected discussion group */
 		is_automatic_forward?: true;
-		/** For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. */
+		/** For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted. */
 		reply_to_message?: ReplyMessage;
 		/** Information about the message that is being replied to, which may come from another chat or forum topic */
 		external_reply?: ExternalReplyInfo;
@@ -860,7 +860,7 @@ export declare namespace Message {
 		caption_entities?: MessageEntity[];
 	}
 	export interface MediaMessage extends CaptionableMessage {
-		/** The unique identifier of a media message group this message belongs to */
+		/** The unique identifier inside this chat of a media message group this message belongs to */
 		media_group_id?: string;
 		/** True, if the message media is covered by a spoiler animation */
 		has_media_spoiler?: true;
@@ -1668,13 +1668,13 @@ export declare namespace ReplyParameters {
 	interface Common {
 		/** Identifier of the message that will be replied to in the current chat, or in the chat chat_id if it is specified. Required if ephemeral_message_id isn't specified. */
 		message_id?: number;
-		/** If the message to be replied to is from a different chat, unique identifier for the chat or username of the channel (in the format `@channelusername`). Not supported for messages sent on behalf of a business account and messages from channel direct messages chats. */
+		/** If the message to be replied to is from a different chat, unique identifier for the chat or username of the bot, supergroup, or channel in the format `@username`. Not supported for messages sent on behalf of a business account, messages from channel direct messages chats and ephemeral messages. */
 		chat_id?: number | string;
 		/** Identifier of the incoming ephemeral message that will be replied to in the current chat. A reply to an ephemeral message must itself be an ephemeral message. An ephemeral message may only be replied to within 15 seconds of being sent. Required if message_id isn't specified. */
 		ephemeral_message_id?: number;
-		/** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic. Always True for messages sent on behalf of a business account. */
+		/** Pass True if the message should be sent even if the specified message to be replied to is not found. Always False for replies in another chat or forum topic, and sent ephemeral messages. Always True for messages sent on behalf of a business account. */
 		allow_sending_without_reply?: boolean;
-		/** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, and custom_emoji entities. The message will fail to send if the quote isn't found in the original message. */
+		/** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities. The message will fail to send if the quote isn't found in the original message. Ignored for ephemeral messages. */
 		quote?: string;
 		/** Mode for parsing entities in the quote. See formatting options for more details. */
 		quote_parse_mode?: ParseMode;
@@ -1918,7 +1918,7 @@ export interface Video {
 	file_size?: number;
 }
 
-/** This object represents a video message (available in Telegram apps as of v.4.0). */
+/** This object represents a video message. */
 export interface VideoNote {
 	/** Identifier for this file, which can be used to download or reuse the file */
 	file_id: string;
@@ -2165,7 +2165,7 @@ export interface PollOption {
 	text_entities?: MessageEntity.CustomEmoji[];
 	/** Media added to the poll option */
 	media?: PollMedia;
-	/** Number of users that voted for this option */
+	/** Number of users who voted for this option; may be 0 if unknown */
 	voter_count: number;
 	/** User who added the option; omitted if the option wasn't added by a user after poll creation */
 	added_by_user?: User;
@@ -2261,7 +2261,7 @@ export interface ChecklistTask {
 	text: string;
 	/** Special entities that appear in the task text */
 	text_entities?: MessageEntity[];
-	/** User that completed the task; omitted if the task wasn't completed */
+	/** User that completed the task; omitted if the task wasn't completed by a user */
 	completed_by_user?: User;
 	/** Chat that completed the task; omitted if the task wasn't completed by a chat */
 	completed_by_chat?: Chat;
@@ -2731,9 +2731,9 @@ export interface SuggestedPostDeclined {
 export interface SuggestedPostPaid {
 	/** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
-	/** Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for toncoins */
+	/** Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for TON grams. */
 	currency: string;
-	/** The amount of the currency that was received by the channel in nanotoncoins; for payments in toncoins only */
+	/** The amount of the currency that was received by the channel in nanograms; for payments in TON grams only */
 	amount?: number;
 	/** The amount of Telegram Stars that was received by the channel; for payments in Telegram Stars only */
 	star_amount?: StarAmount;
@@ -2846,9 +2846,9 @@ export interface LinkPreviewOptions {
 
 /** Describes the price of a suggested post. */
 export interface SuggestedPostPrice {
-	/** Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for toncoins */
+	/** Currency in which the post will be paid. Currently, must be one of “XTR” for Telegram Stars or “TON” for TON grams. */
 	currency: string;
-	/** The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanotoncoins. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanotoncoins must be between 10000000 and 10000000000000. */
+	/** The amount of the currency that will be paid for the post in the smallest units of the currency, i.e. Telegram Stars or nanograms. Currently, price in Telegram Stars must be between 5 and 100000, and price in nanograms must be between 10000000 and 10000000000000. */
 	amount: number;
 }
 
@@ -2914,7 +2914,7 @@ export interface WebAppInfo {
 	url: string;
 }
 
-/** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a Telegram Business account. */
+/** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardMarkup {
 	/** Array of button rows, each represented by an Array of KeyboardButton objects */
 	keyboard: KeyboardButton[][];
@@ -3065,13 +3065,13 @@ export interface KeyboardButtonPollType {
 	type?: "quiz" | "regular";
 }
 
-/** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). */
+/** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardRemove {
 	/** Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup) */
 	remove_keyboard: true;
-	/** Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message.
+	/** Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
 
-  Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet. */
+Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet. */
 	selective?: boolean;
 }
 
@@ -3101,15 +3101,15 @@ export declare namespace InlineKeyboardButton {
 		callback_data: string;
 	}
 	export interface WebAppButton extends AbstractInlineKeyboardButton {
-		/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a Telegram Business account. */
+		/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages. */
 		web_app: WebAppInfo;
 	}
 	export interface LoginButton extends AbstractInlineKeyboardButton {
-		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. */
+		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages. */
 		login_url: LoginUrl;
 	}
 	export interface SwitchInlineButton extends AbstractInlineKeyboardButton {
-		/** If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account. */
+		/** If set, pressing the button will prompt the user to select one of their chats, open that chat and insert the bot's username and the specified inline query in the input field. May be empty, in which case just the bot's username will be inserted. Not supported for messages sent in channel direct messages chats and on behalf of a business account. */
 		switch_inline_query: string;
 	}
 	export interface SwitchInlineCurrentChatButton extends AbstractInlineKeyboardButton {
@@ -3119,7 +3119,7 @@ export declare namespace InlineKeyboardButton {
 		switch_inline_query_current_chat: string;
 	}
 	export interface SwitchInlineChosenChatButton extends AbstractInlineKeyboardButton {
-		/** If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a Telegram Business account. */
+		/** If set, pressing the button will prompt the user to select one of their chats of the specified type, open that chat and insert the bot's username and the specified inline query in the input field. Not supported for messages sent in channel direct messages chats and on behalf of a business account. */
 		switch_inline_query_chosen_chat: SwitchInlineQueryChosenChat;
 	}
 	export interface CopyButton extends AbstractInlineKeyboardButton {
@@ -3137,9 +3137,9 @@ export declare namespace InlineKeyboardButton {
 		disabled: DisabledButton;
 	}
 	export interface PayButton extends AbstractInlineKeyboardButton {
-		/** Specify True, to send a Pay button.
+		/** Specify True, to send a Pay button. Substrings “⭐” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.
 
-    NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages. */
+NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages. */
 		pay: boolean;
 	}
 }
@@ -3167,7 +3167,7 @@ export interface LoginUrl {
 	url: string;
 	/** New text of the button in forwarded messages. */
 	forward_text?: string;
-	/** Username of a bot, which will be used for user authorization. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details. */
+	/** Username of a bot, which will be used for user authorization; not supported in RichMessageButton. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details. */
 	bot_username?: string;
 	/** Pass True to request the permission for your bot to send messages to the user. */
 	request_write_access?: boolean;
@@ -3344,7 +3344,7 @@ export interface ForceReply {
 	force_reply: true;
 	/** The placeholder to be shown in the input field when the reply is active; 1-64 characters */
 	input_field_placeholder?: string;
-	/** Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message. */
+	/** Use this parameter if you want to force reply from specific users only. Targets: 1) users that are @mentioned in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. */
 	selective?: boolean;
 }
 /** Represents a community (a group of chats). */
@@ -3545,7 +3545,7 @@ export interface ChatMemberRestricted extends AbstractChatMember {
 	tag?: string;
 	/** True, if the user is a member of the chat at the moment of the request */
 	is_member: boolean;
-	/** True, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues */
+	/** True, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues */
 	can_send_messages: boolean;
 	/** True, if the user is allowed to send audios */
 	can_send_audios: boolean;
@@ -3613,7 +3613,7 @@ export interface ChatJoinRequest {
 
 /** Describes actions that a non-administrator user is allowed to take in a chat. */
 export interface ChatPermissions {
-	/** True, if the user is allowed to send text messages, contacts, giveaways, giveaway winners, invoices, locations and venues */
+	/** True, if the user is allowed to send text messages, rich messages, contacts, giveaways, giveaway winners, invoices, locations and venues */
 	can_send_messages?: boolean;
 	/** True, if the user is allowed to send audios */
 	can_send_audios?: boolean;
@@ -4102,9 +4102,9 @@ export interface Gift {
 	is_premium?: true;
 	/** True, if the gift can be used (after being upgraded) to customize a user's appearance */
 	has_colors?: true;
-	/** The total number of the gifts of this type that can be sent; for limited gifts only */
+	/** The total number of gifts of this type that can be sent by all users; for limited gifts only */
 	total_count?: number;
-	/** The number of remaining gifts of this type that can be sent; for limited gifts only */
+	/** The number of remaining gifts of this type that can be sent by all users; for limited gifts only */
 	remaining_count?: number;
 	/** The total number of gifts of this type that can be sent by the bot; for limited gifts only */
 	personal_total_count?: number;
@@ -4130,7 +4130,7 @@ export interface UniqueGiftModel {
 	name: string;
 	/** The sticker that represents the unique gift */
 	sticker: Sticker;
-	/** The number of unique gifts that receive this model for every 1000 gifts upgraded */
+	/** The number of unique gifts that receive this model for every 1000 gift upgrades. Always 0 for crafted gifts. */
 	rarity_per_mille: number;
 	/** Rarity of the model if it is a crafted model. Currently, can be “uncommon”, “rare”, “epic”, or “legendary”. */
 	rarity?: "uncommon" | "rare" | "epic" | "legendary";
@@ -4219,7 +4219,7 @@ export interface GiftInfo {
 	owned_gift_id?: string;
 	/** Number of Telegram Stars that can be claimed by the receiver by converting the gift; omitted if conversion to Telegram Stars is impossible */
 	convert_star_count?: number;
-	/** Number of Telegram Stars that were prepaid by the sender for the ability to upgrade the gift */
+	/** Number of Telegram Stars that were prepaid for the ability to upgrade the gift */
 	prepaid_upgrade_star_count?: number;
 	/** True, if the gift's upgrade was purchased after the gift was sent */
 	is_upgrade_separate?: true;
@@ -4239,7 +4239,7 @@ export interface GiftInfo {
 export interface UniqueGiftInfo {
 	/** Information about the gift */
 	gift: UniqueGift;
-	/** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, or “resale” for gifts bought from other users */
+	/** Origin of the gift. Currently, either “upgrade” for gifts upgraded from regular gifts, “transfer” for gifts transferred from other users or channels, “resale” for gifts bought from other users, “gifted_upgrade” for upgrades purchased after the gift was sent, or “offer” for gifts bought or sold through gift purchase offers. */
 	origin: "upgrade" | "transfer" | "resale" | "gifted_upgrade" | "offer";
 	/** Text of the message that was added to the gift */
 	text?: string;
@@ -4291,9 +4291,9 @@ export interface OwnedGiftRegular {
 	can_be_upgraded?: true;
 	/** True, if the gift was refunded and isn't available anymore */
 	was_refunded?: true;
-	/** Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars */
+	/** Number of Telegram Stars that can be claimed by the receiver instead of the gift; omitted if the gift cannot be converted to Telegram Stars; for gifts received on behalf of business accounts only */
 	convert_star_count?: number;
-	/** Number of Telegram Stars that were paid by the sender for the ability to upgrade the gift */
+	/** Number of Telegram Stars that were paid for the ability to upgrade the gift */
 	prepaid_upgrade_star_count?: number;
 	/** True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only */
 	is_upgrade_separate?: true;
@@ -4443,7 +4443,7 @@ export interface BotCommandScopeAllChatAdministrators {
 export interface BotCommandScopeChat {
 	/** Scope type, must be chat */
 	type: "chat";
-	/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
+	/** Unique identifier for the target chat or username of the target supergroup in the format `@username`. Channel direct messages chats and channel chats aren't supported. */
 	chat_id: number | string;
 }
 
@@ -4451,7 +4451,7 @@ export interface BotCommandScopeChat {
 export interface BotCommandScopeChatAdministrators {
 	/** Scope type, must be chat_administrators */
 	type: "chat_administrators";
-	/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
+	/** Unique identifier for the target chat or username of the target supergroup in the format `@username`. Channel direct messages chats and channel chats aren't supported. */
 	chat_id: number | string;
 }
 
@@ -4459,7 +4459,7 @@ export interface BotCommandScopeChatAdministrators {
 export interface BotCommandScopeChatMember {
 	/** Scope type, must be chat_member */
 	type: "chat_member";
-	/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel direct messages chats and channel chats aren't supported. */
+	/** Unique identifier for the target chat or username of the target supergroup in the format `@username`. Channel direct messages chats and channel chats aren't supported. */
 	chat_id: number | string;
 	/** Unique identifier of the target user */
 	user_id: number;
@@ -4726,7 +4726,7 @@ export type InputMedia<F> =
 
 /** Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound) to be sent. */
 export interface InputMediaAnimation<F> {
-	/** Type of the result, must be animation */
+	/** Type of the media, must be animation */
 	type: "animation";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
@@ -4752,7 +4752,7 @@ export interface InputMediaAnimation<F> {
 
 /** Represents an audio file to be treated as music to be sent. */
 export interface InputMediaAudio<F> {
-	/** Type of the result, must be audio */
+	/** Type of the media, must be audio */
 	type: "audio";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
@@ -4774,7 +4774,7 @@ export interface InputMediaAudio<F> {
 
 /** Represents a general file to be sent. */
 export interface InputMediaDocument<F> {
-	/** Type of the result, must be document */
+	/** Type of the media, must be document */
 	type: "document";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
@@ -4831,7 +4831,7 @@ export interface InputMediaLocation {
 
 /** Represents a photo to be sent. */
 export interface InputMediaPhoto<F> {
-	/** Type of the result, must be photo */
+	/** Type of the media, must be photo */
 	type: "photo";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
@@ -4880,7 +4880,7 @@ export interface InputMediaVenue {
 
 /** Represents a video to be sent. */
 export interface InputMediaVideo<F> {
-	/** Type of the result, must be video */
+	/** Type of the media, must be video */
 	type: "video";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
@@ -5041,7 +5041,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5089,13 +5089,13 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ForwardMessage {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`) */
+		/** Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup, or channel in the format `@username`) */
 		from_chat_id: number | string;
 		/** New start timestamp for the forwarded video in the message */
 		video_start_timestamp?: number;
@@ -5119,13 +5119,13 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ForwardMessages {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
+		/** Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format `@username`) */
 		from_chat_id: number | string;
 		/** A list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
 		message_ids: number[];
@@ -5143,13 +5143,13 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface CopyMessage {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`) */
+		/** Unique identifier for the chat where the original message was sent (or username of the target bot, supergroup, or channel in the format `@username`) */
 		from_chat_id: number | string;
 		/** Message identifier in the chat specified in from_chat_id */
 		message_id: number;
@@ -5181,19 +5181,19 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
+	/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
 	copyMessage(args: Args.CopyMessage, options?: CallOptions): Promise<MessageId>;
 }
 
 export declare namespace Args {
 	export interface CopyMessages {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** Unique identifier for the chat where the original messages were sent (or channel username in the format `@channelusername`) */
+		/** Unique identifier for the chat where the original messages were sent (or username of the target bot, supergroup, or channel in the format `@username`) */
 		from_chat_id: number | string;
 		/** A list of 1-100 identifiers of messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
 		message_ids: number[];
@@ -5207,7 +5207,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, and invoice messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_id is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an array of MessageId of the sent messages is returned. */
+	/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of MessageId of the sent messages is returned. */
 	copyMessages(args: Args.CopyMessages, options?: CallOptions): Promise<MessageId[]>;
 }
 
@@ -5217,7 +5217,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5334,7 +5334,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5396,7 +5396,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5455,7 +5455,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5525,7 +5525,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5592,7 +5592,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5646,7 +5646,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5786,13 +5786,13 @@ export declare namespace Args {
 	export interface SendPaidMedia<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance. */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. If the chat is a channel, all Telegram Star proceeds from this media will be credited to the chat's balance. Otherwise, they will be credited to the bot's balance. */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
-		/** The number of Telegram Stars that must be paid to buy access to the media; 1-10000 */
+		/** The number of Telegram Stars that must be paid to buy access to the media; 1-25000 */
 		star_count: number;
 		/** An array describing the media to be sent; up to 10 items */
 		media: InputPaidMedia<F>[];
@@ -5833,9 +5833,9 @@ export declare namespace Args {
 	export interface SendMediaGroup<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5857,7 +5857,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of Message objects that were sent is returned. */
+	/** Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of Message objects that were sent is returned. */
 	sendMediaGroup(
 		args: Args.SendMediaGroup<F>,
 		options?: CallOptions,
@@ -5875,7 +5875,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -5887,7 +5887,7 @@ export declare namespace Args {
 		longitude: number;
 		/** The radius of uncertainty for the location, measured in meters; 0-1500 */
 		horizontal_accuracy?: number;
-		/** Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
+		/** Period in seconds during which the location will be updated (see Live Locations), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
 		live_period?: number;
 		/** The direction in which user is moving, in degrees; 1-360. For active live locations only. */
 		heading?: number;
@@ -5912,7 +5912,7 @@ export declare namespace Args {
 	export interface SendLocationEphemeral extends Omit<SendLocation, "ephemeral_message_parameters" | "live_period"> {
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters: EphemeralMessageParameters.Chat;
-		/** Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
+		/** Period in seconds during which the location will be updated (see Live Locations), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
 		live_period?: 0;
 	}
 
@@ -5941,7 +5941,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -6001,7 +6001,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -6051,9 +6051,9 @@ export declare namespace Args {
 	export interface SendPoll<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Polls can't be sent to channel direct messages chats. */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. Polls can't be sent to channel direct messages chats. */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Poll question, 1-300 characters */
 		question: string;
@@ -6067,7 +6067,7 @@ export declare namespace Args {
 		is_anonymous?: true;
 		/** Poll type, “quiz” or “regular”, defaults to “regular” */
 		type?: "regular";
-		/** True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to False */
+		/** Pass True if the poll allows multiple answers, defaults to False */
 		allows_multiple_answers?: boolean;
 		/** Pass True if the poll allows to change chosen answer options, defaults to False for quizzes and to True for regular polls */
 		allows_revoting?: boolean;
@@ -6094,9 +6094,9 @@ export declare namespace Args {
 		explanation_entities?: MessageEntity[];
 		/** Media added to the quiz explanation */
 		explanation_media?: InputPollMedia<F>;
-		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		/** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with close_date. */
 		open_period?: number;
-		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with open_period. */
 		close_date?: undefined;
 		/** Pass True if the poll needs to be immediately closed. This can be useful for poll preview. */
 		is_closed?: boolean;
@@ -6123,9 +6123,9 @@ export declare namespace Args {
 	}
 
 	export interface SendPollClosingAt<F> extends Omit<SendPoll<F>, "open_period" | "close_date"> {
-		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		/** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with close_date. */
 		open_period?: undefined;
-		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with open_period. */
 		close_date: number;
 	}
 
@@ -6137,9 +6137,9 @@ export declare namespace Args {
 	}
 
 	export interface SendPollPublicClosingAt<F> extends Omit<SendPollPublic<F>, "open_period" | "close_date"> {
-		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		/** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with close_date. */
 		open_period?: undefined;
-		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with open_period. */
 		close_date: number;
 	}
 
@@ -6153,9 +6153,9 @@ export declare namespace Args {
 	}
 
 	export interface SendQuizClosingAt<F> extends Omit<SendQuiz<F>, "open_period" | "close_date"> {
-		/** Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with close_date. */
+		/** Amount of time in seconds the poll will be active after creation, 5-2628000. Can't be used together with close_date. */
 		open_period?: undefined;
-		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with open_period. */
+		/** Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 2628000 seconds in the future. Can't be used together with open_period. */
 		close_date: number;
 	}
 }
@@ -6178,7 +6178,7 @@ export declare namespace Args {
 	export interface SendChecklist {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id: string;
-		/** Unique identifier for the target chat */
+		/** Unique identifier for the target chat or username of the target bot in the format `@username` */
 		chat_id: number | string;
 		/** An object for the checklist to send */
 		checklist: InputChecklist;
@@ -6207,9 +6207,9 @@ export declare namespace Args {
 	export interface SendDice {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -6267,9 +6267,9 @@ export declare namespace Args {
 	export interface SendChatAction {
 		/** Unique identifier of the business connection on behalf of which the action will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`). Channel chats and channel direct messages chats aren't supported. */
+		/** Unique identifier for the target chat or username of the target bot or supergroup in the format `@username`. Channel chats and channel direct messages chats aren't supported. */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread; for supergroups only */
+		/** Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
 		action:
@@ -6298,7 +6298,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetMessageReaction {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
 		/** Identifier of the target message. If the message belongs to a media group, the reaction is set to the first non-deleted message in the group instead. */
 		message_id: number;
@@ -6388,7 +6388,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface BanChatMember {
-		/** Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target group or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6406,7 +6406,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface UnbanChatMember {
-		/** Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target group or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6422,7 +6422,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface RestrictChatMember {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6442,7 +6442,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface PromoteChatMember {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6468,13 +6468,13 @@ export declare namespace Args {
 		can_edit_stories?: boolean;
 		/** Pass True if the administrator can delete stories posted by other users */
 		can_delete_stories?: boolean;
-		/** Pass True if the administrator can post messages in the channel, or access channel statistics; for channels only */
+		/** Pass True if the administrator can post messages in the channel, approve suggested posts, or access channel statistics; for channels only */
 		can_post_messages?: boolean;
-		/** Pass True if the administrator can edit messages of other users and can pin messages, channels only */
+		/** Pass True if the administrator can edit messages of other users and can pin messages; for channels only */
 		can_edit_messages?: boolean;
-		/** Pass True if the administrator can pin messages; supergroups only */
+		/** Pass True if the administrator can pin messages; for supergroups only */
 		can_pin_messages?: boolean;
-		/** Pass True if the user is allowed to create, rename, close, and reopen forum topics; supergroups only */
+		/** Pass True if the user is allowed to create, rename, close, and reopen forum topics; for supergroups only */
 		can_manage_topics?: boolean;
 		/** Pass True if the administrator can manage direct messages within the channel and decline suggested posts; for channels only */
 		can_manage_direct_messages?: boolean;
@@ -6492,7 +6492,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatAdministratorCustomTitle {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6524,7 +6524,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface BanChatSenderChat {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target sender chat */
 		sender_chat_id: number;
@@ -6538,7 +6538,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface UnbanChatSenderChat {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target sender chat */
 		sender_chat_id: number;
@@ -6552,7 +6552,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatPermissions {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** An object for new default chat permissions */
 		permissions: ChatPermissions;
@@ -6568,7 +6568,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ExportChatInviteLink {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -6582,7 +6582,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface CreateChatInviteLink {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Invite link name; 0-32 characters */
 		name?: string;
@@ -6615,7 +6615,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface EditChatInviteLink {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** The invite link to edit */
 		invite_link: string;
@@ -6671,7 +6671,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface EditChatSubscriptionInviteLink {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** The invite link to edit */
 		invite_link: string;
@@ -6690,7 +6690,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface RevokeChatInviteLink {
-		/** Unique identifier of the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier of the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** The invite link to revoke */
 		invite_link: string;
@@ -6704,7 +6704,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ApproveChatJoinRequest {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6718,7 +6718,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeclineChatJoinRequest {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6760,7 +6760,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatPhoto<F> {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** New chat photo, uploaded using multipart/form-data */
 		photo: F;
@@ -6774,7 +6774,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeleteChatPhoto {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -6786,7 +6786,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatTitle {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** New chat title, 1-128 characters */
 		title: string;
@@ -6800,7 +6800,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatDescription {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** New chat description, 0-255 characters */
 		description?: string;
@@ -6816,7 +6816,7 @@ export declare namespace Args {
 	export interface PinChatMessage {
 		/** Unique identifier of the business connection on behalf of which the message will be pinned */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Identifier of a message to pin */
 		message_id: number;
@@ -6834,7 +6834,7 @@ export declare namespace Args {
 	export interface UnpinChatMessage {
 		/** Unique identifier of the business connection on behalf of which the message will be pinned */
 		business_connection_id?: undefined;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 		/** Identifier of the message to unpin. Required if business_connection_id is specified. If not specified, the most recent pinned message (by sending date) will be unpinned. */
 		message_id?: number;
@@ -6855,7 +6855,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface UnpinAllChatMessages {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -6867,7 +6867,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface LeaveChat {
-		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`). Channel direct messages chats aren't supported; leave the corresponding channel instead. */
+		/** Unique identifier for the target chat or username of the target supergroup or channel in the format `@username`. Channel direct messages chats aren't supported; leave the corresponding channel instead. */
 		chat_id: number | string;
 	}
 }
@@ -6879,7 +6879,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetChat {
-		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -6891,7 +6891,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetChatAdministrators {
-		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 		/** Pass True to additionally receive all bots that are administrators of the chat. By default, bots other than the current bot are omitted. */
 		return_bots?: boolean;
@@ -6899,7 +6899,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get a list of administrators in a chat, which aren't bots. Returns an Array of ChatMember objects. */
+	/** Use this method to get a list of administrators in a chat. Returns an Array of ChatMember objects. */
 	getChatAdministrators(
 		args: Args.GetChatAdministrators,
 		options?: CallOptions,
@@ -6918,19 +6918,19 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetChatMemberCount {
-		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the number of members in a chat. Returns Int on success. */
+	/** Use this method to get the number of members in a chat. Returns Integer on success. */
 	getChatMemberCount(args: Args.GetChatMemberCount, options?: CallOptions): Promise<number>;
 }
 
 export declare namespace Args {
 	export interface GetChatMember {
-		/** Unique identifier for the target chat or username of the target supergroup or channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup or channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -6963,7 +6963,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatStickerSet {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Name of the sticker set to be set as the group sticker set */
 		sticker_set_name: string;
@@ -6977,7 +6977,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeleteChatStickerSet {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -6994,7 +6994,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface CreateForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Topic name, 1-128 characters */
 		name: string;
@@ -7006,13 +7006,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to create a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns information about the created topic as a ForumTopic object. */
+	/** Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator right. In the case of a private chat, a link to the topic can be created in the format https://t.me/<bot_username>/<message_thread_id>; the link opens the topic only for the user. Returns information about the created topic as a ForumTopic object. */
 	createForumTopic(args: Args.CreateForumTopic, options?: CallOptions): Promise<ForumTopic>;
 }
 
 export declare namespace Args {
 	export interface EditForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread of the forum topic */
 		message_thread_id: number;
@@ -7024,13 +7024,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit name and icon of a topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
+	/** Use this method to edit name and icon of a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights, unless it is the creator of the topic. Returns True on success. */
 	editForumTopic(args: Args.EditForumTopic, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
 	export interface CloseForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread of the forum topic */
 		message_thread_id: number;
@@ -7044,7 +7044,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ReopenForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread of the forum topic */
 		message_thread_id: number;
@@ -7058,7 +7058,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeleteForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread of the forum topic */
 		message_thread_id: number;
@@ -7066,13 +7066,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to delete a forum topic along with all its messages in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success. */
+	/** Use this method to delete a forum topic along with all its messages in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_delete_messages administrator rights. Returns True on success. */
 	deleteForumTopic(args: Args.DeleteForumTopic, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
 	export interface UnpinAllForumTopicMessages {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread of the forum topic */
 		message_thread_id: number;
@@ -7080,13 +7080,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to clear the list of pinned messages in a forum topic. The bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
+	/** Use this method to clear the list of pinned messages in a forum topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_pin_messages administrator right in the supergroup. Returns True on success. */
 	unpinAllForumTopicMessages(args: Args.UnpinAllForumTopicMessages, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
 	export interface EditGeneralForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 		/** New topic name, 1-128 characters */
 		name: string;
@@ -7094,13 +7094,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have can_manage_topics administrator rights. Returns True on success. */
+	/** Use this method to edit the name of the 'General' topic in a forum supergroup chat. The bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator rights. Returns True on success. */
 	editGeneralForumTopic(args: Args.EditGeneralForumTopic, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
 	export interface CloseGeneralForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -7112,7 +7112,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface ReopenGeneralForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -7124,7 +7124,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface HideGeneralForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -7136,7 +7136,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface UnhideGeneralForumTopic {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -7148,7 +7148,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface UnpinAllGeneralForumTopicMessages {
-		/** Unique identifier for the target chat or username of the target supergroup (in the format `@supergroupusername`) */
+		/** Unique identifier for the target chat or username of the target supergroup in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -7170,7 +7170,7 @@ export declare namespace Args {
 
     Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
 		url?: string;
-		/** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0. */
+		/** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Defaults to 0. */
 		cache_time?: number;
 	}
 }
@@ -7212,7 +7212,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetUserChatBoosts {
-		/** Unique identifier for the chat or username of the channel (in the format `@channelusername`) */
+		/** Unique identifier for the chat or username of the channel in the format `@username` */
 		chat_id: number | string;
 		/** Unique identifier of the target user */
 		user_id: number;
@@ -7431,7 +7431,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface SetChatMenuButton {
-		/** Unique identifier for the target private chat. If not specified, default bot's menu button will be changed */
+		/** Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed. */
 		chat_id?: number;
 		/** An object for the bot's new menu button. Defaults to MenuButtonDefault */
 		menu_button?: MenuButton;
@@ -7445,7 +7445,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetChatMenuButton {
-		/** Unique identifier for the target private chat. If not specified, default bot's menu button will be returned */
+		/** Unique identifier for the target private chat. If not specified, the bot's default menu button will be returned. */
 		chat_id?: number;
 	}
 }
@@ -7493,24 +7493,24 @@ export declare namespace Args {
 	export interface SendGift {
 		/** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift */
 		user_id: number;
-		/** Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift */
+		/** Required if user_id is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format `@username`. */
 		chat_id?: undefined;
-		/** Identifier of the gift */
+		/** Identifier of the gift; limited gifts can't be sent to channel chats */
 		gift_id: string;
 		/** Pass True to pay for the gift upgrade from the bot's balance, thereby making the upgrade free for the receiver */
 		pay_for_upgrade?: boolean;
-		/** Text that will be shown along with the gift; 0-255 characters */
+		/** Text that will be shown along with the gift; 0-128 characters */
 		text?: string;
-		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_parse_mode?: ParseMode;
-		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_entities?: MessageEntity[];
 	}
 
 	export interface SendGiftToChat extends Omit<SendGift, "user_id" | "chat_id"> {
 		/** Required if chat_id is not specified. Unique identifier of the target user who will receive the gift */
 		user_id?: undefined;
-		/** Required if user_id is not specified. Unique identifier for the chat or username of the channel (in the format `@channelusername`) that will receive the gift */
+		/** Required if user_id is not specified. Unique identifier for the chat that will receive the gift or username of the channel in the format `@username`. */
 		chat_id: number | string;
 	}
 }
@@ -7530,9 +7530,9 @@ export declare namespace Args {
 		star_count: 1000 | 1500 | 2500;
 		/** Text that will be shown along with the service message about the subscription; 0-128 characters */
 		text?: string;
-		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_parse_mode?: ParseMode;
-		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, and “custom_emoji” are ignored. */
+		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_entities?: MessageEntity[];
 	}
 }
@@ -7562,7 +7562,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface VerifyChat {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`). Channel direct messages chats can't be verified. */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. Channel direct messages chats can't be verified. */
 		chat_id: number | string;
 		/** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
 		custom_description?: string;
@@ -7592,7 +7592,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface RemoveChatVerification {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot or channel in the format `@username` */
 		chat_id: number | string;
 	}
 }
@@ -8067,7 +8067,7 @@ export declare namespace Args {
 	export interface EditMessageText {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id: number;
@@ -8095,7 +8095,7 @@ export declare namespace Args {
 	}
 
 	export interface EditMessageTextInline extends Omit<EditMessageText, "chat_id" | "message_id" | "inline_message_id"> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8107,7 +8107,7 @@ export declare namespace Args {
 		EditMessageText,
 		"chat_id" | "message_id" | "inline_message_id" | "text" | "rich_message"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8146,7 +8146,7 @@ export declare namespace Args {
 	export interface EditMessageCaption {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id: number;
@@ -8168,7 +8168,7 @@ export declare namespace Args {
 		EditMessageCaption,
 		"chat_id" | "message_id" | "inline_message_id"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8192,13 +8192,13 @@ export declare namespace Args {
 	export interface EditMessageMedia<F> {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: undefined;
-		/** An object for a new media content of the message */
+		/** An object for the new media content of the message */
 		media: InputMedia<F>;
 		/** An object for a new inline keyboard. */
 		reply_markup?: InlineKeyboardMarkup;
@@ -8208,7 +8208,7 @@ export declare namespace Args {
 		EditMessageMedia<never>,
 		"chat_id" | "message_id" | "inline_message_id"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8218,13 +8218,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(
 		args: Args.EditMessageMedia<F>,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message & Message.BusinessSentMessage>;
 
-	/** Use this method to edit animation, audio, document, photo, or video messages, or to add media to text messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(args: Args.EditMessageMediaInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8232,7 +8232,7 @@ export declare namespace Args {
 	export interface EditMessageLiveLocation {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id: number;
@@ -8258,7 +8258,7 @@ export declare namespace Args {
 		EditMessageLiveLocation,
 		"chat_id" | "message_id" | "inline_message_id"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8282,7 +8282,7 @@ export declare namespace Args {
 	export interface StopMessageLiveLocation {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
 		message_id: number;
@@ -8296,7 +8296,7 @@ export declare namespace Args {
 		StopMessageLiveLocation,
 		"chat_id" | "message_id" | "inline_message_id"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message with live location to stop */
 		message_id?: undefined;
@@ -8394,7 +8394,7 @@ export declare namespace Args {
 	export interface EditMessageReplyMarkup {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id: number | string;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id: number;
@@ -8408,7 +8408,7 @@ export declare namespace Args {
 		EditMessageReplyMarkup,
 		"chat_id" | "message_id" | "inline_message_id"
 	> {
-		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Required if inline_message_id is not specified. Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`. */
 		chat_id?: undefined;
 		/** Required if inline_message_id is not specified. Identifier of the message to edit */
 		message_id?: undefined;
@@ -8432,7 +8432,7 @@ export declare namespace Args {
 	export interface StopPoll {
 		/** Unique identifier of the business connection on behalf of which the message to be edited was sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
 		/** Identifier of the original message with the poll */
 		message_id: number;
@@ -8582,7 +8582,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeleteMessage {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
 		/** Identifier of the message to delete */
 		message_id: number;
@@ -8591,21 +8591,22 @@ export declare namespace Args {
 
 export interface BotApi<F> {
 	/** Use this method to delete a message, including service messages, with the following limitations:
-  - A message can only be deleted if it was sent less than 48 hours ago.
-  - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
-  - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
-  - Bots can delete outgoing messages in private chats, groups, and supergroups.
-  - Bots can delete incoming messages in private chats.
-  - Bots granted can_post_messages permissions can delete outgoing messages in channels.
-  - If the bot is an administrator of a group, it can delete any message there.
-  - If the bot has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
-  Returns True on success. */
+- A message can only be deleted if it was sent less than 48 hours ago.
+- Service messages about a supergroup, channel, or forum topic creation can't be deleted.
+- A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
+- Bots can delete outgoing messages in private chats, groups, and supergroups.
+- Bots can delete incoming messages in private chats.
+- Bots granted can_post_messages permissions can delete outgoing messages in channels.
+- If the bot is an administrator of a group, it can delete any message there.
+- If the bot has can_delete_messages administrator right in a supergroup or a channel, it can delete any message there.
+- If the bot has can_manage_direct_messages administrator right in a channel, it can delete any message in the corresponding direct messages chat.
+Returns True on success. */
 	deleteMessage(args: Args.DeleteMessage, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
 	export interface DeleteMessages {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
 		/** A list of 1-100 identifiers of messages to delete. See {@link ApiMethods.deleteMessage deleteMessage} for limitations on which messages can be deleted */
 		message_ids: number[];
@@ -8748,7 +8749,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -10330,7 +10331,7 @@ export interface InlineQueryResultGif {
 	type: "gif";
 	/** Unique identifier for this result, 1-64 bytes */
 	id: string;
-	/** A valid URL for the GIF file. File size must not exceed 1MB */
+	/** A valid URL for the GIF file */
 	gif_url: string;
 	/** Width of the GIF */
 	gif_width?: number;
@@ -10364,7 +10365,7 @@ export interface InlineQueryResultMpeg4Gif {
 	type: "mpeg4_gif";
 	/** Unique identifier for this result, 1-64 bytes */
 	id: string;
-	/** A valid URL for the MPEG4 file. File size must not exceed 1MB */
+	/** A valid URL for the MPEG4 file */
 	mpeg4_url: string;
 	/** Video width */
 	mpeg4_width?: number;
@@ -10526,7 +10527,7 @@ export interface InlineQueryResultLocation {
 	title: string;
 	/** The radius of uncertainty for the location, measured in meters; 0-1500 */
 	horizontal_accuracy?: number;
-	/** Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
+	/** Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely */
 	live_period?: number;
 	/** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
 	heading?: number;
@@ -10839,7 +10840,7 @@ export interface InputLocationMessageContent {
 	longitude: number;
 	/** The radius of uncertainty for the location, measured in meters; 0-1500 */
 	horizontal_accuracy?: number;
-	/** Period in seconds during which the location can be updated, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
+	/** Period in seconds during which the location can be updated, must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely */
 	live_period?: number;
 	/** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
 	heading?: number;
@@ -10984,9 +10985,9 @@ export interface ChosenInlineResult {
 // Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface SendInvoice {
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username` */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
@@ -11800,7 +11801,7 @@ export declare namespace Args {
 		business_connection_id?: string;
 		/** Unique identifier for the target chat or username of the target bot in the format `@username`. Games can't be sent to channel direct messages chats and channel chats. */
 		chat_id: number | string;
-		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
+		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Short name of the game, serves as the unique identifier for the game. Set up your games via BotFather. */
 		game_short_name: string;
