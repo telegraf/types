@@ -10,6 +10,7 @@ import type {
 	Contact,
 	Dice,
 	Document,
+	EphemeralMessageParameters,
 	ExternalReplyAnimation,
 	ExternalReplyAudio,
 	ExternalReplyContact,
@@ -475,6 +476,33 @@ export const replyWithQuoteEntities: ReplyParameters = {
 
 // An ephemeral message is named by its own identifier, in place of message_id
 export const replyToEphemeralMessage: ReplyParameters = { ephemeral_message_id: 7 };
+
+// Ephemeral message parameters name a receiver in the chat, or the callback query the message replies to.
+export const ephemeralParametersForReceiver: EphemeralMessageParameters = { receiver_user_id: 123456789 };
+
+export const ephemeralParametersForCallbackQuery: EphemeralMessageParameters = {
+	callback_query_id: "4382bfdwdsb323b2d9",
+	replace_callback_query_message: true,
+};
+
+export function addresseeOf(parameters: EphemeralMessageParameters) {
+	if (parameters.receiver_user_id === undefined) {
+		expectType<EphemeralMessageParameters.CallbackQuery>()(parameters);
+		return parameters.callback_query_id;
+	}
+	expectType<EphemeralMessageParameters.Chat>()(parameters);
+	return parameters.receiver_user_id;
+}
+
+export type EphemeralMessageParametersRequiredFields = Assert<
+	Equal<
+		[RequiredKeys<EphemeralMessageParameters.Chat>, RequiredKeys<EphemeralMessageParameters.CallbackQuery>],
+		["receiver_user_id", "callback_query_id"]
+	>
+>;
+
+// @ts-expect-error — ephemeral parameters name a receiver or a callback query
+export const ephemeralParametersWithoutAddressee: EphemeralMessageParameters = { replace_callback_query_message: true };
 
 // A quote from a rich message has one rich text for each quoted text, and its `text` may be empty.
 export const richQuote: TextQuote = {

@@ -1701,14 +1701,27 @@ export declare namespace ReplyParameters {
 
 /** Describes reply parameters for the message that is being sent. */
 export type ReplyParameters = ReplyParameters.MessageReply | ReplyParameters.EphemeralMessageReply;
-export interface EphemeralMessageParameters {
-	/** Identifier of the user who will receive the message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
-	receiver_user_id: number;
-	/** Identifier of the callback query which triggered the message, if any */
-	callback_query_id?: string;
-	/** Pass True if the ephemeral message must be shown in place of the original message. Must be False for callback queries from ephemeral messages, which must be edited using regular editEphemeralMessage… methods. */
-	replace_callback_query_message?: boolean;
+
+export declare namespace EphemeralMessageParameters {
+	interface Common {
+		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using answerCallbackQuery. */
+		callback_query_id?: string;
+		/** Pass True if the ephemeral message must be shown in place of the original message. Must be False for callback queries from ephemeral messages, which must be edited using regular editEphemeralMessage… methods. */
+		replace_callback_query_message?: boolean;
+	}
+	export interface Chat extends Common {
+		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
+		receiver_user_id: number;
+	}
+	export interface CallbackQuery extends Common {
+		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
+		receiver_user_id?: undefined;
+		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using answerCallbackQuery. */
+		callback_query_id: string;
+	}
 }
+
+export type EphemeralMessageParameters = EphemeralMessageParameters.Chat | EphemeralMessageParameters.CallbackQuery;
 
 export interface AbstractMessageOrigin {
 	/** Type of the message origin */
@@ -5026,14 +5039,14 @@ export declare namespace Args {
 	export interface SendMessage {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Text of the message to be sent, 1-4096 characters after entities parsing */
 		text: string;
 		/** Mode for parsing entities in the message text. See formatting options for more details. */
@@ -5057,12 +5070,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendMessageCallbackQuery extends Omit<SendMessage, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send text messages. On success, the sent Message is returned. */
 	sendMessage(
-		args: Args.SendMessage,
+		args: Args.SendMessage | Args.SendMessageCallbackQuery,
 		options?: CallOptions,
 	): Promise<Message.TextMessage & Message.BusinessSentMessage>;
 }
@@ -5195,14 +5215,14 @@ export declare namespace Args {
 	export interface SendPhoto<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. */
 		photo: F | string;
 		/** Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing */
@@ -5230,12 +5250,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendPhotoCallbackQuery<F> extends Omit<SendPhoto<F>, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send photos. On success, the sent Message is returned. */
 	sendPhoto(
-		args: Args.SendPhoto<F>,
+		args: Args.SendPhoto<F> | Args.SendPhotoCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.PhotoMessage & Message.BusinessSentMessage>;
 }
@@ -5244,14 +5271,14 @@ export declare namespace Args {
 	export interface SendLivePhoto<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
 		live_photo: F | string;
 		/** The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
@@ -5281,12 +5308,22 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendLivePhotoCallbackQuery<F> extends Omit<
+		SendLivePhoto<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send live photos. On success, the sent Message is returned. */
 	sendLivePhoto(
-		args: Args.SendLivePhoto<F>,
+		args: Args.SendLivePhoto<F> | Args.SendLivePhotoCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.LivePhotoMessage & Message.BusinessSentMessage>;
 }
@@ -5295,14 +5332,14 @@ export declare namespace Args {
 	export interface SendAudio<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. */
 		audio: F | string;
 		/** Audio caption, 0-1024 characters after entities parsing */
@@ -5334,6 +5371,13 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendAudioCallbackQuery<F> extends Omit<SendAudio<F>, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
@@ -5341,7 +5385,7 @@ export interface BotApi<F> {
 
   For sending voice messages, use the sendVoice method instead. */
 	sendAudio(
-		args: Args.SendAudio<F>,
+		args: Args.SendAudio<F> | Args.SendAudioCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.AudioMessage & Message.BusinessSentMessage>;
 }
@@ -5350,14 +5394,14 @@ export declare namespace Args {
 	export interface SendDocument<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		document: F | string;
 		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
@@ -5385,12 +5429,22 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendDocumentCallbackQuery<F> extends Omit<
+		SendDocument<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
 	sendDocument(
-		args: Args.SendDocument<F>,
+		args: Args.SendDocument<F> | Args.SendDocumentCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.DocumentMessage & Message.BusinessSentMessage>;
 }
@@ -5399,14 +5453,14 @@ export declare namespace Args {
 	export interface SendVideo<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. */
 		video: F | string;
 		/** Duration of sent video in seconds */
@@ -5448,12 +5502,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendVideoCallbackQuery<F> extends Omit<SendVideo<F>, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
 	sendVideo(
-		args: Args.SendVideo<F>,
+		args: Args.SendVideo<F> | Args.SendVideoCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.VideoMessage & Message.BusinessSentMessage>;
 }
@@ -5462,14 +5523,14 @@ export declare namespace Args {
 	export interface SendAnimation<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. */
 		animation: F | string;
 		/** Duration of sent animation in seconds */
@@ -5505,12 +5566,22 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendAnimationCallbackQuery<F> extends Omit<
+		SendAnimation<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
 	sendAnimation(
-		args: Args.SendAnimation<F>,
+		args: Args.SendAnimation<F> | Args.SendAnimationCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.AnimationMessage & Message.BusinessSentMessage>;
 }
@@ -5519,14 +5590,14 @@ export declare namespace Args {
 	export interface SendVoice<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
 		voice: F | string;
 		/** Voice message caption, 0-1024 characters after entities parsing */
@@ -5552,12 +5623,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendVoiceCallbackQuery<F> extends Omit<SendVoice<F>, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
 	sendVoice(
-		args: Args.SendVoice<F>,
+		args: Args.SendVoice<F> | Args.SendVoiceCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.VoiceMessage & Message.BusinessSentMessage>;
 }
@@ -5566,14 +5644,14 @@ export declare namespace Args {
 	export interface SendVideoNote<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data.. Sending video notes by a URL is currently unsupported */
 		video_note: F | string;
 		/** Duration of sent video in seconds */
@@ -5597,13 +5675,23 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendVideoNoteCallbackQuery<F> extends Omit<
+		SendVideoNote<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send video messages. On success, the sent Message is returned.
   As of v.4.0, Telegram clients support rounded square MPEG4 videos of up to 1 minute long. */
 	sendVideoNote(
-		args: Args.SendVideoNote<F>,
+		args: Args.SendVideoNote<F> | Args.SendVideoNoteCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.VideoNoteMessage & Message.BusinessSentMessage>;
 }
@@ -5785,7 +5873,7 @@ export declare namespace Args {
 	export interface SendLocation {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
@@ -5823,16 +5911,26 @@ export declare namespace Args {
 
 	export interface SendLocationEphemeral extends Omit<SendLocation, "ephemeral_message_parameters" | "live_period"> {
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters: EphemeralMessageParameters;
+		ephemeral_message_parameters: EphemeralMessageParameters.Chat;
 		/** Period in seconds during which the location will be updated (see Live Locations, should be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. */
 		live_period?: 0;
+	}
+
+	export interface SendLocationCallbackQuery extends Omit<
+		SendLocationEphemeral,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
 	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send point on the map. On success, the sent Message is returned. */
 	sendLocation(
-		args: Args.SendLocation | Args.SendLocationEphemeral,
+		args: Args.SendLocation | Args.SendLocationEphemeral | Args.SendLocationCallbackQuery,
 		options?: CallOptions,
 	): Promise<Message.LocationMessage & Message.BusinessSentMessage>;
 }
@@ -5841,14 +5939,14 @@ export declare namespace Args {
 	export interface SendVenue {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Latitude of the venue */
 		latitude: number;
 		/** Longitude of the venue */
@@ -5880,25 +5978,35 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendVenueCallbackQuery extends Omit<SendVenue, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send information about a venue. On success, the sent Message is returned. */
-	sendVenue(args: Args.SendVenue, options?: CallOptions): Promise<Message.VenueMessage & Message.BusinessSentMessage>;
+	sendVenue(
+		args: Args.SendVenue | Args.SendVenueCallbackQuery,
+		options?: CallOptions,
+	): Promise<Message.VenueMessage & Message.BusinessSentMessage>;
 }
 
 export declare namespace Args {
 	export interface SendContact {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Contact's phone number */
 		phone_number: string;
 		/** Contact's first name */
@@ -5922,12 +6030,19 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendContactCallbackQuery extends Omit<SendContact, "chat_id" | "ephemeral_message_parameters"> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send phone contacts. On success, the sent Message is returned. */
 	sendContact(
-		args: Args.SendContact,
+		args: Args.SendContact | Args.SendContactCallbackQuery,
 		options?: CallOptions,
 	): Promise<Message.ContactMessage & Message.BusinessSentMessage>;
 }
@@ -8631,14 +8746,14 @@ export declare namespace Args {
 	export interface SendSticker<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target channel (in the format `@channelusername`) */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of the forum; for forum supergroups only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP sticker from the Internet, or upload a new .WEBP, .TGS, or .WEBM sticker using Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html). Video and animated stickers can't be sent via an HTTP URL. */
 		sticker: F | string;
 		/** Emoji associated with the sticker; only for just uploaded stickers */
@@ -8658,12 +8773,22 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendStickerCallbackQuery<F> extends Omit<
+		SendSticker<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
 	sendSticker(
-		args: Args.SendSticker<F>,
+		args: Args.SendSticker<F> | Args.SendStickerCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.StickerMessage & Message.BusinessSentMessage>;
 }
@@ -8950,14 +9075,14 @@ export declare namespace Args {
 	export interface SendRichMessage<F> {
 		/** Unique identifier of the business connection on behalf of which the message will be sent. Bot can send rich messages on behalf of a business account only if the corresponding user can send rich messages. */
 		business_connection_id?: string;
-		/** Unique identifier for the target chat or username of the target bot, supergroup or channel in the format `@username` */
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
 		/** Identifier of the direct messages topic to which the message will be sent; required if the message is sent to a direct messages chat */
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
-		ephemeral_message_parameters?: EphemeralMessageParameters;
+		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** The message to be sent */
 		rich_message: InputRichMessage<F>;
 		/** Sends the message silently. Users will receive a notification with no sound. */
@@ -8975,12 +9100,22 @@ export declare namespace Args {
 		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
+
+	export interface SendRichMessageCallbackQuery<F> extends Omit<
+		SendRichMessage<F>,
+		"chat_id" | "ephemeral_message_parameters"
+	> {
+		/** Unique identifier for the target chat or username of the target bot, supergroup, or channel in the format `@username`; required unless the message is sent as an ephemeral reply to a callback query */
+		chat_id?: undefined;
+		/** An object containing the parameters of the ephemeral message to send */
+		ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery;
+	}
 }
 
 export interface BotApi<F> {
 	/** Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent Message is returned. */
 	sendRichMessage(
-		args: Args.SendRichMessage<F>,
+		args: Args.SendRichMessage<F> | Args.SendRichMessageCallbackQuery<F>,
 		options?: CallOptions,
 	): Promise<Message.RichMessageMessage & Message.BusinessSentMessage>;
 }

@@ -1,5 +1,6 @@
 import type {
 	ApiMethods,
+	BotApi,
 	InputMedia,
 	InputMediaAnimation,
 	InputMediaAudio,
@@ -30,6 +31,7 @@ import type {
 	WebhookInfo,
 } from "../manage.ts";
 import type {
+	EphemeralMessageParameters,
 	GameHighScore,
 	InputPollOption,
 	Message,
@@ -54,6 +56,9 @@ export declare const api: ApiMethods<Upload>;
 
 /** A client that only refers to files by file_id or URL. */
 export declare const fileIdApi: ApiMethods<never>;
+
+/** A client with the current interface: one arm per case of a method, and a promise for each result. */
+export declare const botApi: BotApi<Upload>;
 
 const upload: Upload = { source: new Uint8Array([0xff, 0xd8, 0xff]), filename: "skyline.jpg" };
 const chat_id = -1001234567890;
@@ -117,7 +122,8 @@ export type OptsFields = Assert<
 			Opts<Upload>["sendPoll"]["options"],
 		],
 		[
-			number | string,
+			// A reply to a callback query has no chat, and `Opts` merges that arm with the one that has.
+			number | string | undefined,
 			string,
 			number | string,
 			number | undefined,
@@ -536,8 +542,163 @@ export type SendResults = Assert<
 	>
 >;
 
-// @ts-expect-error — every send names its chat
-export const sentWithoutChat = api.sendMessage({ text: "Hi" });
+// Replies to callback queries
+
+// A reply to a callback query is addressed by the query, so it has no chat.
+export const callbackQueryReply = botApi.sendMessage({
+	text: "Only you can see this",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9", replace_callback_query_message: true },
+});
+export const callbackQueryPhotoReply = botApi.sendPhoto({
+	photo: upload,
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+const toCallbackQuery = { ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" } };
+
+// Every method that sends an ephemeral message replies to a callback query the same way.
+export const callbackQueryReplies = [
+	botApi.sendMessage({ ...toCallbackQuery, text: "Only you can see this" }),
+	botApi.sendPhoto({ ...toCallbackQuery, photo: upload }),
+	botApi.sendLivePhoto({ ...toCallbackQuery, live_photo: upload, photo: upload }),
+	botApi.sendAudio({ ...toCallbackQuery, audio: upload }),
+	botApi.sendDocument({ ...toCallbackQuery, document: upload }),
+	botApi.sendVideo({ ...toCallbackQuery, video: upload }),
+	botApi.sendAnimation({ ...toCallbackQuery, animation: upload }),
+	botApi.sendVoice({ ...toCallbackQuery, voice: upload }),
+	botApi.sendVideoNote({ ...toCallbackQuery, video_note: upload }),
+	botApi.sendLocation({ ...toCallbackQuery, latitude: 52.52, longitude: 13.405 }),
+	botApi.sendVenue({
+		...toCallbackQuery,
+		latitude: 52.52,
+		longitude: 13.405,
+		title: "Mauerpark",
+		address: "Gleimstr. 55",
+	}),
+	botApi.sendContact({ ...toCallbackQuery, phone_number: "+4915112345678", first_name: "Erika" }),
+	botApi.sendSticker({ ...toCallbackQuery, sticker: "CAACAgIAAxkBAAI" }),
+	botApi.sendRichMessage({ ...toCallbackQuery, rich_message: { html: "<b>10 °C</b>" } }),
+];
+
+type EphemeralMethod =
+	| "sendMessage"
+	| "sendPhoto"
+	| "sendLivePhoto"
+	| "sendAudio"
+	| "sendDocument"
+	| "sendVideo"
+	| "sendAnimation"
+	| "sendVoice"
+	| "sendVideoNote"
+	| "sendLocation"
+	| "sendVenue"
+	| "sendContact"
+	| "sendSticker"
+	| "sendRichMessage";
+type ArmsOf<M extends keyof BotApi<Upload>> = Parameters<BotApi<Upload>[M]>[0];
+
+// In each of them the arm without a chat takes a callback query, and the arms with a chat take a receiver.
+export type CallbackQueryArms = Assert<
+	Equal<
+		{
+			[M in EphemeralMethod]: Equal<
+				Extract<ArmsOf<M>, { chat_id?: undefined }>["ephemeral_message_parameters"],
+				EphemeralMessageParameters.CallbackQuery
+			> extends true
+				? Equal<
+						Extract<ArmsOf<M>, { chat_id: number | string }>["ephemeral_message_parameters"],
+						EphemeralMessageParameters.Chat | undefined
+					> extends true
+					? never
+					: M
+				: M;
+		}[EphemeralMethod],
+		never
+	>
+>;
+
+// No other method replies to a callback query.
+export type MethodsWithCallbackQueryArm = Assert<
+	Equal<
+		{
+			[M in keyof BotApi<Upload>]: [
+				Extract<ArmsOf<M>, { ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery }>,
+			] extends [never]
+				? never
+				: M;
+		}[keyof BotApi<Upload>],
+		EphemeralMethod
+	>
+>;
+
+export const ephemeralMessage = botApi.sendMessage({
+	chat_id,
+	text: "Only you can see this",
+	ephemeral_message_parameters: { receiver_user_id: 123456789 },
+});
+// A receiver named together with the callback query is still a user of the chat.
+export const ephemeralMessageAfterCallbackQuery = botApi.sendMessage({
+	chat_id,
+	text: "Only you can see this",
+	ephemeral_message_parameters: { receiver_user_id: 123456789, callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+export type CallbackQueryReplyResults = Assert<
+	Equal<
+		[typeof callbackQueryReply, typeof callbackQueryPhotoReply, typeof ephemeralMessage],
+		[
+			Promise<Message.TextMessage & Message.BusinessSentMessage>,
+			Promise<Message.PhotoMessage & Message.BusinessSentMessage>,
+			Promise<Message.TextMessage & Message.BusinessSentMessage>,
+		]
+	>
+>;
+
+// @ts-expect-error — every send names its chat, unless it replies to a callback query
+export const sentWithoutChat = botApi.sendMessage({ text: "Hi" });
+
+// @ts-expect-error — a reply to a callback query takes its chat from the query
+export const callbackQueryReplyWithChat = botApi.sendMessage({
+	chat_id,
+	text: "Hi",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+// @ts-expect-error — a receiver is a user of the chat the message is sent to
+export const receiverWithoutChat = botApi.sendMessage({
+	text: "Hi",
+	ephemeral_message_parameters: { receiver_user_id: 123456789 },
+});
+
+export const ephemeralMessageWithoutAddressee = botApi.sendMessage({
+	chat_id,
+	text: "Hi",
+	// @ts-expect-error — ephemeral parameters name a receiver or a callback query
+	ephemeral_message_parameters: {},
+});
+
+// @ts-expect-error — a reply to a callback query is ephemeral, so the location in it can't be live
+export const liveLocationToCallbackQuery = botApi.sendLocation({
+	latitude: 52.52,
+	longitude: 13.405,
+	live_period: 900,
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+// The deprecated `ApiMethods` merges the arms of a method into one object: it takes a reply to a callback query, and
+// also a send without a chat.
+export const looseCallbackQueryReply = api.sendMessage({
+	text: "Only you can see this",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+export const looseSendWithoutChat = api.sendMessage({ text: "Hi" });
+
+export type LooseCallbackQueryReply = Assert<
+	Equal<
+		[typeof looseCallbackQueryReply, Opts<Upload>["sendMessage"]["ephemeral_message_parameters"]],
+		[Message.TextMessage & Message.BusinessSentMessage, EphemeralMessageParameters | undefined]
+	>
+>;
 
 // @ts-expect-error — with F = never there is no upload type, only file_id and URL strings
 export const uploadWithoutF = fileIdApi.sendPhoto({ chat_id, photo: upload });
