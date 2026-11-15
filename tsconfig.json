@@ -13,9 +13,7 @@
 		"emitDeclarationOnly": true,
 
 		// node16 resolution maps a "./x.js" specifier to ./x.ts at compile time and leaves the
-		// ".js" untouched in the emitted declarations — which is exactly what consumers need,
-		// and is why deno2node is no longer required. It was only ever here to rewrite Deno's
-		// ".ts" specifiers to ".js" on the way out.
+		// ".js" untouched in the emitted declarations.
 		//
 		// This also lifts the TypeScript 5.x pin: the previous "moduleResolution": "node"
 		// (i.e. node10) was removed in TypeScript 7.
