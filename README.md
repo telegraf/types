@@ -1,6 +1,6 @@
 # Types for the Telegram Bot API
 
-[![Bot API Version](https://img.shields.io/badge/Bot%20API-v10.3-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
+[![Bot API Version](https://img.shields.io/badge/Bot%20API-v10.4-f36caf.svg?style=flat-square&logo=Telegram&labelColor=white&color=blue)](https://core.telegram.org/bots/api) [![NPM version](https://img.shields.io/npm/v/@telegraf/types?style=flat-square&logo=npm&labelColor=fff&color=c53635)](https://npmjs.com/package/@telegraf/types)
 
 This package provides TypeScript types for the whole [Telegram Bot API](https://core.telegram.org/bots/api), maintained for Telegraf.
 
@@ -98,7 +98,7 @@ Use `BotApi`, `Args.<Method>` and `Awaited<ReturnType<BotApi<F>[M]>>` instead. T
 
 ## Compatibility
 
-This package is versioned after the Bot API: 10.3.x of `@telegraf/types` types Bot API 10.3.
+This package is versioned after the Bot API: 10.4.x of `@telegraf/types` types Bot API 10.4.
 
 ### Correctness
 
