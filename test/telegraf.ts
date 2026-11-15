@@ -463,6 +463,7 @@ export type MessageSubTypeMembers = Assert<
 		| "managed_bot_created"
 		| "ton_wallet_transfer"
 		| "widget"
+		| "paid_messages_waived"
 	>
 >;
 

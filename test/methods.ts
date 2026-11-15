@@ -1052,6 +1052,28 @@ export const uniqueGiftWithoutName = api.getUniqueGift({});
 // @ts-expect-error — the gift to delete belongs to a business connection
 export const businessGiftDeletedWithoutConnection = api.deleteBusinessAccountGift({ owned_gift_id: "3f1c9a7e" });
 
+// Verification
+
+export const userVerified = api.verifyUser({
+	user_id: 123456789,
+	custom_description: "Verified by Weather Org",
+	custom_description_entities: [{ type: "text_link", offset: 12, length: 11, url: "https://telegraf.js.org" }],
+});
+export const chatVerified = api.verifyChat({
+	chat_id,
+	custom_description: "Verified by <a href='https://telegraf.js.org'>Weather Org</a>",
+	custom_description_parse_mode: "HTML",
+});
+
+export type VerificationResults = Assert<Equal<[typeof userVerified, typeof chatVerified], [true, true]>>;
+
+export const userVerifiedWithBoldDescription = api.verifyUser({
+	user_id: 123456789,
+	custom_description: "Verified",
+	// @ts-expect-error — a custom description supports text_link entities only
+	custom_description_entities: [{ type: "bold", offset: 0, length: 8 }],
+});
+
 // Payments
 
 export const invoiceLink = api.createInvoiceLink({

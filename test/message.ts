@@ -335,6 +335,13 @@ export const entities: MessageEntity[] = [
 	customEmojiEntity,
 ];
 
+export const bankCardEntity: MessageEntity.BankCardNumber = { type: "bank_card_number", offset: 0, length: 19 };
+
+export const tonAddressEntity: MessageEntity.TonAddress = { type: "ton_address", offset: 20, length: 48 };
+
+// Neither has a field of its own, so both are among the entities 7.1.0 called common.
+export const paymentEntities: MessageEntity.CommonMessageEntity[] = [bankCardEntity, tonAddressEntity];
+
 export type MessageEntityType = Assert<
 	Equal<
 		MessageEntity["type"],
@@ -345,6 +352,8 @@ export type MessageEntityType = Assert<
 		| "url"
 		| "email"
 		| "phone_number"
+		| "bank_card_number"
+		| "ton_address"
 		| "bold"
 		| "blockquote"
 		| "expandable_blockquote"
@@ -501,6 +510,15 @@ export type TextQuoteFields = Assert<
 
 // @ts-expect-error — the rich texts of a quote are a list, one for each quoted text
 export const replyWithOneRichText: ReplyParameters = { message_id: 42, quote_rich_texts: "light rain" };
+
+export const tonAddressRichText: RichText = {
+	type: "ton_address",
+	text: "UQBv…g5jL",
+	address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+};
+
+// @ts-expect-error — a TON address in a rich text states the address, apart from its text
+export const tonAddressRichTextWithoutAddress: RichText = { type: "ton_address", text: "UQBv…g5jL" };
 
 export type LinkPreviewOptionsFields = Assert<
 	Equal<[LinkPreviewOptions["is_disabled"], LinkPreviewOptions["url"]], [boolean | undefined, string | undefined]>
@@ -1266,6 +1284,11 @@ export const videoChatParticipantsInvitedMessage: Message.VideoChatParticipantsI
 
 export const webAppDataMessage: Message.WebAppDataMessage = { ...inPrivate, web_app_data: webAppData };
 
+export const paidMessagesWaivedMessage: Message.PaidMessagesWaivedMessage = {
+	...inPrivate,
+	paid_messages_waived: {},
+};
+
 export const tonWalletTransferMessage: Message.TonWalletTransferMessage = {
 	...inPrivate,
 	ton_wallet_transfer: {
@@ -1334,6 +1357,7 @@ export const serviceMessages: ServiceMessageBundle[] = [
 	videoChatParticipantsInvitedMessage,
 	webAppDataMessage,
 	tonWalletTransferMessage,
+	paidMessagesWaivedMessage,
 ];
 
 export const messages: Message[] = [...commonMessages, ...serviceMessages];
@@ -1428,6 +1452,7 @@ export type ServiceMessageBundleMembers = Assert<
 		| Message.SuggestedPostRefundedMessage
 		| Message.ManagedBotCreatedMessage
 		| Message.TonWalletTransferMessage
+		| Message.PaidMessagesWaivedMessage
 	>
 >;
 

@@ -715,6 +715,7 @@ export type ServiceMessageBundle =
 	| Message.CommunityChatRemovedMessage
 	| Message.DirectMessagePriceChangedMessage
 	| Message.PaidMessagePriceChangedMessage
+	| Message.PaidMessagesWaivedMessage
 	| Message.PollOptionAddedMessage
 	| Message.PollOptionDeletedMessage
 	| Message.SuggestedPostApprovedMessage
@@ -1138,6 +1139,10 @@ export declare namespace Message {
 		/** Service message: the price for paid messages has changed in the chat */
 		paid_message_price_changed: PaidMessagePriceChanged;
 	}
+	export interface PaidMessagesWaivedMessage extends ServiceMessage {
+		/** Service message: the sender of the message used a link of the other user, which allows sending messages to the user without paying Telegram Stars */
+		paid_messages_waived: PaidMessagesWaived;
+	}
 	export interface PollOptionAddedMessage extends ServiceMessage {
 		/** Service message: answer option was added to a poll */
 		poll_option_added: PollOptionAdded;
@@ -1219,7 +1224,7 @@ export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 
 export declare namespace MessageEntity {
 	interface Abstract {
-		/** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time). */
+		/** Type of the entity. Currently, can be “mention” (@username), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bank_card_number” (bank card number), “ton_address” (address in the TON blockchain), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time). */
 		type: string;
 		/** Offset in UTF-16 code units to the start of the entity */
 		offset: number;
@@ -1253,6 +1258,14 @@ export declare namespace MessageEntity {
 
 	export interface PhoneNumber extends Abstract {
 		type: "phone_number";
+	}
+
+	export interface BankCardNumber extends Abstract {
+		type: "bank_card_number";
+	}
+
+	export interface TonAddress extends Abstract {
+		type: "ton_address";
 	}
 
 	export interface Bold extends Abstract {
@@ -1326,6 +1339,8 @@ export declare namespace MessageEntity {
 		| Url
 		| Email
 		| PhoneNumber
+		| BankCardNumber
+		| TonAddress
 		| Bold
 		| Blockquote
 		| ExpandableBlockquote
@@ -1353,6 +1368,8 @@ export type MessageEntity =
 	| MessageEntity.Url
 	| MessageEntity.Email
 	| MessageEntity.PhoneNumber
+	| MessageEntity.BankCardNumber
+	| MessageEntity.TonAddress
 	| MessageEntity.Bold
 	| MessageEntity.Blockquote
 	| MessageEntity.ExpandableBlockquote
@@ -2717,6 +2734,9 @@ export interface SuggestedPostRefunded {
 	reason: "post_deleted" | "payment_refunded";
 }
 
+/** Describes a service message about the sender of the message using a link of the other user, which allows sending messages to the user without paying Telegram Stars. Currently holds no information. */
+export interface PaidMessagesWaived {}
+
 /** Describes a service message about a transfer with a TON wallet. */
 export interface TonWalletTransfer {
 	/** Unique identifier of the transaction; may be empty if the transfer hasn't been sent yet */
@@ -3022,7 +3042,7 @@ export interface KeyboardButtonRequestManagedBot {
 	request_id: number;
 	/** Suggested name for the bot */
 	suggested_name?: string;
-	/** Suggested username for the bot */
+	/** Suggested username for the bot. The username must end with “bot”. If the user creating the bot has a Telegram Premium subscription, then the username can also end with “agent”, “ai”, “app”, “game”, or “gay”; in this case, the username will be assigned to the bot as a secondary username, and a regular username ending with “bot” will be assigned to the bot automatically. */
 	suggested_username?: string;
 }
 
@@ -7413,6 +7433,10 @@ export declare namespace Args {
 		user_id: number;
 		/** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
 		custom_description?: string;
+		/** Mode for parsing entities in the custom description. See formatting options for more details. Only “text_link” entities are supported. */
+		custom_description_parse_mode?: ParseMode;
+		/** A list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only “text_link” entities are supported. */
+		custom_description_entities?: MessageEntity.TextLink[];
 	}
 }
 
@@ -7427,6 +7451,10 @@ export declare namespace Args {
 		chat_id: number | string;
 		/** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
 		custom_description?: string;
+		/** Mode for parsing entities in the custom description. See formatting options for more details. Only “text_link” entities are supported. */
+		custom_description_parse_mode?: ParseMode;
+		/** A list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only “text_link” entities are supported. */
+		custom_description_entities?: MessageEntity.TextLink[];
 	}
 }
 
@@ -9064,6 +9092,7 @@ export type RichMessageButtonText =
 - RichTextEmailAddress
 - RichTextPhoneNumber
 - RichTextBankCardNumber
+- RichTextTonAddress
 - RichTextMention
 - RichTextHashtag
 - RichTextCashtag
@@ -9096,6 +9125,7 @@ export type RichText =
 	| RichTextEmailAddress
 	| RichTextPhoneNumber
 	| RichTextBankCardNumber
+	| RichTextTonAddress
 	| RichTextMention
 	| RichTextHashtag
 	| RichTextCashtag
@@ -9256,6 +9286,16 @@ export interface RichTextBankCardNumber {
 	text: RichText;
 	/** The bank card number */
 	bank_card_number: string;
+}
+
+/** An address in the TON blockchain. */
+export interface RichTextTonAddress {
+	/** Type of the rich text, always “ton_address” */
+	type: "ton_address";
+	/** Text of the address */
+	text: RichText;
+	/** The address */
+	address: string;
 }
 
 /** A mention by a username. */
