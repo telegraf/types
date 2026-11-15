@@ -34,7 +34,7 @@ export declare namespace Update {
 	}
 
 	export interface AbstractUpdate {
-		/** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using webhooks, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
+		/** The update's unique identifier. Update identifiers start from a certain positive number and increase sequentially. This identifier becomes especially handy if you're using {@link BotApi.setWebhook webhooks}, since it allows you to ignore repeated updates or to restore the correct update sequence, should they get out of order. If there are no new updates for at least a week, then identifier of the next update will be chosen randomly instead of sequentially. */
 		update_id: number;
 	}
 	export interface MessageUpdate<M extends Message = Message> extends AbstractUpdate {
@@ -72,7 +72,7 @@ export declare namespace Update {
 		deleted_business_messages: BusinessMessagesDeleted;
 	}
 	export interface GuestMessageUpdate<M extends CommonMessageBundle = CommonMessageBundle> extends AbstractUpdate {
-		/** New guest message. The bot can use the field Message.guest_query_id and the method answerGuestQuery to send a message in response. */
+		/** New guest message. The bot can use the field Message.guest_query_id and the method {@link BotApi.answerGuestQuery answerGuestQuery} to send a message in response. */
 		guest_message: New & Guest & M;
 	}
 	export interface MessageReactionUpdate extends AbstractUpdate {
@@ -194,13 +194,13 @@ export type Update =
 // Methods in documentation order; merged into the exported `BotApi` interface.
 export declare namespace Args {
 	export interface GetUpdates {
-		/** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten. */
+		/** Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as {@link BotApi.getUpdates getUpdates} is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will be forgotten. */
 		offset?: number;
 		/** Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100. */
 		limit?: number;
 		/** Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only. */
 		timeout?: number;
-		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
+		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See {@link Update} for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
 
     Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
 		allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
@@ -208,7 +208,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). Returns an Array of Update objects. Notes
+	/** Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). Returns an Array of {@link Update} objects. Notes
 1. This method will not work if an outgoing webhook is set up.
 2. In order to avoid getting duplicate updates, recalculate offset after each server response. */
 	getUpdates(args?: Args.GetUpdates, options?: CallOptions): Promise<Update[]>;
@@ -224,7 +224,7 @@ export declare namespace Args {
 		ip_address?: string;
 		/** The maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to 40. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput. */
 		max_connections?: number;
-		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See Update for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
+		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See {@link Update} for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
 Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time. */
 		allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
 		/** Pass True to drop all pending updates */
@@ -235,12 +235,12 @@ Please note that this parameter doesn't affect updates created before the call t
 }
 
 export interface BotApi<F> {
-	/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
+	/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an {@link Update}. In case of an unsuccessful request (a request with response [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
 
   If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
 
   Notes
-  1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.
+  1. You will not be able to receive updates using {@link BotApi.getUpdates getUpdates} for as long as an outgoing webhook is set up.
   2. To use a self-signed certificate, you need to upload your [public key certificate](https://core.telegram.org/bots/self-signed) using certificate parameter. Please upload as InputFile, sending a String will not work.
   3. Ports currently supported for Webhooks: 443, 80, 88, 8443.
 
@@ -256,12 +256,12 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to remove webhook integration if you decide to switch back to getUpdates. Returns True on success. */
+	/** Use this method to remove webhook integration if you decide to switch back to {@link BotApi.getUpdates getUpdates}. Returns True on success. */
 	deleteWebhook(args?: Args.DeleteWebhook, options?: CallOptions): Promise<true>;
 }
 
 export interface BotApi<F> {
-	/** Use this method to get current webhook status. Requires no parameters. On success, returns a WebhookInfo object. If the bot is using getUpdates, will return an object with the url field empty. */
+	/** Use this method to get current webhook status. Requires no parameters. On success, returns a {@link WebhookInfo} object. If the bot is using {@link BotApi.getUpdates getUpdates}, will return an object with the url field empty. */
 	getWebhookInfo(args?: NoArgs, options?: CallOptions): Promise<WebhookInfo>;
 }
 
@@ -311,25 +311,25 @@ export interface User {
 export interface UserFromGetMe extends User {
 	is_bot: true;
 	username: string;
-	/** True, if the bot can be invited to groups. Returned only in getMe. */
+	/** True, if the bot can be invited to groups. Returned only in {@link BotApi.getMe getMe}. */
 	can_join_groups: boolean;
-	/** True, if [privacy mode](https://core.telegram.org/bots/features#privacy-mode) is disabled for the bot. Returned only in getMe. */
+	/** True, if [privacy mode](https://core.telegram.org/bots/features#privacy-mode) is disabled for the bot. Returned only in {@link BotApi.getMe getMe}. */
 	can_read_all_group_messages: boolean;
-	/** True, if the bot supports guest queries from chats it is not a member of. Returned only in getMe. */
+	/** True, if the bot supports guest queries from chats it is not a member of. Returned only in {@link BotApi.getMe getMe}. */
 	supports_guest_queries?: boolean;
-	/** True, if the bot supports inline queries. Returned only in getMe. */
+	/** True, if the bot supports inline queries. Returned only in {@link BotApi.getMe getMe}. */
 	supports_inline_queries: boolean;
-	/** True, if the bot can be connected to a user account to manage it. Returned only in getMe. */
+	/** True, if the bot can be connected to a user account to manage it. Returned only in {@link BotApi.getMe getMe}. */
 	can_connect_to_business?: boolean;
-	/** True, if the bot has a main Web App. Returned only in getMe. */
+	/** True, if the bot has a main Web App. Returned only in {@link BotApi.getMe getMe}. */
 	has_main_web_app?: boolean;
-	/** True, if the bot has forum topic mode enabled in private chats. Returned only in getMe. */
+	/** True, if the bot has forum topic mode enabled in private chats. Returned only in {@link BotApi.getMe getMe}. */
 	has_topics_enabled?: boolean;
-	/** True, if the bot allows users to create and delete topics in private chats. Returned only in getMe. */
+	/** True, if the bot allows users to create and delete topics in private chats. Returned only in {@link BotApi.getMe getMe}. */
 	allows_users_to_create_topics?: boolean;
-	/** True, if other bots can be created to be controlled by the bot. Returned only in getMe. */
+	/** True, if other bots can be created to be controlled by the bot. Returned only in {@link BotApi.getMe getMe}. */
 	can_manage_bots?: boolean;
-	/** True, if the bot supports join request queries and can be assigned to process them. Returned only in getMe. */
+	/** True, if the bot supports join request queries and can be assigned to process them. Returned only in {@link BotApi.getMe getMe}. */
 	supports_join_request_queries?: boolean;
 }
 
@@ -449,7 +449,7 @@ export declare namespace ChatFullInfo {
 		business_opening_hours?: BusinessOpeningHours;
 		/** For private chats, the personal channel of the user */
 		personal_chat?: Chat.ChannelChat;
-		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
+		/** List of available reactions allowed in the chat. If omitted, then all {@link ReactionTypeEmoji emoji reactions} are allowed. */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
@@ -483,7 +483,7 @@ export declare namespace ChatFullInfo {
 		unique_gift_colors?: UniqueGiftColors;
 		/** The number of Telegram Stars a general user has to pay to send a message to the chat */
 		paid_message_star_count?: number;
-		/** The Community to which the chat belongs */
+		/** The {@link Community} to which the chat belongs */
 		community?: Community;
 		/** For private chats, the TON wallet card of the user, which is shown on their profile page */
 		ton_wallet_card?: TonWalletCard;
@@ -500,7 +500,7 @@ export declare namespace ChatFullInfo {
 		photo?: ChatPhoto;
 		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
-		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
+		/** List of available reactions allowed in the chat. If omitted, then all {@link ReactionTypeEmoji emoji reactions} are allowed */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
@@ -551,7 +551,7 @@ export declare namespace ChatFullInfo {
 		active_usernames?: string[];
 		/** Information about the corresponding channel chat; for direct messages chats only */
 		parent_chat?: Chat.ChannelChat;
-		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
+		/** List of available reactions allowed in the chat. If omitted, then all {@link ReactionTypeEmoji emoji reactions} are allowed */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
@@ -609,7 +609,7 @@ export declare namespace ChatFullInfo {
 		paid_message_star_count?: number;
 		/** The bot that processes join request queries in the chat. The field is only available to chat administrators. */
 		guard_bot?: User;
-		/** The Community to which the chat belongs */
+		/** The {@link Community} to which the chat belongs */
 		community?: Community;
 		/** For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used */
 		share_theme?: ChatShareTheme;
@@ -624,7 +624,7 @@ export declare namespace ChatFullInfo {
 		photo?: ChatPhoto;
 		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
-		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
+		/** List of available reactions allowed in the chat. If omitted, then all {@link ReactionTypeEmoji emoji reactions} are allowed. */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
@@ -658,7 +658,7 @@ export declare namespace ChatFullInfo {
 		paid_message_star_count?: number;
 		/** The bot that processes join request queries in the chat. The field is only available to chat administrators. */
 		guard_bot?: User;
-		/** The Community to which the chat belongs */
+		/** The {@link Community} to which the chat belongs */
 		community?: Community;
 		/** For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used */
 		share_theme?: ChatShareTheme;
@@ -793,7 +793,7 @@ export declare namespace Message {
 		receiver_user?: User;
 		/** For ephemeral messages, identifier of the ephemeral message inside this chat. The identifier may be reused for another ephemeral message after the message is deleted or expires. */
 		ephemeral_message_id?: number;
-		/** The unique identifier for the guest query. Use this identifier with the method answerGuestQuery to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier. */
+		/** The unique identifier for the guest query. Use this identifier with the method {@link BotApi.answerGuestQuery answerGuestQuery} to send a response message. If non-empty, the message belongs to the chat where the guest bot was summoned, which may not coincide with other existing bot chats sharing the same identifier. */
 		guest_query_id?: string;
 		/** Unique identifier of the business connection from which the message was received. If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier. */
 		business_connection_id?: string;
@@ -801,7 +801,7 @@ export declare namespace Message {
 		forward_origin?: MessageOrigin;
 		/** True, if the message is a channel post that was automatically forwarded to the connected discussion group */
 		is_automatic_forward?: true;
-		/** For replies in the same chat and message thread, the original message. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted. */
+		/** For replies in the same chat and message thread, the original message. Note that the {@link Message} object in this field will not contain further reply_to_message fields even if it itself is a reply. If the message is a reply to an ephemeral message, then this field may be omitted. */
 		reply_to_message?: ReplyMessage;
 		/** Information about the message that is being replied to, which may come from another chat or forum topic */
 		external_reply?: ExternalReplyInfo;
@@ -1005,7 +1005,7 @@ export declare namespace Message {
 		migrate_from_chat_id: number;
 	}
 	export interface PinnedMessageMessage extends ServiceMessage {
-		/** Specified message was pinned. Note that the Message object in this field will not contain further reply_to_message fields even if it itself is a reply. */
+		/** Specified message was pinned. Note that the {@link Message} object in this field will not contain further reply_to_message fields even if it itself is a reply. */
 		pinned_message: Omit<MaybeInaccessibleMessage, "reply_to_message">;
 	}
 	export interface InvoiceMessage extends ServiceMessage {
@@ -1073,15 +1073,15 @@ export declare namespace Message {
 		checklist_tasks_added: ChecklistTasksAdded;
 	}
 	export interface CommunityChatAddedMessage extends ServiceMessage {
-		/** Service message: chat or bot added to a Community */
+		/** Service message: chat or bot added to a {@link Community} */
 		community_chat_added: CommunityChatAdded;
 	}
 	export interface CommunityChatJoinedMessage extends ServiceMessage {
-		/** Service message: chat was joined by a user from a Community */
+		/** Service message: chat was joined by a user from a {@link Community} */
 		community_chat_joined: CommunityChatJoined;
 	}
 	export interface CommunityChatRemovedMessage extends ServiceMessage {
-		/** Service message: chat or bot removed from a Community */
+		/** Service message: chat or bot removed from a {@link Community} */
 		community_chat_removed: CommunityChatRemoved;
 	}
 	export interface DirectMessagePriceChangedMessage extends ServiceMessage {
@@ -1313,7 +1313,7 @@ export declare namespace MessageEntity {
 	}
 	export interface CustomEmoji extends Abstract {
 		type: "custom_emoji";
-		/** For “custom_emoji” only, unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker */
+		/** For “custom_emoji” only, unique identifier of the custom emoji. Use {@link BotApi.getCustomEmojiStickers getCustomEmojiStickers} to get full information about the sticker */
 		custom_emoji_id: string;
 	}
 	export interface DateTime extends Abstract {
@@ -1522,7 +1522,7 @@ export interface TextQuote {
 	text: string;
 	/** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are kept in quotes. */
 	entities?: MessageEntity[];
-	/** Rich text of the quote if it was chosen from a rich message. May contain only plain text, RichTextBold, RichTextItalic, RichTextUnderline, RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript, RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression, and arrays of them. */
+	/** Rich text of the quote if it was chosen from a {@link RichMessage rich message}. May contain only plain text, {@link RichTextBold}, {@link RichTextItalic}, {@link RichTextUnderline}, {@link RichTextStrikethrough}, {@link RichTextSpoiler}, {@link RichTextSubscript}, {@link RichTextSuperscript}, {@link RichTextDateTime}, {@link RichTextCustomEmoji}, {@link RichTextMathematicalExpression}, and arrays of them. */
 	rich_texts?: RichText[];
 	/** Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds. */
 	position: number;
@@ -1699,7 +1699,7 @@ export declare namespace ReplyParameters {
 		quote_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
 		quote_entities?: MessageEntity[];
-		/** A list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in RichBlockButtons, anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, RichTextBold, RichTextItalic, RichTextUnderline, RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript, RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression, and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, quote_parse_mode and quote_entities are ignored. */
+		/** A list of quoted parts of the {@link RichMessage rich message} to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in {@link RichBlockButtons}, anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, {@link RichTextBold}, {@link RichTextItalic}, {@link RichTextUnderline}, {@link RichTextStrikethrough}, {@link RichTextSpoiler}, {@link RichTextSubscript}, {@link RichTextSuperscript}, {@link RichTextDateTime}, {@link RichTextCustomEmoji}, {@link RichTextMathematicalExpression}, and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, quote_parse_mode and quote_entities are ignored. */
 		quote_rich_texts?: RichText[];
 		/** Position of the quote in the original message in UTF-16 code units. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds. */
 		quote_position?: number;
@@ -1723,7 +1723,7 @@ export type ReplyParameters = ReplyParameters.MessageReply | ReplyParameters.Eph
 
 export declare namespace EphemeralMessageParameters {
 	interface Common {
-		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using answerCallbackQuery. */
+		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using {@link BotApi.answerCallbackQuery answerCallbackQuery}. */
 		callback_query_id?: string;
 		/** Pass True if the ephemeral message must be shown in place of the original message. Must be False for callback queries from ephemeral messages, which must be edited using regular editEphemeralMessage… methods. */
 		replace_callback_query_message?: boolean;
@@ -1735,7 +1735,7 @@ export declare namespace EphemeralMessageParameters {
 	export interface CallbackQuery extends Common {
 		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See [here](https://core.telegram.org/bots/api#ephemeral-messages-and-commands) for more details. */
 		receiver_user_id?: undefined;
-		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using answerCallbackQuery. */
+		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using {@link BotApi.answerCallbackQuery answerCallbackQuery}. */
 		callback_query_id: string;
 	}
 }
@@ -1796,7 +1796,7 @@ export interface MessageOriginChannel extends AbstractMessageOrigin {
 	author_signature?: string;
 }
 
-/** This object represents one size of a photo or a file / sticker thumbnail. */
+/** This object represents one size of a photo or a {@link Document file} / {@link Sticker sticker} thumbnail. */
 export interface PhotoSize {
 	/** Identifier for this file, which can be used to download or reuse the file */
 	file_id: string;
@@ -1854,7 +1854,7 @@ export interface Audio {
 	thumbnail?: PhotoSize;
 }
 
-/** This object represents a general file (as opposed to photos, voice messages and audio files). */
+/** This object represents a general file (as opposed to {@link PhotoSize photos}, {@link Voice voice messages} and {@link Audio audio files}). */
 export interface Document {
 	/** Identifier for this file, which can be used to download or reuse the file */
 	file_id: string;
@@ -1973,7 +1973,7 @@ export interface Voice {
 
 /** This object describes an [HTML widget](https://core.telegram.org/bots/widgets). */
 export interface Widget {
-	/** Unique identifier of the shared widget, which can be used to send the widget again using the method sendSharedWidget; omitted if the widget isn't shared */
+	/** Unique identifier of the shared widget, which can be used to send the widget again using the method {@link BotApi.sendSharedWidget sendSharedWidget}; omitted if the widget isn't shared */
 	id?: string;
 	/** Width of the widget in logical pixels; omitted if the widget must occupy the whole width of the message bubble */
 	width?: number;
@@ -2002,7 +2002,7 @@ export interface PaidMediaInfo {
 - PaidMediaVideo
  */
 export type PaidMedia = PaidMediaLivePhoto | PaidMediaPhoto | PaidMediaPreview | PaidMediaVideo;
-/** The paid media is a live photo. */
+/** The paid media is a {@link LivePhoto live photo}. */
 export interface PaidMediaLivePhoto {
 	/** Type of the paid media, always “live_photo” */
 	type: "live_photo";
@@ -2265,11 +2265,11 @@ export interface Poll {
 	open_period?: number;
 	/** Point in time (Unix timestamp) when the poll will be automatically closed */
 	close_date?: number;
-	/** Description of the poll; for polls inside the Message object only */
+	/** Description of the poll; for polls inside the {@link Message} object only */
 	description?: string;
 	/** Special entities like usernames, URLs, bot commands, etc. that appear in the description */
 	description_entities?: MessageEntity[];
-	/** Media added to the poll description; for polls inside the Message object only */
+	/** Media added to the poll description; for polls inside the {@link Message} object only */
 	media?: PollMedia;
 }
 
@@ -2412,7 +2412,7 @@ export interface MessageAutoDeleteTimerChanged {
 }
 /** This object contains information about the bot that was created to be managed by the current bot. */
 export interface ManagedBotCreated {
-	/** Information about the bot. The bot's token can be fetched using the method getManagedBotToken. */
+	/** Information about the bot. The bot's token can be fetched using the method {@link BotApi.getManagedBotToken getManagedBotToken}. */
 	bot: User;
 }
 
@@ -2420,7 +2420,7 @@ export interface ManagedBotCreated {
 export interface ManagedBotUpdated {
 	/** User that created the bot */
 	user: User;
-	/** Information about the bot. Token of the bot can be fetched using the method getManagedBotToken. */
+	/** Information about the bot. Token of the bot can be fetched using the method {@link BotApi.getManagedBotToken getManagedBotToken}. */
 	bot: User;
 }
 
@@ -2446,7 +2446,7 @@ export interface MessageGenerationStopped {
 
 /** Describes a service message about an option added to a poll. */
 export interface PollOptionAdded {
-	/** Message containing the poll to which the option was added, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the poll to which the option was added, if known. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	poll_message?: MaybeInaccessibleMessage;
 	/** Unique identifier of the added option */
 	option_persistent_id: string;
@@ -2458,7 +2458,7 @@ export interface PollOptionAdded {
 
 /** Describes a service message about an option deleted from a poll. */
 export interface PollOptionDeleted {
-	/** Message containing the poll from which the option was deleted, if known. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the poll from which the option was deleted, if known. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	poll_message?: MaybeInaccessibleMessage;
 	/** Unique identifier of the deleted option */
 	option_persistent_id: string;
@@ -2579,7 +2579,7 @@ export interface ChatBackground {
 
 /** Describes a service message about checklist tasks marked as done or not done. */
 export interface ChecklistTasksDone {
-	/** Message containing the checklist whose tasks were marked as done or not done. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the checklist whose tasks were marked as done or not done. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	checklist_message?: Message;
 	/** Identifiers of the tasks that were marked as done */
 	marked_as_done_task_ids?: number[];
@@ -2589,7 +2589,7 @@ export interface ChecklistTasksDone {
 
 /** Describes a service message about tasks added to a checklist. */
 export interface ChecklistTasksAdded {
-	/** Message containing the checklist to which the tasks were added. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the checklist to which the tasks were added. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	checklist_message?: Message;
 	/** List of tasks added to the checklist */
 	tasks: ChecklistTask[];
@@ -2641,7 +2641,7 @@ export interface GeneralForumTopicHidden {}
 /** This object represents a service message about General forum topic unhidden in the chat. Currently holds no information. */
 export interface GeneralForumTopicUnhidden {}
 
-/** This object contains information about a user that was shared with the bot using a KeyboardButtonRequestUsers button. **/
+/** This object contains information about a user that was shared with the bot using a {@link KeyboardButtonRequestUsers} button. **/
 export interface SharedUser {
 	/** Identifier of the shared user. The bot may not have access to the user and could be unable to use this identifier, unless the user is already known to the bot by some other means. */
 	user_id: number;
@@ -2655,7 +2655,7 @@ export interface SharedUser {
 	photo?: PhotoSize[];
 }
 
-/** This object contains information about the users whose identifiers were shared with the bot using a KeyboardButtonRequestUsers button. */
+/** This object contains information about the users whose identifiers were shared with the bot using a {@link KeyboardButtonRequestUsers} button. */
 export interface UsersShared {
 	/** Identifier of the request */
 	request_id: number;
@@ -2663,7 +2663,7 @@ export interface UsersShared {
 	users: SharedUser[];
 }
 
-/** This object contains information about a chat that was shared with the bot using a KeyboardButtonRequestChat button. */
+/** This object contains information about a chat that was shared with the bot using a {@link KeyboardButtonRequestChat} button. */
 export interface ChatShared {
 	/** Identifier of the request */
 	request_id: number;
@@ -2724,7 +2724,7 @@ export interface DirectMessagePriceChanged {
 
 /** Describes a service message about the approval of a suggested post. */
 export interface SuggestedPostApproved {
-	/** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the suggested post. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
 	/** Amount paid for the post */
 	price?: SuggestedPostPrice;
@@ -2734,7 +2734,7 @@ export interface SuggestedPostApproved {
 
 /** Describes a service message about the failed approval of a suggested post. Currently, only caused by insufficient user funds at the time of approval. */
 export interface SuggestedPostApprovalFailed {
-	/** Message containing the suggested post whose approval has failed. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the suggested post whose approval has failed. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
 	/** Expected price of the post */
 	price: SuggestedPostPrice;
@@ -2742,7 +2742,7 @@ export interface SuggestedPostApprovalFailed {
 
 /** Describes a service message about the rejection of a suggested post. */
 export interface SuggestedPostDeclined {
-	/** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the suggested post. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
 	/** Comment with which the post was declined */
 	comment?: string;
@@ -2750,7 +2750,7 @@ export interface SuggestedPostDeclined {
 
 /** Describes a service message about a successful payment for a suggested post. */
 export interface SuggestedPostPaid {
-	/** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the suggested post. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
 	/** Currency in which the payment was made. Currently, one of “XTR” for Telegram Stars or “TON” for TON grams. */
 	currency: string;
@@ -2762,7 +2762,7 @@ export interface SuggestedPostPaid {
 
 /** Describes a service message about a payment refund for a suggested post. */
 export interface SuggestedPostRefunded {
-	/** Message containing the suggested post. Note that the Message object in this field will not contain the reply_to_message field even if it itself is a reply. */
+	/** Message containing the suggested post. Note that the {@link Message} object in this field will not contain the reply_to_message field even if it itself is a reply. */
 	suggested_post_message?: Message;
 	/** Reason for the refund. Currently, one of “post_deleted” if the post was deleted within 24 hours of being posted or removed from scheduled messages without being posted, or “payment_refunded” if the payer refunded their payment. */
 	reason: "post_deleted" | "payment_refunded";
@@ -2914,7 +2914,7 @@ export interface UserProfileAudios {
 	audios: Audio[];
 }
 
-/** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile.
+/** This object represents a file ready to be downloaded. The file can be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling {@link BotApi.getFile getFile}.
 
 > The maximum file size to download is 20 MB
 */
@@ -2937,7 +2937,7 @@ export interface WebAppInfo {
 
 /** This object represents a [custom keyboard](https://core.telegram.org/bots/features#keyboards) with reply options (see [Introduction to bots](https://core.telegram.org/bots/features#keyboards) for details and examples). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardMarkup {
-	/** Array of button rows, each represented by an Array of KeyboardButton objects */
+	/** Array of button rows, each represented by an Array of {@link KeyboardButton} objects */
 	keyboard: KeyboardButton[][];
 	/** Requests clients to always show the keyboard when the regular keyboard is hidden. Defaults to false, in which case the custom keyboard can be hidden and opened with a keyboard icon. */
 	is_persistent?: boolean;
@@ -2947,7 +2947,7 @@ export interface ReplyKeyboardMarkup {
 	one_time_keyboard?: boolean;
 	/** The placeholder to be shown in the input field when the keyboard is active; 1-64 characters */
 	input_field_placeholder?: string;
-	/** Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are `@mentioned` in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
+	/** Use this parameter if you want to show the keyboard to specific users only. Targets: 1) users that are `@mentioned` in the text of the {@link Message} object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
 
 Example: A user requests to change the bot's language, bot replies to the request with a keyboard to select the new language. Other users in the group don't see the keyboard. */
 	selective?: boolean;
@@ -3029,7 +3029,7 @@ export type KeyboardButton =
 
 /** This object defines the criteria used to request suitable users. Information about the selected users will be shared with the bot when the corresponding button is pressed. [More about requesting users »](https://core.telegram.org/bots/features#chat-and-user-selection) */
 export interface KeyboardButtonRequestUsers {
-	/** Signed 32-bit identifier of the request that will be received back in the UsersShared object. Must be unique within the message. */
+	/** Signed 32-bit identifier of the request that will be received back in the {@link UsersShared} object. Must be unique within the message. */
 	request_id: number;
 	/** Pass True to request bots, pass False to request regular users. If not specified, no additional restrictions are applied. */
 	user_is_bot?: boolean;
@@ -3047,7 +3047,7 @@ export interface KeyboardButtonRequestUsers {
 
 /** This object defines the criteria used to request a suitable chat. Information about the selected chat will be shared with the bot when the corresponding button is pressed. The bot will be granted requested rights in the chat if appropriate. [More about requesting chats »](https://core.telegram.org/bots/features#chat-and-user-selection). */
 export interface KeyboardButtonRequestChat {
-	/** Signed 32-bit identifier of the request, which will be received back in the ChatShared object. Must be unique within the message */
+	/** Signed 32-bit identifier of the request, which will be received back in the {@link ChatShared} object. Must be unique within the message */
 	request_id: number;
 	/** Pass True to request a channel chat, pass False to request a group or a supergroup chat. */
 	chat_is_channel: boolean;
@@ -3070,7 +3070,7 @@ export interface KeyboardButtonRequestChat {
 	/** Pass True to request the chat's photo */
 	request_photo?: boolean;
 }
-/** This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a Message with the field managed_bot_created. */
+/** This object defines the parameters for the creation of a managed bot. Information about the created bot will be shared with the bot using the update managed_bot and a {@link Message} with the field managed_bot_created. */
 export interface KeyboardButtonRequestManagedBot {
 	/** Signed 32-bit identifier of the request. Must be unique within the message. */
 	request_id: number;
@@ -3086,11 +3086,11 @@ export interface KeyboardButtonPollType {
 	type?: "quiz" | "regular";
 }
 
-/** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see ReplyKeyboardMarkup). Not supported in channels and for messages sent on behalf of a business account. */
+/** Upon receiving a message with this object, Telegram clients will remove the current custom keyboard and display the default letter-keyboard. By default, custom keyboards are displayed until a new keyboard is sent by a bot. An exception is made for one-time keyboards that are hidden immediately after the user presses a button (see {@link ReplyKeyboardMarkup}). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardRemove {
-	/** Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in ReplyKeyboardMarkup) */
+	/** Requests clients to remove the custom keyboard (user will not be able to summon this keyboard; if you want to hide the keyboard from sight but keep it accessible, use one_time_keyboard in {@link ReplyKeyboardMarkup}) */
 	remove_keyboard: true;
-	/** Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are `@mentioned` in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
+	/** Use this parameter if you want to remove the keyboard for specific users only. Targets: 1) users that are `@mentioned` in the text of the {@link Message} object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message.
 
 Example: A user votes in a poll, bot returns confirmation message in reply to the vote and removes the keyboard for that user, while still showing the keyboard with poll options to users who haven't voted yet. */
 	selective?: boolean;
@@ -3098,7 +3098,7 @@ Example: A user votes in a poll, bot returns confirmation message in reply to th
 
 /** This object represents an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) that appears right next to the message it belongs to. */
 export interface InlineKeyboardMarkup {
-	/** Array of button rows, each represented by an Array of InlineKeyboardButton objects */
+	/** Array of button rows, each represented by an Array of {@link InlineKeyboardButton} objects */
 	inline_keyboard: InlineKeyboardButton[][];
 	/** Pass True if the reply interface must be shown to the user, as if they had manually selected the bot's message and tapped 'Reply'. The value of the field can't be changed when the inline keyboard is edited. */
 	force_reply?: boolean;
@@ -3118,11 +3118,11 @@ export declare namespace InlineKeyboardButton {
 		url: string;
 	}
 	export interface CallbackButton extends AbstractInlineKeyboardButton {
-		/** Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes */
+		/** Data to be sent in a {@link CallbackQuery callback query} to the bot when the button is pressed, 1-64 bytes */
 		callback_data: string;
 	}
 	export interface WebAppButton extends AbstractInlineKeyboardButton {
-		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages. */
+		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method {@link BotApi.answerWebAppQuery answerWebAppQuery}. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages. */
 		web_app: WebAppInfo;
 	}
 	export interface LoginButton extends AbstractInlineKeyboardButton {
@@ -3188,7 +3188,7 @@ NOTE: You must always check the hash of the received data to verify the authenti
 	url: string;
 	/** New text of the button in forwarded messages. */
 	forward_text?: string;
-	/** Username of a bot, which will be used for user authorization; not supported in RichMessageButton. See [Setting up a bot](https://core.telegram.org/widgets/login#setting-up-a-bot) for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See [Linking your domain to the bot](https://core.telegram.org/widgets/login#linking-your-domain-to-the-bot) for more details. */
+	/** Username of a bot, which will be used for user authorization; not supported in {@link RichMessageButton}. See [Setting up a bot](https://core.telegram.org/widgets/login#setting-up-a-bot) for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See [Linking your domain to the bot](https://core.telegram.org/widgets/login#linking-your-domain-to-the-bot) for more details. */
 	bot_username?: string;
 	/** Pass True to request the permission for your bot to send messages to the user. */
 	request_write_access?: boolean;
@@ -3239,12 +3239,12 @@ export declare namespace CallbackQuery {
 	}
 
 	export interface GameQuery extends AbstractQuery {
-		/** Short name of a Game to be returned, serves as the unique identifier for the game */
+		/** Short name of a {@link Game} to be returned, serves as the unique identifier for the game */
 		game_short_name: string;
 	}
 }
 
-/** This object represents an incoming callback query from a callback button in an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in [inline mode](https://core.telegram.org/bots/api#inline-mode)), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present. NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters). */
+/** This object represents an incoming callback query from a callback button in an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in [inline mode](https://core.telegram.org/bots/api#inline-mode)), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present. NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call {@link BotApi.answerCallbackQuery answerCallbackQuery}. It is, therefore, necessary to react by calling {@link BotApi.answerCallbackQuery answerCallbackQuery} even if no notification to the user is needed (e.g., without specifying any of the optional parameters). */
 export type CallbackQuery = CallbackQuery.DataQuery | CallbackQuery.GameQuery;
 
 /** This object describes the type of a query from a widget. Currently, it can be one of
@@ -3332,10 +3332,10 @@ export declare namespace WidgetQuery {
 	}
 }
 
-/** This object represents an incoming query from a widget in a message sent by the bot or via the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
+/** This object represents an incoming query from a widget in a message sent by the bot or via the bot. Use {@link BotApi.answerWidgetQuery answerWidgetQuery} to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
 export type WidgetQuery = WidgetQuery.MessageQuery | WidgetQuery.InlineMessageQuery;
 
-/** This object represents an incoming query from a forwarded message with a shared widget created by the bot. Use answerWidgetQuery to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
+/** This object represents an incoming query from a forwarded message with a shared widget created by the bot. Use {@link BotApi.answerWidgetQuery answerWidgetQuery} to answer the query. Each user can send at most 5 queries per 5 seconds to the bot from all its widgets. */
 export interface SharedWidgetQuery {
 	/** Unique identifier for this query */
 	id: string;
@@ -3349,21 +3349,21 @@ export interface SharedWidgetQuery {
 	widget_id: string;
 }
 
-/** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice privacy mode. Not supported in channels and for messages sent on behalf of a user account.
+/** Upon receiving a message with this object, Telegram clients will display a reply interface to the user (act as if the user has selected the bot's message and tapped 'Reply'). This can be extremely useful if you want to create user-friendly step-by-step interfaces without having to sacrifice [privacy mode](https://core.telegram.org/bots/features#privacy-mode). Not supported in channels and for messages sent on behalf of a user account.
 
-Example: A poll bot for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:
+Example: A [poll bot](https://t.me/PollBot) for groups runs in privacy mode (only receives commands, replies to its messages and mentions). There could be two ways to create a new poll:
 
 Explain the user how to send a command with parameters (e.g. /newpoll question answer1 answer2). May be appealing for hardcore users but lacks modern day polish.
 
 Guide the user through a step-by-step process. 'Please send me your question', 'Cool, now let's add the first answer option', 'Great. Keep adding answer options, then send /done when you're ready'.
 
-The last option is definitely more attractive. And if you use ForceReply in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user. */
+The last option is definitely more attractive. And if you use {@link ForceReply} in your bot's questions, it will receive the user's answers even if it only receives replies, commands and mentions - without any extra work for the user. */
 export interface ForceReply {
 	/** Shows reply interface to the user, as if they had manually selected the bot's message and tapped 'Reply' */
 	force_reply: true;
 	/** The placeholder to be shown in the input field when the reply is active; 1-64 characters */
 	input_field_placeholder?: string;
-	/** Use this parameter if you want to force reply from specific users only. Targets: 1) users that are `@mentioned` in the text of the Message object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. */
+	/** Use this parameter if you want to force reply from specific users only. Targets: 1) users that are `@mentioned` in the text of the {@link Message} object; 2) if the bot's message is a reply to a message in the same chat and forum topic, sender of the original message. */
 	selective?: boolean;
 }
 /** Represents a community (a group of chats). */
@@ -3494,7 +3494,7 @@ export type ChatMember =
 	| ChatMemberLeft
 	| ChatMemberBanned;
 
-/** Represents a chat member that owns the chat and has all administrator privileges. */
+/** Represents a {@link ChatMember chat member} that owns the chat and has all administrator privileges. */
 export interface ChatMemberOwner extends AbstractChatMember {
 	/** The member's status in the chat, always “creator” */
 	status: "creator";
@@ -3504,7 +3504,7 @@ export interface ChatMemberOwner extends AbstractChatMember {
 	custom_title?: string;
 }
 
-/** Represents a chat member that has some additional privileges. */
+/** Represents a {@link ChatMember chat member} that has some additional privileges. */
 export interface ChatMemberAdministrator extends AbstractChatMember {
 	/** The member's status in the chat, always “administrator” */
 	status: "administrator";
@@ -3550,7 +3550,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 	custom_title?: string;
 }
 
-/** Represents a chat member that has no additional privileges or restrictions. */
+/** Represents a {@link ChatMember chat member} that has no additional privileges or restrictions. */
 export interface ChatMemberMember extends AbstractChatMember {
 	/** The member's status in the chat, always “member” */
 	status: "member";
@@ -3560,7 +3560,7 @@ export interface ChatMemberMember extends AbstractChatMember {
 	until_date?: number;
 }
 
-/** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
+/** Represents a {@link ChatMember chat member} that is under certain restrictions in the chat. Supergroups only. */
 export interface ChatMemberRestricted extends AbstractChatMember {
 	/** The member's status in the chat, always “restricted” */
 	status: "restricted";
@@ -3604,13 +3604,13 @@ export interface ChatMemberRestricted extends AbstractChatMember {
 	until_date: number;
 }
 
-/** Represents a chat member that isn't currently a member of the chat, but may join it themselves. */
+/** Represents a {@link ChatMember chat member} that isn't currently a member of the chat, but may join it themselves. */
 export interface ChatMemberLeft extends AbstractChatMember {
 	/** The member's status in the chat, always “left” */
 	status: "left";
 }
 
-/** Represents a chat member that was banned in the chat and can't return to the chat or view chat messages. */
+/** Represents a {@link ChatMember chat member} that was banned in the chat and can't return to the chat or view chat messages. */
 export interface ChatMemberBanned extends AbstractChatMember {
 	/** The member's status in the chat, always “kicked” */
 	status: "kicked";
@@ -3632,7 +3632,7 @@ export interface ChatJoinRequest {
 	bio?: string;
 	/** Chat invite link that was used by the user to send the join request */
 	invite_link?: ChatInviteLink;
-	/** Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call sendChatJoinRequestWebApp or directly call answerChatJoinRequestQuery within 10 seconds. */
+	/** Identifier of the join request query; for bots assigned to process join requests only. If present, then the bot must call {@link BotApi.sendChatJoinRequestWebApp sendChatJoinRequestWebApp} or directly call {@link BotApi.answerChatJoinRequestQuery answerChatJoinRequestQuery} within 10 seconds. */
 	query_id?: string;
 }
 
@@ -3812,7 +3812,7 @@ export interface EmojiTypeEmoji {
 export interface EmojiTypeCustomEmoji {
 	/** Type of the emoji, always “custom_emoji” */
 	type: "custom_emoji";
-	/** Identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker. */
+	/** Identifier of the custom emoji. Use {@link BotApi.getCustomEmojiStickers getCustomEmojiStickers} to get full information about the sticker. */
 	custom_emoji_id: string;
 }
 
@@ -3829,7 +3829,7 @@ export interface ChatShareThemeEmoji {
 	type: "emoji";
 	/** The emoji; 0-6 regular or custom emoji */
 	emojis: EmojiType[];
-	/** Identifier of the backdrop used as the background; omitted if the default background is used. Use getChatShareThemeBackdrops to get details about the backdrop. */
+	/** Identifier of the backdrop used as the background; omitted if the default background is used. Use {@link BotApi.getChatShareThemeBackdrops getChatShareThemeBackdrops} to get details about the backdrop. */
 	background_backdrop_id?: number;
 }
 
@@ -4193,7 +4193,7 @@ export interface GiftInfo {
 	entities?: MessageEntity[];
 	/** True, if the sender and gift text are shown only to the gift receiver; otherwise, everyone will be able to see them */
 	is_private?: true;
-	/** Unique number reserved for this gift when upgraded. See the number field in UniqueGift. */
+	/** Unique number reserved for this gift when upgraded. See the number field in {@link UniqueGift}. */
 	unique_gift_number?: number;
 }
 
@@ -4259,7 +4259,7 @@ export interface OwnedGiftRegular {
 	prepaid_upgrade_star_count?: number;
 	/** True, if the gift's upgrade was purchased after the gift was sent; for gifts received on behalf of business accounts only */
 	is_upgrade_separate?: true;
-	/** Unique number reserved for this gift when upgraded. See the number field in UniqueGift. */
+	/** Unique number reserved for this gift when upgraded. See the number field in {@link UniqueGift}. */
 	unique_gift_number?: number;
 }
 
@@ -4377,31 +4377,31 @@ export type BotCommandScope =
 	| BotCommandScopeChatAdministrators
 	| BotCommandScopeChatMember;
 
-/** Represents the default scope of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user. */
+/** Represents the default {@link BotCommandScope scope} of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user. */
 export interface BotCommandScopeDefault {
 	/** Scope type, must be default */
 	type: "default";
 }
 
-/** Represents the scope of bot commands, covering all private chats. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering all private chats. */
 export interface BotCommandScopeAllPrivateChats {
 	/** Scope type, must be all_private_chats */
 	type: "all_private_chats";
 }
 
-/** Represents the scope of bot commands, covering all group and supergroup chats. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering all group and supergroup chats. */
 export interface BotCommandScopeAllGroupChats {
 	/** Scope type, must be all_group_chats */
 	type: "all_group_chats";
 }
 
-/** Represents the scope of bot commands, covering all group and supergroup chat administrators. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering all group and supergroup chat administrators. */
 export interface BotCommandScopeAllChatAdministrators {
 	/** Scope type, must be all_chat_administrators */
 	type: "all_chat_administrators";
 }
 
-/** Represents the scope of bot commands, covering a specific chat. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering a specific chat. */
 export interface BotCommandScopeChat {
 	/** Scope type, must be chat */
 	type: "chat";
@@ -4409,7 +4409,7 @@ export interface BotCommandScopeChat {
 	chat_id: number | string;
 }
 
-/** Represents the scope of bot commands, covering all administrators of a specific group or supergroup chat. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering all administrators of a specific group or supergroup chat. */
 export interface BotCommandScopeChatAdministrators {
 	/** Scope type, must be chat_administrators */
 	type: "chat_administrators";
@@ -4417,7 +4417,7 @@ export interface BotCommandScopeChatAdministrators {
 	chat_id: number | string;
 }
 
-/** Represents the scope of bot commands, covering a specific member of a group or supergroup chat. */
+/** Represents the {@link BotCommandScope scope} of bot commands, covering a specific member of a group or supergroup chat. */
 export interface BotCommandScopeChatMember {
 	/** Scope type, must be chat_member */
 	type: "chat_member";
@@ -4450,7 +4450,7 @@ export interface BotShortDescription {
 - MenuButtonWebApp
 - MenuButtonDefault
 
-If a menu button other than MenuButtonDefault is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands. */
+If a menu button other than {@link MenuButtonDefault} is set for a private chat, then it is applied in the chat. Otherwise the default menu button is applied. By default, the menu button opens the list of bot commands. */
 export type MenuButton = MenuButtonCommands | MenuButtonWebApp | MenuButtonDefault;
 
 /** Represents a menu button, which opens the bot's list of commands. */
@@ -4465,7 +4465,7 @@ export interface MenuButtonWebApp {
 	type: "web_app";
 	/** Text on the button */
 	text: string;
-	/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link. */
+	/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method {@link BotApi.answerWebAppQuery answerWebAppQuery}. Alternatively, a t.me link to a Web App of the bot can be specified in the object instead of the Web App's URL, in which case the Web App will be opened as if the user pressed the link. */
 	web_app: WebAppInfo;
 }
 
@@ -4627,7 +4627,7 @@ export interface BusinessMessagesDeleted {
 
 /** Describes an inline message sent by a [Web App](https://core.telegram.org/bots/webapps) on behalf of a user. */
 export interface SentWebAppMessage {
-	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
+	/** Identifier of the sent inline message. Available only if there is an {@link InlineKeyboardMarkup inline keyboard} attached to the message. */
 	inline_message_id?: string;
 }
 /** Describes an inline message sent by a guest bot. */
@@ -4986,7 +4986,7 @@ export interface InputStoryContentVideo<F> {
 
 // Methods in documentation order; merged into the exported `BotApi` interface.
 export interface BotApi<F> {
-	/** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a User object. */
+	/** A simple method for testing your bot's authentication token. Requires no parameters. Returns basic information about the bot in form of a {@link User} object. */
 	getMe(args?: NoArgs, options?: CallOptions): Promise<UserFromGetMe>;
 }
 
@@ -5045,7 +5045,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send text messages. On success, the sent Message is returned. */
+	/** Use this method to send text messages. On success, the sent {@link Message} is returned. */
 	sendMessage(
 		args: Args.SendMessage | Args.SendMessageCallbackQuery,
 		options?: CallOptions,
@@ -5078,7 +5078,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent Message is returned. */
+	/** Use this method to forward messages of any kind. Service messages and messages with protected content can't be forwarded. On success, the sent {@link Message} is returned. */
 	forwardMessage(args: Args.ForwardMessage, options?: CallOptions): Promise<Message & Message.BusinessSentMessage>;
 }
 
@@ -5102,7 +5102,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of MessageId of the sent messages is returned. */
+	/** Use this method to forward multiple messages of any kind. If some of the specified messages can't be found or forwarded, they are skipped. Service messages and messages with protected content can't be forwarded. Album grouping is kept for forwarded messages. On success, an array of {@link MessageId} of the sent messages is returned. */
 	forwardMessages(args: Args.ForwardMessages, options?: CallOptions): Promise<MessageId[]>;
 }
 
@@ -5146,7 +5146,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessage, but the copied message doesn't have a link to the original message. Returns the MessageId of the sent message on success. */
+	/** Use this method to copy messages of any kind. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz {@link Poll poll} can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method {@link BotApi.forwardMessage forwardMessage}, but the copied message doesn't have a link to the original message. Returns the {@link MessageId} of the sent message on success. */
 	copyMessage(args: Args.CopyMessage, options?: CallOptions): Promise<MessageId>;
 }
 
@@ -5172,7 +5172,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz poll can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method forwardMessages, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of MessageId of the sent messages is returned. */
+	/** Use this method to copy messages of any kind. If some of the specified messages can't be found or copied, they are skipped. Service messages, paid media messages, giveaway messages, giveaway winners messages, invoice messages, and widget messages can't be copied. A quiz {@link Poll poll} can be copied only if the value of the field correct_option_ids is known to the bot. The method is analogous to the method {@link BotApi.forwardMessages forwardMessages}, but the copied messages don't have a link to the original message. Album grouping is kept for copied messages. On success, an Array of {@link MessageId} of the sent messages is returned. */
 	copyMessages(args: Args.CopyMessages, options?: CallOptions): Promise<MessageId[]>;
 }
 
@@ -5225,7 +5225,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send photos. On success, the sent Message is returned. */
+	/** Use this method to send photos. On success, the sent {@link Message} is returned. */
 	sendPhoto(
 		args: Args.SendPhoto<F> | Args.SendPhotoCallbackQuery<F>,
 		options?: CallOptions,
@@ -5286,7 +5286,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send live photos. On success, the sent Message is returned. */
+	/** Use this method to send live photos. On success, the sent {@link Message} is returned. */
 	sendLivePhoto(
 		args: Args.SendLivePhoto<F> | Args.SendLivePhotoCallbackQuery<F>,
 		options?: CallOptions,
@@ -5346,9 +5346,9 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent Message is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
+	/** Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent {@link Message} is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future.
 
-  For sending voice messages, use the sendVoice method instead. */
+  For sending voice messages, use the {@link BotApi.sendVoice sendVoice} method instead. */
 	sendAudio(
 		args: Args.SendAudio<F> | Args.SendAudioCallbackQuery<F>,
 		options?: CallOptions,
@@ -5407,7 +5407,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send general files. On success, the sent Message is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
+	/** Use this method to send general files. On success, the sent {@link Message} is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. */
 	sendDocument(
 		args: Args.SendDocument<F> | Args.SendDocumentCallbackQuery<F>,
 		options?: CallOptions,
@@ -5477,7 +5477,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as Document). On success, the sent Message is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
+	/** Use this method to send video files, Telegram clients support MPEG4 videos (other formats may be sent as {@link Document}). On success, the sent {@link Message} is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. */
 	sendVideo(
 		args: Args.SendVideo<F> | Args.SendVideoCallbackQuery<F>,
 		options?: CallOptions,
@@ -5544,7 +5544,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent Message is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
+	/** Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent {@link Message} is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. */
 	sendAnimation(
 		args: Args.SendAnimation<F> | Args.SendAnimationCallbackQuery<F>,
 		options?: CallOptions,
@@ -5598,7 +5598,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
+	/** Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS, or in .MP3 format, or in .M4A format (other formats may be sent as {@link Audio} or {@link Document}). On success, the sent {@link Message} is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. */
 	sendVoice(
 		args: Args.SendVoice<F> | Args.SendVoiceCallbackQuery<F>,
 		options?: CallOptions,
@@ -5653,7 +5653,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a rounded square MPEG4 video of up to 1 minute long. On success, the sent Message is returned. */
+	/** Use this method to send a rounded square MPEG4 video of up to 1 minute long. On success, the sent {@link Message} is returned. */
 	sendVideoNote(
 		args: Args.SendVideoNote<F> | Args.SendVideoNoteCallbackQuery<F>,
 		options?: CallOptions,
@@ -5686,7 +5686,7 @@ export declare namespace Args {
 		show_caption_above_media?: boolean;
 		/** Pass True to allow the widget to send queries to the bot */
 		allow_queries?: boolean;
-		/** Pass True to create a shared widget, which can be sent again using the method sendSharedWidget */
+		/** Pass True to create a shared widget, which can be sent again using the method {@link BotApi.sendSharedWidget sendSharedWidget} */
 		is_shared?: boolean;
 		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
@@ -5704,7 +5704,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a message with an [HTML widget](https://core.telegram.org/bots/widgets). Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
+	/** Use this method to send a message with an [HTML widget](https://core.telegram.org/bots/widgets). Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent {@link Message} is returned. */
 	sendWidget(args: Args.SendWidget, options?: CallOptions): Promise<Message.WidgetMessage>;
 }
 
@@ -5742,7 +5742,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send again a shared widget created by the bot. Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
+	/** Use this method to send again a shared widget created by the bot. Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent {@link Message} is returned. */
 	sendSharedWidget(args: Args.SendSharedWidget, options?: CallOptions): Promise<Message.WidgetMessage>;
 }
 
@@ -5786,7 +5786,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send paid media. On success, the sent Message is returned. */
+	/** Use this method to send paid media. On success, the sent {@link Message} is returned. */
 	sendPaidMedia(
 		args: Args.SendPaidMedia<F>,
 		options?: CallOptions,
@@ -5821,7 +5821,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of Message objects that were sent is returned. */
+	/** Use this method to send a group of photos, live photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an Array of {@link Message} objects that were sent is returned. */
 	sendMediaGroup(
 		args: Args.SendMediaGroup<F>,
 		options?: CallOptions,
@@ -5892,7 +5892,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send point on the map. On success, the sent Message is returned. */
+	/** Use this method to send point on the map. On success, the sent {@link Message} is returned. */
 	sendLocation(
 		args: Args.SendLocation | Args.SendLocationEphemeral | Args.SendLocationCallbackQuery,
 		options?: CallOptions,
@@ -5952,7 +5952,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send information about a venue. On success, the sent Message is returned. */
+	/** Use this method to send information about a venue. On success, the sent {@link Message} is returned. */
 	sendVenue(
 		args: Args.SendVenue | Args.SendVenueCallbackQuery,
 		options?: CallOptions,
@@ -6004,7 +6004,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send phone contacts. On success, the sent Message is returned. */
+	/** Use this method to send phone contacts. On success, the sent {@link Message} is returned. */
 	sendContact(
 		args: Args.SendContact | Args.SendContactCallbackQuery,
 		options?: CallOptions,
@@ -6125,7 +6125,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a native poll. On success, the sent Message is returned. */
+	/** Use this method to send a native poll. On success, the sent {@link Message} is returned. */
 	sendPoll(
 		args:
 			| Args.SendPoll<F>
@@ -6160,7 +6160,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a checklist on behalf of a connected business account. On success, the sent Message is returned. */
+	/** Use this method to send a checklist on behalf of a connected business account. On success, the sent {@link Message} is returned. */
 	sendChecklist(
 		args: Args.SendChecklist,
 		options?: CallOptions,
@@ -6197,7 +6197,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send an animated emoji that will display a random value. On success, the sent Message is returned. */
+	/** Use this method to send an animated emoji that will display a random value. On success, the sent {@link Message} is returned. */
 	sendDice(args: Args.SendDice, options?: CallOptions): Promise<Message.DiceMessage & Message.BusinessSentMessage>;
 }
 
@@ -6215,7 +6215,7 @@ export declare namespace Args {
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
-		/** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
+		/** Pass True to show the user a button to stop further drafts. The bot will receive an {@link Update} “stopped_message_generation” if the user presses the button. */
 		can_stop?: boolean;
 		/** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
 		keep_on_stop?: boolean;
@@ -6223,7 +6223,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendMessage with the complete message to persist it in the user's chat. Returns True on success. */
+	/** Use this method to stream a partial message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call {@link BotApi.sendMessage sendMessage} with the complete message to persist it in the user's chat. Returns True on success. */
 	sendMessageDraft(args: Args.SendMessageDraft, options?: CallOptions): Promise<true>;
 }
 
@@ -6235,7 +6235,7 @@ export declare namespace Args {
 		chat_id: number | string;
 		/** Unique identifier for the target message thread or topic of a forum; for supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
-		/** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for text messages, upload_photo for photos, record_video or upload_video for videos, record_voice or upload_voice for voice notes, upload_document for general files, choose_sticker for stickers, find_location for location data, record_video_note or upload_video_note for video notes. */
+		/** Type of action to broadcast. Choose one, depending on what the user is about to receive: typing for {@link BotApi.sendMessage text messages}, upload_photo for {@link BotApi.sendPhoto photos}, record_video or upload_video for {@link BotApi.sendVideo videos}, record_voice or upload_voice for {@link BotApi.sendVoice voice notes}, upload_document for {@link BotApi.sendDocument general files}, choose_sticker for {@link BotApi.sendSticker stickers}, find_location for {@link BotApi.sendLocation location data}, record_video_note or upload_video_note for {@link BotApi.sendVideoNote video notes}. */
 		action:
 			| "typing"
 			| "upload_photo"
@@ -6254,7 +6254,7 @@ export declare namespace Args {
 export interface BotApi<F> {
 	/** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
 
-  Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use sendChatAction with action = upload_photo. The user will see a "sending photo" status for the bot.
+  Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use {@link BotApi.sendChatAction sendChatAction} with action = upload_photo. The user will see a "sending photo" status for the bot.
 
   We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
 	sendChatAction(args: Args.SendChatAction, options?: CallOptions): Promise<true>;
@@ -6290,7 +6290,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get a list of profile pictures for a user. Returns a UserProfilePhotos object. */
+	/** Use this method to get a list of profile pictures for a user. Returns a {@link UserProfilePhotos} object. */
 	getUserProfilePhotos(args: Args.GetUserProfilePhotos, options?: CallOptions): Promise<UserProfilePhotos>;
 }
 
@@ -6306,7 +6306,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get a list of profile audios for a user. Returns a UserProfileAudios object. */
+	/** Use this method to get a list of profile audios for a user. Returns a {@link UserProfileAudios} object. */
 	getUserProfileAudios(args: Args.GetUserProfileAudios, options?: CallOptions): Promise<UserProfileAudios>;
 }
 
@@ -6334,7 +6334,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a File object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling getFile again.
+	/** Use this method to get basic information about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a {@link File} object is returned. The file can then be downloaded via the link https://api.telegram.org/file/bot<token>/<file_path>, where <file_path> is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling {@link BotApi.getFile getFile} again.
 
   Note: This function may not preserve the original file name and MIME type. You should save the file's MIME type and name (if available) when the File object is received. */
 	getFile(args: Args.GetFile, options?: CallOptions): Promise<File>;
@@ -6364,7 +6364,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless unbanned first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
+	/** Use this method to ban a user in a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the chat on their own using invite links, etc., unless {@link BotApi.unbanChatMember unbanned} first. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns True on success. */
 	banChatMember(args: Args.BanChatMember, options?: CallOptions): Promise<true>;
 }
 
@@ -6496,7 +6496,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is unbanned, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
+	/** Use this method to ban a channel chat in a supergroup or a channel. Until the chat is {@link BotApi.unbanChatSenderChat unbanned}, the owner of the banned chat won't be able to send messages on behalf of any of their channels. The bot must be an administrator in the supergroup or channel for this to work and must have the appropriate administrator rights. Returns True on success. */
 	banChatSenderChat(args: Args.BanChatSenderChat, options?: CallOptions): Promise<true>;
 }
 
@@ -6540,7 +6540,7 @@ export declare namespace Args {
 export interface BotApi<F> {
 	/** Use this method to generate a new primary invite link for a chat; any previously generated primary link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the new invite link as String on success.
 
-  Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using exportChatInviteLink or by calling the getChat method. If your bot needs to generate a new primary invite link replacing its previous one, use exportChatInviteLink again. */
+  Note: Each administrator in a chat generates their own invite links. Bots can't use invite links generated by other administrators. If you want your bot to work with invite links, it will need to generate its own link using {@link BotApi.exportChatInviteLink exportChatInviteLink} or by calling the {@link BotApi.getChat getChat} method. If your bot needs to generate a new primary invite link replacing its previous one, use {@link BotApi.exportChatInviteLink exportChatInviteLink} again. */
 	exportChatInviteLink(args: Args.ExportChatInviteLink, options?: CallOptions): Promise<string>;
 }
 
@@ -6570,7 +6570,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method revokeChatInviteLink. Returns the new invite link as ChatInviteLink object. */
+	/** Use this method to create an additional invite link for a chat. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. The link can be revoked using the method {@link BotApi.revokeChatInviteLink revokeChatInviteLink}. Returns the new invite link as {@link ChatInviteLink} object. */
 	createChatInviteLink(
 		args: Args.CreateChatInviteLink | Args.CreateChatInviteLinkJoinRequest,
 		options?: CallOptions,
@@ -6605,7 +6605,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a ChatInviteLink object. */
+	/** Use this method to edit a non-primary invite link created by the bot. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the edited invite link as a {@link ChatInviteLink} object. */
 	editChatInviteLink(
 		args: Args.EditChatInviteLink | Args.EditChatInviteLinkJoinRequest,
 		options?: CallOptions,
@@ -6626,7 +6626,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to create a [subscription invite link](https://telegram.org/blog/superchannels-star-reactions-subscriptions#star-subscriptions) for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
+	/** Use this method to create a [subscription invite link](https://telegram.org/blog/superchannels-star-reactions-subscriptions#star-subscriptions) for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method {@link BotApi.editChatSubscriptionInviteLink editChatSubscriptionInviteLink} or revoked using the method {@link BotApi.revokeChatInviteLink revokeChatInviteLink}. Returns the new invite link as a {@link ChatInviteLink} object. */
 	createChatSubscriptionInviteLink(
 		args: Args.CreateChatSubscriptionInviteLink,
 		options?: CallOptions,
@@ -6645,7 +6645,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a ChatInviteLink object. */
+	/** Use this method to edit a subscription invite link created by the bot. The bot must have the can_invite_users administrator rights. Returns the edited invite link as a {@link ChatInviteLink} object. */
 	editChatSubscriptionInviteLink(
 		args: Args.EditChatSubscriptionInviteLink,
 		options?: CallOptions,
@@ -6662,7 +6662,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as ChatInviteLink object. */
+	/** Use this method to revoke an invite link created by the bot. If the primary link is revoked, a new link is automatically generated. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Returns the revoked invite link as {@link ChatInviteLink} object. */
 	revokeChatInviteLink(args: Args.RevokeChatInviteLink, options?: CallOptions): Promise<ChatInviteLink>;
 }
 
@@ -6718,7 +6718,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call answerChatJoinRequestQuery to resolve the join request query based on the user interaction with the Mini App. Returns True on success. */
+	/** Use this method to process a received chat join request query by showing a Mini App to the user before deciding the outcome. Call {@link BotApi.answerChatJoinRequestQuery answerChatJoinRequestQuery} to resolve the join request query based on the user interaction with the Mini App. Returns True on success. */
 	sendChatJoinRequestWebApp(args: Args.SendChatJoinRequestWebApp, options?: CallOptions): Promise<true>;
 }
 
@@ -6849,7 +6849,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get up-to-date information about the chat. Returns a ChatFullInfo object on success. */
+	/** Use this method to get up-to-date information about the chat. Returns a {@link ChatFullInfo} object on success. */
 	getChat(args: Args.GetChat, options?: CallOptions): Promise<ChatFullInfo>;
 }
 
@@ -6863,7 +6863,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get a list of administrators in a chat. Returns an Array of ChatMember objects. */
+	/** Use this method to get a list of administrators in a chat. Returns an Array of {@link ChatMember} objects. */
 	getChatAdministrators(
 		args: Args.GetChatAdministrators,
 		options?: CallOptions,
@@ -6902,12 +6902,12 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success. */
+	/** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a {@link ChatMember} object on success. */
 	getChatMember(args: Args.GetChatMember, options?: CallOptions): Promise<ChatMember>;
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the list of backdrops, which can be used as the background of a theme of the screen for sharing a link to a user or a chat. Requires no parameters. Returns a ChatShareThemeBackdrops object. */
+	/** Use this method to get the list of backdrops, which can be used as the background of a theme of the screen for sharing a link to a user or a chat. Requires no parameters. Returns a {@link ChatShareThemeBackdrops} object. */
 	getChatShareThemeBackdrops(args?: NoArgs, options?: CallOptions): Promise<ChatShareThemeBackdrops>;
 }
 
@@ -6921,7 +6921,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of Message objects is returned. */
+	/** Use this method to get the last messages from the personal chat (i.e., the chat currently added to their profile) of a given user. On success, an Array of {@link Message} objects is returned. */
 	getUserPersonalChatMessages(args: Args.GetUserPersonalChatMessages, options?: CallOptions): Promise<Message[]>;
 }
 
@@ -6935,7 +6935,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success. */
+	/** Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in {@link BotApi.getChat getChat} requests to check if the bot can use this method. Returns True on success. */
 	setChatStickerSet(args: Args.SetChatStickerSet, options?: CallOptions): Promise<true>;
 }
 
@@ -6947,12 +6947,12 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in getChat requests to check if the bot can use this method. Returns True on success. */
+	/** Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate administrator rights. Use the field can_set_sticker_set optionally returned in {@link BotApi.getChat getChat} requests to check if the bot can use this method. Returns True on success. */
 	deleteChatStickerSet(args: Args.DeleteChatStickerSet, options?: CallOptions): Promise<true>;
 }
 
 export interface BotApi<F> {
-	/** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of Sticker objects. */
+	/** Use this method to get custom emoji stickers, which can be used as a forum topic icon by any user. Requires no parameters. Returns an Array of {@link Sticker} objects. */
 	getForumTopicIconStickers(args?: NoArgs, options?: CallOptions): Promise<Sticker[]>;
 }
 
@@ -6964,13 +6964,13 @@ export declare namespace Args {
 		name: string;
 		/** Color of the topic icon in RGB format. Currently, must be one of 7322096 (0x6FB9F0), 16766590 (0xFFD67E), 13338331 (0xCB86DB), 9367192 (0x8EEE98), 16749490 (0xFF93B2), or 16478047 (0xFB6F5F) */
 		icon_color?: 0x6fb9f0 | 0xffd67e | 0xcb86db | 0x8eee98 | 0xff93b2 | 0xfb6f5f;
-		/** Unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. */
+		/** Unique identifier of the custom emoji shown as the topic icon. Use {@link BotApi.getForumTopicIconStickers getForumTopicIconStickers} to get all allowed custom emoji identifiers. */
 		icon_custom_emoji_id?: string;
 	}
 }
 
 export interface BotApi<F> {
-	/** Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator right. In the case of a private chat, a link to the topic can be created in the format https://t.me/<bot_username>/<message_thread_id>; the link opens the topic only for the user. Returns information about the created topic as a ForumTopic object. */
+	/** Use this method to create a topic in a forum supergroup chat or a private chat with a user. In the case of a supergroup chat the bot must be an administrator in the chat for this to work and must have the can_manage_topics administrator right. In the case of a private chat, a link to the topic can be created in the format https://t.me/<bot_username>/<message_thread_id>; the link opens the topic only for the user. Returns information about the created topic as a {@link ForumTopic} object. */
 	createForumTopic(args: Args.CreateForumTopic, options?: CallOptions): Promise<ForumTopic>;
 }
 
@@ -6982,7 +6982,7 @@ export declare namespace Args {
 		message_thread_id: number;
 		/** New topic name, 0-128 characters. If not specified or empty, the current name of the topic will be kept */
 		name?: string;
-		/** New unique identifier of the custom emoji shown as the topic icon. Use getForumTopicIconStickers to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept */
+		/** New unique identifier of the custom emoji shown as the topic icon. Use {@link BotApi.getForumTopicIconStickers getForumTopicIconStickers} to get all allowed custom emoji identifiers. Pass an empty string to remove the icon. If not specified, the current icon will be kept */
 		icon_custom_emoji_id?: string;
 	}
 }
@@ -7130,7 +7130,7 @@ export declare namespace Args {
 		text?: string;
 		/** If True, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false. */
 		show_alert?: boolean;
-		/** URL that will be opened by the user's client. If you have created a Game and accepted the conditions via [`@BotFather`](https://t.me/botfather), specify the URL that opens your game - note that this will only work if the query comes from a callback_game button.
+		/** URL that will be opened by the user's client. If you have created a {@link Game} and accepted the conditions via [`@BotFather`](https://t.me/botfather), specify the URL that opens your game - note that this will only work if the query comes from a {@link InlineKeyboardButton callback_game} button.
 
 Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
 		url?: string;
@@ -7154,7 +7154,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send an answer to a query from a widget. The query must be answered within 15 seconds. The answer is received only by the widget that sent the query and doesn't change data of the widget; use editMessageWidgetData or editSharedWidgetData to change it. On success, True is returned. */
+	/** Use this method to send an answer to a query from a widget. The query must be answered within 15 seconds. The answer is received only by the widget that sent the query and doesn't change data of the widget; use {@link BotApi.editMessageWidgetData editMessageWidgetData} or {@link BotApi.editSharedWidgetData editSharedWidgetData} to change it. On success, True is returned. */
 	answerWidgetQuery(args: Args.AnswerWidgetQuery, options?: CallOptions): Promise<true>;
 }
 
@@ -7168,7 +7168,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to reply to a received guest message. On success, a SentGuestMessage object is returned. */
+	/** Use this method to reply to a received guest message. On success, a {@link SentGuestMessage} object is returned. */
 	answerGuestQuery(args: Args.AnswerGuestQuery, options?: CallOptions): Promise<SentGuestMessage>;
 }
 
@@ -7182,7 +7182,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a UserChatBoosts object. */
+	/** Use this method to get the list of boosts added to a chat by a user. Requires administrator rights in the chat. Returns a {@link UserChatBoosts} object. */
 	getUserChatBoosts(args: Args.GetUserChatBoosts, options?: CallOptions): Promise<UserChatBoosts>;
 }
 
@@ -7194,7 +7194,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get information about the connection of the bot with a business account. Returns a BusinessConnection object on success. */
+	/** Use this method to get information about the connection of the bot with a business account. Returns a {@link BusinessConnection} object on success. */
 	getBusinessConnection(args: Args.GetBusinessConnection, options?: CallOptions): Promise<BusinessConnection>;
 }
 
@@ -7230,7 +7230,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the access settings of a managed bot. Returns a BotAccessSettings object on success. */
+	/** Use this method to get the access settings of a managed bot. Returns a {@link BotAccessSettings} object on success. */
 	getManagedBotAccessSettings(
 		args: Args.GetManagedBotAccessSettings,
 		options?: CallOptions,
@@ -7257,7 +7257,7 @@ export declare namespace Args {
 	export interface SetMyCommands {
 		/** A list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified. */
 		commands: readonly BotCommand[];
-		/** An object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
+		/** An object, describing scope of users for which the commands are relevant. Defaults to {@link BotCommandScopeDefault}. */
 		scope?: BotCommandScope;
 		/** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands */
 		language_code?: string;
@@ -7271,7 +7271,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface DeleteMyCommands {
-		/** An object, describing scope of users for which the commands are relevant. Defaults to BotCommandScopeDefault. */
+		/** An object, describing scope of users for which the commands are relevant. Defaults to {@link BotCommandScopeDefault}. */
 		scope?: BotCommandScope;
 		/** A two-letter ISO 639-1 language code. If empty, commands will be applied to all users from the given scope, for whose language there are no dedicated commands */
 		language_code?: string;
@@ -7285,7 +7285,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface GetMyCommands {
-		/** An object, describing scope of users. Defaults to BotCommandScopeDefault. */
+		/** An object, describing scope of users. Defaults to {@link BotCommandScopeDefault}. */
 		scope?: BotCommandScope;
 		/** A two-letter ISO 639-1 language code or an empty string */
 		language_code?: string;
@@ -7293,7 +7293,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of BotCommand objects. If commands aren't set, an empty list is returned. */
+	/** Use this method to get the current list of the bot's commands for the given scope and user language. Returns an Array of {@link BotCommand} objects. If commands aren't set, an empty list is returned. */
 	getMyCommands(args: Args.GetMyCommands, options?: CallOptions): Promise<BotCommand[]>;
 }
 
@@ -7319,7 +7319,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current bot name for the given user language. Returns BotName on success. */
+	/** Use this method to get the current bot name for the given user language. Returns {@link BotName} on success. */
 	getMyName(args: Args.GetMyName, options?: CallOptions): Promise<BotName>;
 }
 
@@ -7345,7 +7345,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current bot description for the given user language. Returns BotDescription on success. */
+	/** Use this method to get the current bot description for the given user language. Returns {@link BotDescription} on success. */
 	getMyDescription(args: Args.GetMyDescription, options?: CallOptions): Promise<BotDescription>;
 }
 
@@ -7371,7 +7371,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current bot short description for the given user language. Returns BotShortDescription on success. */
+	/** Use this method to get the current bot short description for the given user language. Returns {@link BotShortDescription} on success. */
 	getMyShortDescription(args: Args.GetMyShortDescription, options?: CallOptions): Promise<BotShortDescription>;
 }
 
@@ -7396,7 +7396,7 @@ export declare namespace Args {
 	export interface SetChatMenuButton {
 		/** Unique identifier for the target private chat. If not specified, the bot's default menu button will be changed. */
 		chat_id?: number;
-		/** An object for the bot's new menu button. Defaults to MenuButtonDefault */
+		/** An object for the bot's new menu button. Defaults to {@link MenuButtonDefault} */
 		menu_button?: MenuButton;
 	}
 }
@@ -7414,7 +7414,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns MenuButton on success. */
+	/** Use this method to get the current value of the bot's menu button in a private chat, or the default menu button. Returns {@link MenuButton} on success. */
 	getChatMenuButton(args: Args.GetChatMenuButton, options?: CallOptions): Promise<MenuButton>;
 }
 
@@ -7440,7 +7440,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get the current default administrator rights of the bot. Returns ChatAdministratorRights on success. */
+	/** Use this method to get the current default administrator rights of the bot. Returns {@link ChatAdministratorRights} on success. */
 	getMyDefaultAdministratorRights(
 		args: Args.GetMyDefaultAdministratorRights,
 		options?: CallOptions,
@@ -7448,7 +7448,7 @@ export interface BotApi<F> {
 }
 
 export interface BotApi<F> {
-	/** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a Gifts object. */
+	/** Returns the list of gifts that can be sent by the bot to users and channel chats. Requires no parameters. Returns a {@link Gifts} object. */
 	getAvailableGifts(args?: NoArgs, options?: CallOptions): Promise<Gifts>;
 }
 
@@ -7585,7 +7585,7 @@ export declare namespace Args {
 	export interface DeleteBusinessMessages {
 		/** Unique identifier of the business connection on behalf of which to delete the messages */
 		business_connection_id: string;
-		/** A list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See deleteMessage for limitations on which messages can be deleted */
+		/** A list of 1-100 identifiers of messages to delete. All messages must be from the same chat. See {@link BotApi.deleteMessage deleteMessage} for limitations on which messages can be deleted */
 		message_ids: number[];
 	}
 }
@@ -7693,7 +7693,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Returns the amount of Telegram Stars owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns StarAmount on success. */
+	/** Returns the amount of Telegram Stars owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns {@link StarAmount} on success. */
 	getBusinessAccountStarBalance(args: Args.GetBusinessAccountStarBalance, options?: CallOptions): Promise<StarAmount>;
 }
 
@@ -7742,7 +7742,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Returns the gifts received and owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns OwnedGifts on success. */
+	/** Returns the gifts received and owned by a managed business account. Requires the can_view_gifts_and_stars business bot right. Returns {@link OwnedGifts} on success. */
 	getBusinessAccountGifts(args: Args.GetBusinessAccountGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
 
@@ -7770,7 +7770,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Returns the gifts owned and hosted by a user. Returns OwnedGifts on success. */
+	/** Returns the gifts owned and hosted by a user. Returns {@link OwnedGifts} on success. */
 	getUserGifts(args: Args.GetUserGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
 
@@ -7802,7 +7802,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Returns the gifts owned by a chat. Returns OwnedGifts on success. */
+	/** Returns the gifts owned by a chat. Returns {@link OwnedGifts} on success. */
 	getChatGifts(args: Args.GetChatGifts, options?: CallOptions): Promise<OwnedGifts>;
 }
 
@@ -7814,7 +7814,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get information about a unique gift by its name. Returns a UniqueGift object on success. */
+	/** Use this method to get information about a unique gift by its name. Returns a {@link UniqueGift} object on success. */
 	getUniqueGift(args: Args.GetUniqueGift, options?: CallOptions): Promise<UniqueGift>;
 }
 
@@ -7878,7 +7878,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Deletes a regular gift owned by a managed business account without receiving Telegram Stars for it. Requires the can_convert_gifts_to_stars business bot right. The gift can be deleted only if it isn't limited (the field total_count of the Gift is omitted) and wasn't refunded. Returns True on success. */
+	/** Deletes a regular gift owned by a managed business account without receiving Telegram Stars for it. Requires the can_convert_gifts_to_stars business bot right. The gift can be deleted only if it isn't limited (the field total_count of the {@link Gift} is omitted) and wasn't refunded. Returns True on success. */
 	deleteBusinessAccountGift(args: Args.DeleteBusinessAccountGift, options?: CallOptions): Promise<true>;
 }
 
@@ -7906,7 +7906,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
+	/** Posts a story on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns {@link Story} on success. */
 	postStory(args: Args.PostStory<F>, options?: CallOptions): Promise<Story>;
 }
 
@@ -7928,7 +7928,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns Story on success. */
+	/** Reposts a story on behalf of a business account from another business account. Both business accounts must be managed by the same bot, and the story on the source account must have been posted (or reposted) by the bot. Requires the can_manage_stories business bot right for both business accounts. Returns {@link Story} on success. */
 	repostStory(args: Args.RepostStory, options?: CallOptions): Promise<Story>;
 }
 
@@ -7952,7 +7952,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns Story on success. */
+	/** Edits a story previously posted by the bot on behalf of a managed business account. Requires the can_manage_stories business bot right. Returns {@link Story} on success. */
 	editStory(args: Args.EditStory<F>, options?: CallOptions): Promise<Story>;
 }
 
@@ -7980,7 +7980,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
+	/** Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a {@link SentWebAppMessage} object is returned. */
 	answerWebAppQuery(args: Args.AnswerWebAppQuery, options?: CallOptions): Promise<SentWebAppMessage>;
 }
 
@@ -8002,7 +8002,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Stores a message that can be sent by a user of a Mini App. Returns a PreparedInlineMessage object. */
+	/** Stores a message that can be sent by a user of a Mini App. Returns a {@link PreparedInlineMessage} object. */
 	savePreparedInlineMessage(
 		args: Args.SavePreparedInlineMessage,
 		options?: CallOptions,
@@ -8019,7 +8019,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Stores a keyboard button that can be used by a user within a Mini App. Returns a PreparedKeyboardButton object. */
+	/** Stores a keyboard button that can be used by a user within a Mini App. Returns a {@link PreparedKeyboardButton} object. */
 	savePreparedKeyboardButton(
 		args: Args.SavePreparedKeyboardButton,
 		options?: CallOptions,
@@ -8086,19 +8086,19 @@ export declare namespace Args {
 export interface BotApi<F> {
 	// TODO: in v6, add `Message.GameMessage` to the result. The method edits `Game.text` too, and
 	// adding it breaks code that reads `text` off the result without narrowing.
-	/** Use this method to edit text and game messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit text and [game](https://core.telegram.org/bots/api#games) messages in a chat. On success, the edited {@link Message} is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(
 		args: Args.EditMessageText,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.TextMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to edit rich messages in a chat. On success, the edited Message is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit rich messages in a chat. On success, the edited {@link Message} is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(
 		args: Args.EditMessageTextRich<F>,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.RichMessageMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to edit inline text, rich and game messages. On success, True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit inline text, rich and [game](https://core.telegram.org/bots/api#games) messages. On success, True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageText(
 		args: Args.EditMessageTextInline | Args.EditMessageTextInlineRich,
 		options?: CallOptions,
@@ -8141,13 +8141,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageCaption(
 		args: Args.EditMessageCaption,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.CaptionableMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageCaption(args: Args.EditMessageCaptionInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8181,13 +8181,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(
 		args: Args.EditMessageMedia<F>,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message & Message.BusinessSentMessage>;
 
-	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit animation, audio, document, live photo, photo, or video messages, or to replace a text or a rich message with a media. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo, a live photo, or a video otherwise. When an inline message is edited, a new file can't be uploaded; use a previously uploaded file via its file_id or specify a URL. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageMedia(args: Args.EditMessageMediaInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8231,13 +8231,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to {@link BotApi.stopMessageLiveLocation stopMessageLiveLocation}. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. */
 	editMessageLiveLocation(
 		args: Args.EditMessageLiveLocation,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.LocationMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to stopMessageLiveLocation. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	/** Use this method to edit live location messages. A location can be edited until its live_period expires or editing is explicitly disabled by a call to {@link BotApi.stopMessageLiveLocation stopMessageLiveLocation}. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. */
 	editMessageLiveLocation(args: Args.EditMessageLiveLocationInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8269,13 +8269,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. */
 	stopMessageLiveLocation(
 		args: Args.StopMessageLiveLocation,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.LocationMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited Message is returned, otherwise True is returned. */
+	/** Use this method to stop updating a live location message before live_period expires. On success, if the message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. */
 	stopMessageLiveLocation(args: Args.StopMessageLiveLocationInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8295,7 +8295,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit a checklist on behalf of a connected business account. On success, the edited Message is returned. */
+	/** Use this method to edit a checklist on behalf of a connected business account. On success, the edited {@link Message} is returned. */
 	editMessageChecklist(
 		args: Args.EditMessageChecklist,
 		options?: CallOptions,
@@ -8381,13 +8381,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageReplyMarkup(
 		args: Args.EditMessageReplyMarkup,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message & Message.BusinessSentMessage>;
 
-	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited Message is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
+	/** Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited {@link Message} is returned, otherwise True is returned. Note that business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent. */
 	editMessageReplyMarkup(args: Args.EditMessageReplyMarkupInline, options?: CallOptions): Promise<true>;
 }
 
@@ -8405,7 +8405,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to stop a poll which was sent by the bot. On success, the stopped Poll is returned. */
+	/** Use this method to stop a poll which was sent by the bot. On success, the stopped {@link Poll} is returned. */
 	stopPoll(args: Args.StopPoll, options?: CallOptions): Promise<Poll>;
 }
 
@@ -8750,7 +8750,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send static .WEBP, [animated](https://telegram.org/blog/animated-stickers) .TGS, or [video](https://telegram.org/blog/video-stickers-better-reactions) .WEBM stickers. On success, the sent Message is returned. */
+	/** Use this method to send static .WEBP, [animated](https://telegram.org/blog/animated-stickers) .TGS, or [video](https://telegram.org/blog/video-stickers-better-reactions) .WEBM stickers. On success, the sent {@link Message} is returned. */
 	sendSticker(
 		args: Args.SendSticker<F> | Args.SendStickerCallbackQuery<F>,
 		options?: CallOptions,
@@ -8765,7 +8765,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get a sticker set. On success, a StickerSet object is returned. */
+	/** Use this method to get a sticker set. On success, a {@link StickerSet} object is returned. */
 	getStickerSet(args: Args.GetStickerSet, options?: CallOptions): Promise<StickerSet>;
 }
 
@@ -8777,7 +8777,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of Sticker objects. */
+	/** Use this method to get information about custom emoji stickers by their identifiers. Returns an Array of {@link Sticker} objects. */
 	getCustomEmojiStickers(args: Args.GetCustomEmojiStickers, options?: CallOptions): Promise<Sticker[]>;
 }
 
@@ -8793,7 +8793,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to upload a file with a sticker for later use in the createNewStickerSet, addStickerToSet, or replaceStickerInSet methods (the file can be used multiple times). Returns the uploaded File on success. */
+	/** Use this method to upload a file with a sticker for later use in the {@link BotApi.createNewStickerSet createNewStickerSet}, {@link BotApi.addStickerToSet addStickerToSet}, or {@link BotApi.replaceStickerInSet replaceStickerInSet} methods (the file can be used multiple times). Returns the uploaded {@link File} on success. */
 	uploadStickerFile(args: Args.UploadStickerFile<F>, options?: CallOptions): Promise<File>;
 }
 
@@ -8875,7 +8875,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling deleteStickerFromSet, then addStickerToSet, then setStickerPositionInSet. Returns True on success. */
+	/** Use this method to replace an existing sticker in a sticker set with a new one. The method is equivalent to calling {@link BotApi.deleteStickerFromSet deleteStickerFromSet}, then {@link BotApi.addStickerToSet addStickerToSet}, then {@link BotApi.setStickerPositionInSet setStickerPositionInSet}. Returns True on success. */
 	replaceStickerInSet(args: Args.ReplaceStickerInSet<F>, options?: CallOptions): Promise<true>;
 }
 
@@ -8917,7 +8917,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to change the mask position of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success. */
+	/** Use this method to change the {@link MaskPosition mask position} of a mask sticker. The sticker must belong to a sticker set that was created by the bot. Returns True on success. */
 	setStickerMaskPosition(args: Args.SetStickerMaskPosition, options?: CallOptions): Promise<true>;
 }
 
@@ -9077,7 +9077,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent Message is returned. */
+	/** Use this method to send rich messages. If the message contains a block with a media element, then the bot must have the right to send the media to the chat. On success, the sent {@link Message} is returned. */
 	sendRichMessage(
 		args: Args.SendRichMessage<F> | Args.SendRichMessageCallbackQuery<F>,
 		options?: CallOptions,
@@ -9094,7 +9094,7 @@ export declare namespace Args {
 		draft_id: number;
 		/** The partial message to be streamed. Direct upload of new files and explicit upload of files by a URL isn't supported. */
 		rich_message: InputRichMessage<never, true>;
-		/** Pass True to show the user a button to stop further drafts. The bot will receive an Update “stopped_message_generation” if the user presses the button. */
+		/** Pass True to show the user a button to stop further drafts. The bot will receive an {@link Update} “stopped_message_generation” if the user presses the button. */
 		can_stop?: boolean;
 		/** Pass True to keep the draft in the chat when the button is pressed. The draft will still disappear after a short time or if the bot sends a message. To fully preserve the partial draft, the bot should send it as a new message. */
 		keep_on_stop?: boolean;
@@ -9102,13 +9102,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call sendRichMessage with the complete message to persist it in the user's chat. Returns True on success. */
+	/** Use this method to stream a partial rich message to a user while the message is being generated. Note that the streamed draft is ephemeral and acts as a temporary 30-second preview - once the output is finalized, you must call {@link BotApi.sendRichMessage sendRichMessage} with the complete message to persist it in the user's chat. Returns True on success. */
 	sendRichMessageDraft(args: Args.SendRichMessageDraft, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace RichMessageButton {
 	interface AbstractRichMessageButton {
-		/** Text of the button. May contain only plain text, RichTextCustomEmoji and RichTextDateTime entities. */
+		/** Text of the button. May contain only plain text, {@link RichTextCustomEmoji} and {@link RichTextDateTime} entities. */
 		text: RichMessageButtonText;
 		/** Style of the button. Must be one of “danger”, “success”, “primary”, or “link” (the button is shown as a regular link without borders). Apps may use theme-specific colors for the button background and text based on the style. The style “link” is allowed only for callback buttons. */
 		style?: "danger" | "success" | "primary";
@@ -9120,11 +9120,11 @@ export declare namespace RichMessageButton {
 	export interface CallbackButton extends Omit<AbstractRichMessageButton, "style"> {
 		/** Style of the button. Must be one of “danger”, “success”, “primary”, or “link” (the button is shown as a regular link without borders). Apps may use theme-specific colors for the button background and text based on the style. The style “link” is allowed only for callback buttons. */
 		style?: "danger" | "success" | "primary" | "link";
-		/** Data to be sent in a callback query to the bot when the button is pressed, 1-64 bytes */
+		/** Data to be sent in a {@link CallbackQuery callback query} to the bot when the button is pressed, 1-64 bytes */
 		callback_data: string;
 	}
 	export interface WebAppButton extends AbstractRichMessageButton {
-		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account. */
+		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method {@link BotApi.answerWebAppQuery answerWebAppQuery}. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account. */
 		web_app: WebAppInfo;
 	}
 	export interface LoginButton extends AbstractRichMessageButton {
@@ -9153,7 +9153,7 @@ export declare namespace RichMessageButton {
 	}
 }
 
-/** This object represents a button in a RichMessage. Exactly one of the fields other than text and style must be used to specify the type of the button. */
+/** This object represents a button in a {@link RichMessage}. Exactly one of the fields other than text and style must be used to specify the type of the button. */
 export type RichMessageButton =
 	| RichMessageButton.UrlButton
 	| RichMessageButton.CallbackButton
@@ -9172,7 +9172,7 @@ export type RichMessageButtonText =
 	| RichTextCustomEmoji
 	| (Omit<RichTextDateTime, "text"> & { text: RichMessageButtonText });
 
-/** This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of RichText, or any of the following types:
+/** This object represents a rich formatted text. Currently, it can be either a String for plain text, an Array of {@link RichText}, or any of the following types:
 
 - RichTextBold
 - RichTextItalic
@@ -9333,7 +9333,7 @@ export interface RichTextCode {
 export interface RichTextCustomEmoji {
 	/** Type of the rich text, always “custom_emoji” */
 	type: "custom_emoji";
-	/** Unique identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker. */
+	/** Unique identifier of the custom emoji. Use {@link BotApi.getCustomEmojiStickers getCustomEmojiStickers} to get full information about the sticker. */
 	custom_emoji_id: string;
 	/** Alternative emoji for the custom emoji */
 	alternative_text: string;
@@ -9812,7 +9812,7 @@ export interface RichBlockVoiceNote {
 	caption?: RichBlockCaption;
 }
 
-/** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
+/** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in {@link BotApi.sendRichMessageDraft sendRichMessageDraft}, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
 export interface RichBlockThinking {
 	/** Type of the block, always “thinking” */
 	type: "thinking";
@@ -10117,7 +10117,7 @@ export interface InputRichBlockVoiceNote<F> {
 	caption?: RichBlockCaption;
 }
 
-/** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in sendRichMessageDraft, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
+/** A block with a “Thinking…” placeholder, corresponding to the custom HTML tag <tg-thinking>. The block may be used only in {@link BotApi.sendRichMessageDraft sendRichMessageDraft}, therefore it can't be received in messages. See https://t.me/addemoji/AIActions for examples of custom emoji that are recommended for usage in the block. */
 export interface InputRichBlockThinking {
 	/** Type of the block, always “thinking” */
 	type: "thinking";
@@ -10178,7 +10178,7 @@ export interface InlineQueryResultsWebAppButton extends AbstractInlineQueryResul
 export interface InlineQueryResultsStartButton extends AbstractInlineQueryResultsButton {
 	/** [Deep-linking](https://core.telegram.org/bots/features#deep-linking) parameter for the /start message sent to the bot when a user presses the button. 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
 
-Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an OAuth link. Once done, the bot can offer a switch_inline button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities. */
+Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an OAuth link. Once done, the bot can offer a {@link InlineKeyboardMarkup switch_inline} button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities. */
 	start_parameter: string;
 }
 
@@ -10566,7 +10566,7 @@ export interface InlineQueryResultContact {
 	thumbnail_height?: number;
 }
 
-/** Represents a Game.  */
+/** Represents a {@link Game}.  */
 export interface InlineQueryResultGame {
 	/** Type of the result, must be game */
 	type: "game";
@@ -10776,7 +10776,7 @@ export type InputMessageContent =
 	| InputWidgetMessageContent
 	| InputSharedWidgetMessageContent;
 
-/** Represents the content of a text message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of a text message to be sent as the result of an inline query. */
 export interface InputTextMessageContent {
 	/** Text of the message to be sent, 1-4096 characters */
 	message_text: string;
@@ -10787,13 +10787,13 @@ export interface InputTextMessageContent {
 	/** Link preview generation options for the message */
 	link_preview_options?: LinkPreviewOptions;
 }
-/** Represents the content of a rich message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of a rich message to be sent as the result of an inline query. */
 export interface InputRichMessageContent {
 	/** The message to be sent. Only previously uploaded files may be used in the message. */
 	rich_message: InputRichMessage<never>;
 }
 
-/** Represents the content of a location message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of a location message to be sent as the result of an inline query. */
 export interface InputLocationMessageContent {
 	/** Latitude of the location in degrees */
 	latitude: number;
@@ -10809,7 +10809,7 @@ export interface InputLocationMessageContent {
 	proximity_alert_radius?: number;
 }
 
-/** Represents the content of a venue message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of a venue message to be sent as the result of an inline query. */
 export interface InputVenueMessageContent {
 	/** Latitude of the venue in degrees */
 	latitude: number;
@@ -10829,7 +10829,7 @@ export interface InputVenueMessageContent {
 	google_place_type?: string;
 }
 
-/** Represents the content of a contact message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of a contact message to be sent as the result of an inline query. */
 export interface InputContactMessageContent {
 	/** Contact's phone number */
 	phone_number: string;
@@ -10841,7 +10841,7 @@ export interface InputContactMessageContent {
 	vcard?: string;
 }
 
-/** Represents the content of an invoice message to be sent as the result of an inline query. */
+/** Represents the {@link InputMessageContent content} of an invoice message to be sent as the result of an inline query. */
 export interface InputInvoiceMessageContent {
 	/** Product name, 1-32 characters */
 	title: string;
@@ -10885,7 +10885,7 @@ export interface InputInvoiceMessageContent {
 	is_flexible?: boolean;
 }
 
-/** Represents the content of a message with an [HTML widget](https://core.telegram.org/bots/widgets) to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
+/** Represents the {@link InputMessageContent content} of a message with an [HTML widget](https://core.telegram.org/bots/widgets) to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
 export interface InputWidgetMessageContent {
 	/** HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes when compressed by zlib with the maximum compression level. */
 	html: string;
@@ -10907,11 +10907,11 @@ export interface InputWidgetMessageContent {
 	show_caption_above_media?: boolean;
 	/** Pass True to allow the widget to send queries to the bot */
 	allow_queries?: boolean;
-	/** Pass True to create a shared widget. Each message sent from the result creates a separate shared widget, whose identifier is received by the bot only in the field widget_id of queries from the widget. To send an existing shared widget in response to an inline query, use InputSharedWidgetMessageContent instead. */
+	/** Pass True to create a shared widget. Each message sent from the result creates a separate shared widget, whose identifier is received by the bot only in the field widget_id of queries from the widget. To send an existing shared widget in response to an inline query, use {@link InputSharedWidgetMessageContent} instead. */
 	is_shared?: boolean;
 }
 
-/** Represents the content of a message with a shared widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
+/** Represents the {@link InputMessageContent content} of a message with a shared widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
 export interface InputSharedWidgetMessageContent {
 	/** Unique identifier of the shared widget created by the bot */
 	widget_id: string;
@@ -10927,7 +10927,7 @@ export interface InputSharedWidgetMessageContent {
 	show_caption_above_media?: boolean;
 }
 
-/** Represents a result of an inline query that was chosen by the user and sent to their chat partner. Note: It is necessary to enable [inline feedback](https://core.telegram.org/bots/inline#collecting-feedback) via [`@BotFather`](https://t.me/botfather) in order to receive these objects in updates. */
+/** Represents a {@link InlineQueryResult result} of an inline query that was chosen by the user and sent to their chat partner. Note: It is necessary to enable [inline feedback](https://core.telegram.org/bots/inline#collecting-feedback) via [`@BotFather`](https://t.me/botfather) in order to receive these objects in updates. */
 export interface ChosenInlineResult {
 	/** The unique identifier for the result that was chosen */
 	result_id: string;
@@ -10935,7 +10935,7 @@ export interface ChosenInlineResult {
 	from: User;
 	/** Sender location, only for bots that require user location */
 	location?: Location;
-	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to [edit](https://core.telegram.org/bots/api#updating-messages) the message. */
+	/** Identifier of the sent inline message. Available only if there is an {@link InlineKeyboardMarkup inline keyboard} attached to the message. Will be also received in {@link CallbackQuery callback queries} and can be used to [edit](https://core.telegram.org/bots/api#updating-messages) the message. */
 	inline_message_id?: string;
 	/** The query that was used to obtain the result */
 	query: string;
@@ -11010,7 +11010,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send invoices. On success, the sent Message is returned. */
+	/** Use this method to send invoices. On success, the sent {@link Message} is returned. */
 	sendInvoice(
 		args: Args.SendInvoice,
 		options?: CallOptions,
@@ -11107,7 +11107,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an Update with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
+	/** If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the Bot API will send an {@link Update} with a shipping_query field to the bot. Use this method to reply to shipping queries. On success, True is returned. */
 	answerShippingQuery(
 		args: Args.AnswerShippingQuery | Args.AnswerShippingQueryError,
 		options?: CallOptions,
@@ -11133,7 +11133,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an Update with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
+	/** Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an {@link Update} with the field pre_checkout_query. Use this method to respond to such pre-checkout queries. On success, True is returned. Note: The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. */
 	answerPreCheckoutQuery(
 		args: Args.AnswerPreCheckoutQuery | Args.AnswerPreCheckoutQueryError,
 		options?: CallOptions,
@@ -11141,7 +11141,7 @@ export interface BotApi<F> {
 }
 
 export interface BotApi<F> {
-	/** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a StarAmount object. */
+	/** A method to get the current Telegram Stars balance of the bot. Requires no parameters. On success, returns a {@link StarAmount} object. */
 	getMyStarBalance(args?: NoArgs, options?: CallOptions): Promise<StarAmount>;
 }
 
@@ -11155,7 +11155,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Returns the bot's Telegram Star transactions in chronological order. On success, returns a StarTransactions object. */
+	/** Returns the bot's Telegram Star transactions in chronological order. On success, returns a {@link StarTransactions} object. */
 	getStarTransactions(args: Args.GetStarTransactions, options?: CallOptions): Promise<StarTransactions>;
 }
 
@@ -11556,29 +11556,29 @@ export interface EncryptedPassportElement {
 		| "temporary_registration"
 		| "phone_number"
 		| "email";
-	/** Base64-encoded encrypted Telegram Passport element data provided by the user; available only for “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport” and “address” types. Can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Base64-encoded encrypted Telegram Passport element data provided by the user; available only for “personal_details”, “passport”, “driver_license”, “identity_card”, “internal_passport” and “address” types. Can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	data?: string;
 	/** User's verified phone number; available only for “phone_number” type */
 	phone_number?: string;
 	/** User's verified email address; available only for “email” type */
 	email?: string;
-	/** Array of encrypted files with documents provided by the user; available only for “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Array of encrypted files with documents provided by the user; available only for “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	files?: PassportFile[];
-	/** Encrypted file with the front side of the document, provided by the user; available only for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Encrypted file with the front side of the document, provided by the user; available only for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	front_side?: PassportFile;
-	/** Encrypted file with the reverse side of the document, provided by the user; available only for “driver_license” and “identity_card”. The file can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Encrypted file with the reverse side of the document, provided by the user; available only for “driver_license” and “identity_card”. The file can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	reverse_side?: PassportFile;
-	/** Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Encrypted file with the selfie of the user holding a document, provided by the user; available if requested for “passport”, “driver_license”, “identity_card” and “internal_passport”. The file can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	selfie?: PassportFile;
-	/** Array of encrypted files with translated versions of documents provided by the user; available if requested for “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying EncryptedCredentials. */
+	/** Array of encrypted files with translated versions of documents provided by the user; available if requested for “passport”, “driver_license”, “identity_card”, “internal_passport”, “utility_bill”, “bank_statement”, “rental_agreement”, “passport_registration” and “temporary_registration” types. Files can be decrypted and verified using the accompanying {@link EncryptedCredentials}. */
 	translation?: PassportFile[];
-	/** Base64-encoded element hash for using in PassportElementErrorUnspecified */
+	/** Base64-encoded element hash for using in {@link PassportElementErrorUnspecified} */
 	hash: string;
 }
 
-/** Describes data required for decrypting and authenticating EncryptedPassportElement. See the [Telegram Passport Documentation](https://core.telegram.org/passport#receiving-information) for a complete description of the data decryption and authentication processes. */
+/** Describes data required for decrypting and authenticating {@link EncryptedPassportElement}. See the [Telegram Passport Documentation](https://core.telegram.org/passport#receiving-information) for a complete description of the data decryption and authentication processes. */
 export interface EncryptedCredentials {
-	/** Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for EncryptedPassportElement decryption and authentication */
+	/** Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for {@link EncryptedPassportElement} decryption and authentication */
 	data: string;
 	/** Base64-encoded data hash for data authentication */
 	hash: string;
@@ -11780,7 +11780,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a game. On success, the sent Message is returned. */
+	/** Use this method to send a game. On success, the sent {@link Message} is returned. */
 	sendGame(args: Args.SendGame, options?: CallOptions): Promise<Message.GameMessage & Message.BusinessSentMessage>;
 }
 
@@ -11792,7 +11792,7 @@ export interface Game {
 	description: string;
 	/** Photo that will be displayed in the game message in chats. */
 	photo: PhotoSize[];
-	/** Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls setGameScore, or manually edited using editMessageText. 0-4096 characters. */
+	/** Brief description of the game or high scores included in the game message. Can be automatically edited to include current high scores for the game when the bot calls {@link BotApi.setGameScore setGameScore}, or manually edited using {@link BotApi.editMessageText editMessageText}. 0-4096 characters. */
 	text?: string;
 	/** Special entities that appear in text, such as usernames, URLs, bot commands, etc. */
 	text_entities?: MessageEntity[];
@@ -11836,13 +11836,13 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
+	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the {@link Message} is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
 	setGameScore(
 		args: Args.SetGameScore,
 		options?: CallOptions,
 	): Promise<Update.Edited & Message.GameMessage & Message.BusinessSentMessage>;
 
-	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the Message is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
+	/** Use this method to set the score of the specified user in a game message. On success, if the message is not an inline message, the {@link Message} is returned, otherwise True is returned. Returns an error, if the new score is not greater than the user's current score in the chat and force is False. */
 	setGameScore(args: Args.SetGameScoreInline, options?: CallOptions): Promise<true>;
 }
 
@@ -11872,7 +11872,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of GameHighScore objects.
+	/** Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. Returns an Array of {@link GameHighScore} objects.
 
   This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and their neighbors are not among them. Please note that this behavior is subject to change. */
 	getGameHighScores(
