@@ -62,6 +62,7 @@ import type {
 	PollOption,
 	ProximityAlertTriggered,
 	ReplyParameters,
+	RichText,
 	SentWebAppMessage,
 	ServiceMessageBundle,
 	SharedUser,
@@ -466,16 +467,40 @@ export const replyWithQuoteEntities: ReplyParameters = {
 // An ephemeral message is named by its own identifier, in place of message_id
 export const replyToEphemeralMessage: ReplyParameters = { ephemeral_message_id: 7 };
 
+// A quote from a rich message has one rich text for each quoted text, and its `text` may be empty.
+export const richQuote: TextQuote = {
+	text: "",
+	rich_texts: ["Berlin: ", { type: "bold", text: ["light ", { type: "italic", text: "rain" }] }],
+	position: 0,
+};
+
+export const replyWithRichQuote: ReplyParameters = {
+	message_id: 42,
+	quote_rich_texts: ["Berlin: ", { type: "bold", text: "light rain" }],
+	quote_position: 0,
+};
+
 export type ReplyParametersFields = Assert<
 	Equal<
-		[ReplyParameters["message_id"], ReplyParameters["chat_id"], ReplyParameters["quote_entities"]],
-		[number | undefined, number | string | undefined, MessageEntity[] | undefined]
+		[
+			ReplyParameters["message_id"],
+			ReplyParameters["chat_id"],
+			ReplyParameters["quote_entities"],
+			ReplyParameters["quote_rich_texts"],
+		],
+		[number | undefined, number | string | undefined, MessageEntity[] | undefined, RichText[] | undefined]
 	>
 >;
 
 export type TextQuoteFields = Assert<
-	Equal<[TextQuote["text"], TextQuote["position"], TextQuote["is_manual"]], [string, number, true | undefined]>
+	Equal<
+		[TextQuote["text"], TextQuote["rich_texts"], TextQuote["position"], TextQuote["is_manual"]],
+		[string, RichText[] | undefined, number, true | undefined]
+	>
 >;
+
+// @ts-expect-error — the rich texts of a quote are a list, one for each quoted text
+export const replyWithOneRichText: ReplyParameters = { message_id: 42, quote_rich_texts: "light rain" };
 
 export type LinkPreviewOptionsFields = Assert<
 	Equal<[LinkPreviewOptions["is_disabled"], LinkPreviewOptions["url"]], [boolean | undefined, string | undefined]>

@@ -1482,11 +1482,13 @@ export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
 
 /** This object contains information about the quoted part of a message that is replied to by the given message. */
 export interface TextQuote {
-	/** Text of the quoted part of a message that is replied to by the given message */
+	/** Text of the quoted part of a message that is replied to by the given message; may be empty if the quote was chosen from a rich message */
 	text: string;
 	/** Special entities that appear in the quote. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are kept in quotes. */
 	entities?: MessageEntity[];
-	/** Approximate quote position in the original message in UTF-16 code units as specified by the sender */
+	/** Rich text of the quote if it was chosen from a rich message. May contain only plain text, RichTextBold, RichTextItalic, RichTextUnderline, RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript, RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression, and arrays of them. */
+	rich_texts?: RichText[];
+	/** Approximate quote position in the original message in UTF-16 code units as specified by the sender. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds. */
 	position: number;
 	/** True, if the quote was chosen manually by the message sender. Otherwise, the quote was added automatically by the server. */
 	is_manual?: true;
@@ -1661,7 +1663,9 @@ export declare namespace ReplyParameters {
 		quote_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
 		quote_entities?: MessageEntity[];
-		/** Position of the quote in the original message in UTF-16 code units */
+		/** A list of quoted parts of the rich message to be replied to. Must contain one element for each quoted text of the message in the order of their appearance. Each of the following is a separate quoted text: the text of a paragraph, a heading, a preformatted block, a footer, or a mathematical expression; the text and the credit of a block quotation or a pull quotation; the summary of a details block; the caption and each cell of a table; the text and the credit of a caption of a media block, a collage, a slideshow, or a map. Texts of blocks nested in lists, block quotations, details, collages, and slideshows are separate quoted texts too. The first and the last elements can contain only a part of the corresponding text; all other elements must contain the whole text. Formatting of the quoted parts must be kept, and rich texts must be nested in the same way as in the message received from the server. Mathematical expressions must be quoted entirely. Buttons in RichBlockButtons, anchors and dividers can't be quoted. Up to 32 quoted texts with total length up to 1024 characters can be specified. Only plain text, RichTextBold, RichTextItalic, RichTextUnderline, RichTextStrikethrough, RichTextSpoiler, RichTextSubscript, RichTextSuperscript, RichTextDateTime, RichTextCustomEmoji, RichTextMathematicalExpression, and arrays of them are kept in the quote; other rich text types are replaced with their text. If non-empty, then quote, quote_parse_mode and quote_entities are ignored. */
+		quote_rich_texts?: RichText[];
+		/** Position of the quote in the original message in UTF-16 code units. For quotes from rich messages, it is the position in the text formed by joining plain texts of all quotable texts of the message, separated by line feeds. */
 		quote_position?: number;
 		/** Identifier of the specific checklist task to be replied to */
 		checklist_task_id?: number;
