@@ -84,11 +84,11 @@ export declare namespace Update {
 		message_reaction_count: MessageReactionCountUpdated;
 	}
 	export interface InlineQueryUpdate extends AbstractUpdate {
-		/** New incoming inline query */
+		/** New incoming [inline](https://core.telegram.org/bots/api#inline-mode) query */
 		inline_query: InlineQuery;
 	}
 	export interface ChosenInlineResultUpdate extends AbstractUpdate {
-		/** The result of an inline query that was chosen by a user and sent to their chat partner. Please see our documentation on the feedback collecting for details on how to enable these updates for your bot. */
+		/** The result of an [inline](https://core.telegram.org/bots/api#inline-mode) query that was chosen by a user and sent to their chat partner. Please see our documentation on the [feedback collecting](https://core.telegram.org/bots/inline#collecting-feedback) for details on how to enable these updates for your bot. */
 		chosen_inline_result: ChosenInlineResult;
 	}
 	export interface CallbackQueryUpdate<C extends CallbackQuery = CallbackQuery> extends AbstractUpdate {
@@ -158,7 +158,7 @@ export declare namespace Update {
 	}
 }
 
-/** This object represents an incoming update.
+/** This [object](https://core.telegram.org/bots/api#available-types) represents an incoming update.
 At most one of the optional fields can be present in any given update. */
 export type Update =
 	| Update.MessageUpdate
@@ -208,11 +208,9 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to receive incoming updates using long polling (wiki). Returns an Array of Update objects.
-
-  Notes
-  1. This method will not work if an outgoing webhook is set up.
-  2. In order to avoid getting duplicate updates, recalculate offset after each server response. */
+	/** Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). Returns an Array of Update objects. Notes
+1. This method will not work if an outgoing webhook is set up.
+2. In order to avoid getting duplicate updates, recalculate offset after each server response. */
 	getUpdates(args?: Args.GetUpdates, options?: CallOptions): Promise<Update[]>;
 }
 
@@ -220,7 +218,7 @@ export declare namespace Args {
 	export interface SetWebhook<F> {
 		/** HTTPS URL to send updates to. Use an empty string to remove webhook integration */
 		url: string;
-		/** Upload your public key certificate so that the root certificate in use can be checked. See our self-signed guide for details. */
+		/** Upload your public key certificate so that the root certificate in use can be checked. See our [self-signed guide](https://core.telegram.org/bots/self-signed) for details. */
 		certificate?: F;
 		/** The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS */
 		ip_address?: string;
@@ -237,16 +235,16 @@ Please note that this parameter doesn't affect updates created before the call t
 }
 
 export interface BotApi<F> {
-	/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response HTTP status code different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
+	/** Use this method to specify a URL and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified URL, containing an Update. In case of an unsuccessful request (a request with response [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) different from 2XY), we will repeat the request and give up after a reasonable amount of attempts. Returns True on success.
 
   If you'd like to make sure that the webhook was set by you, you can specify secret data in the parameter secret_token. If specified, the request will contain a header “X-Telegram-Bot-Api-Secret-Token” with the secret token as content.
 
   Notes
   1. You will not be able to receive updates using getUpdates for as long as an outgoing webhook is set up.
-  2. To use a self-signed certificate, you need to upload your public key certificate using certificate parameter. Please upload as InputFile, sending a String will not work.
+  2. To use a self-signed certificate, you need to upload your [public key certificate](https://core.telegram.org/bots/self-signed) using certificate parameter. Please upload as InputFile, sending a String will not work.
   3. Ports currently supported for Webhooks: 443, 80, 88, 8443.
 
-  If you're having any trouble setting up webhooks, please check out this amazing guide to webhooks. */
+  If you're having any trouble setting up webhooks, please check out this [amazing guide to webhooks](https://core.telegram.org/bots/webhooks). */
 	setWebhook(args: Args.SetWebhook<F>, options?: CallOptions): Promise<true>;
 }
 
@@ -301,7 +299,7 @@ export interface User {
 	last_name?: string;
 	/** User's or bot's username */
 	username?: string;
-	/** IETF language tag of the user's language */
+	/** [IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag) of the user's language */
 	language_code?: string;
 	/** True, if this user is a Telegram Premium user */
 	is_premium?: true;
@@ -315,7 +313,7 @@ export interface UserFromGetMe extends User {
 	username: string;
 	/** True, if the bot can be invited to groups. Returned only in getMe. */
 	can_join_groups: boolean;
-	/** True, if privacy mode is disabled for the bot. Returned only in getMe. */
+	/** True, if [privacy mode](https://core.telegram.org/bots/features#privacy-mode) is disabled for the bot. Returned only in getMe. */
 	can_read_all_group_messages: boolean;
 	/** True, if the bot supports guest queries from chats it is not a member of. Returned only in getMe. */
 	supports_guest_queries?: boolean;
@@ -372,7 +370,7 @@ export declare namespace Chat {
 		username?: string;
 		/** Title, for supergroups, channels and group chats */
 		title: string;
-		/** True, if the supergroup chat is a forum (has topics enabled) */
+		/** True, if the supergroup chat is a forum (has [topics](https://telegram.org/blog/topics-in-groups-collectible-usernames#topics-in-groups) enabled) */
 		is_forum?: true;
 		/** True, if the chat is the direct messages chat of a channel */
 		is_direct_messages?: true;
@@ -433,13 +431,13 @@ export type Chat = Chat.PrivateChat | Chat.GroupChat | Chat.SupergroupChat | Cha
 export declare namespace ChatFullInfo {
 	/** Internal type representing private chats returned from `getChat`. */
 	export interface PrivateChat extends Chat.PrivateChat {
-		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details */
 		accent_color_id: number;
 		/** The maximum number of reactions that can be set on a message in the chat */
 		max_reaction_count: number;
 		/** Chat photo */
 		photo?: ChatPhoto;
-		/** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
 		/** For private chats, the date of birth of the user */
 		birthdate?: Birthdate;
@@ -455,7 +453,7 @@ export declare namespace ChatFullInfo {
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
-		/** Identifier of the accent color for the chat's profile background. See profile accent colors for more details. */
+		/** Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details. */
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
@@ -494,19 +492,19 @@ export declare namespace ChatFullInfo {
 	}
 	/** Internal type representing group chats returned from `getChat`. */
 	export interface GroupChat extends Chat.GroupChat {
-		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details */
 		accent_color_id: number;
 		/** The maximum number of reactions that can be set on a message in the chat */
 		max_reaction_count: number;
 		/** Chat photo */
 		photo?: ChatPhoto;
-		/** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
 		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
-		/** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+		/** Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details */
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
@@ -543,13 +541,13 @@ export declare namespace ChatFullInfo {
 	}
 	/** Internal type representing supergroup chats returned from `getChat`. */
 	export interface SupergroupChat extends Chat.SupergroupChat {
-		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details */
 		accent_color_id: number;
 		/** The maximum number of reactions that can be set on a message in the chat */
 		max_reaction_count: number;
 		/** Chat photo */
 		photo?: ChatPhoto;
-		/** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
 		/** Information about the corresponding channel chat; for direct messages chats only */
 		parent_chat?: Chat.ChannelChat;
@@ -557,7 +555,7 @@ export declare namespace ChatFullInfo {
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
-		/** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+		/** Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details */
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
@@ -618,19 +616,19 @@ export declare namespace ChatFullInfo {
 	}
 	/** Internal type representing channel chats returned from `getChat`. */
 	export interface ChannelChat extends Chat.ChannelChat {
-		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See accent colors for more details */
+		/** Identifier of the accent color for the chat name and backgrounds of the chat photo, reply header, and link preview. See [accent colors](https://core.telegram.org/bots/api#accent-colors) for more details */
 		accent_color_id: number;
 		/** The maximum number of reactions that can be set on a message in the chat */
 		max_reaction_count: number;
 		/** Chat photo */
 		photo?: ChatPhoto;
-		/** If non-empty, the list of all active chat usernames; for private chats, supergroups and channels */
+		/** If non-empty, the list of all [active chat usernames](https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames); for private chats, supergroups and channels */
 		active_usernames?: string[];
 		/** List of available reactions allowed in the chat. If omitted, then all emoji reactions are allowed. */
 		available_reactions?: ReactionType[];
 		/** Custom emoji identifier of the emoji chosen by the chat for the reply header and link preview background */
 		background_custom_emoji_id?: string;
-		/** Identifier of the accent color for the chat's profile background. See profile accent colors for more details */
+		/** Identifier of the accent color for the chat's profile background. See [profile accent colors](https://core.telegram.org/bots/api#profile-accent-colors) for more details */
 		profile_accent_color_id?: number;
 		/** Custom emoji identifier of the emoji chosen by the chat for its profile background */
 		profile_background_custom_emoji_id?: string;
@@ -839,7 +837,7 @@ export declare namespace Message {
 		suggested_post_info?: SuggestedPostInfo;
 		/** Unique identifier of the message effect added to the message */
 		effect_id?: string;
-		/** Inline keyboard attached to the message. login_url buttons are represented as ordinary url buttons. */
+		/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message. login_url buttons are represented as ordinary url buttons. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 	export interface BusinessSentMessage {
@@ -909,7 +907,7 @@ export declare namespace Message {
 		show_caption_above_media?: true;
 	}
 	export interface VideoNoteMessage extends CommonMessage {
-		/** Message is a video note, information about the video message */
+		/** Message is a [video note](https://telegram.org/blog/video-messages-and-telescope), information about the video message */
 		video_note: VideoNote;
 	}
 	export interface VoiceMessage extends CaptionableMessage {
@@ -1011,7 +1009,7 @@ export declare namespace Message {
 		pinned_message: Omit<MaybeInaccessibleMessage, "reply_to_message">;
 	}
 	export interface InvoiceMessage extends ServiceMessage {
-		/** Message is an invoice for a payment, information about the invoice. [More about payments »](https://core.telegram.org/bots/api#payments) */
+		/** Message is an invoice for a [payment](https://core.telegram.org/bots/api#payments), information about the invoice. [More about payments »](https://core.telegram.org/bots/api#payments) */
 		invoice: Invoice;
 	}
 	export interface SuccessfulPaymentMessage extends ServiceMessage {
@@ -1047,7 +1045,7 @@ export declare namespace Message {
 		connected_website: string;
 	}
 	export interface WriteAccessAllowedMessage extends ServiceMessage {
-		/** Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess */
+		/** Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps) */
 		write_access_allowed: WriteAccessAllowed;
 	}
 	export interface PassportDataMessage extends ServiceMessage {
@@ -1223,11 +1221,11 @@ export type MaybeInaccessibleMessage = Message | InaccessibleMessage;
 
 export declare namespace MessageEntity {
 	interface Abstract {
-		/** Type of the entity. Currently, can be “mention” (`@username`), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bank_card_number” (bank card number), “ton_address” (address in the TON blockchain), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users without usernames), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time). */
+		/** Type of the entity. Currently, can be “mention” (`@username`), “hashtag” (#hashtag or #hashtag@chatusername), “cashtag” ($USD or $USD@chatusername), “bot_command” (/start@jobs_bot), “url” (https://telegram.org), “email” (do-not-reply@telegram.org), “phone_number” (+1-212-555-0123), “bank_card_number” (bank card number), “ton_address” (address in the TON blockchain), “bold” (bold text), “italic” (italic text), “underline” (underlined text), “strikethrough” (strikethrough text), “spoiler” (spoiler message), “blockquote” (block quotation), “expandable_blockquote” (collapsed-by-default block quotation), “code” (monowidth string), “pre” (monowidth block), “text_link” (for clickable text URLs), “text_mention” (for users [without usernames](https://telegram.org/blog/edit#new-mentions)), “custom_emoji” (for inline custom emoji stickers), or “date_time” (for formatted date and time). */
 		type: string;
-		/** Offset in UTF-16 code units to the start of the entity */
+		/** Offset in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) to the start of the entity */
 		offset: number;
-		/** Length of the entity in UTF-16 code units */
+		/** Length of the entity in [UTF-16 code units](https://core.telegram.org/api/entities#entity-length) */
 		length: number;
 	}
 
@@ -1322,7 +1320,7 @@ export declare namespace MessageEntity {
 		type: "date_time";
 		/** For “date_time” only, the Unix time associated with the entity */
 		unix_time: number;
-		/** For “date_time” only, the string that defines the formatting of the date and time. See date-time entity formatting for more details. */
+		/** For “date_time” only, the string that defines the formatting of the date and time. See [date-time entity formatting](https://core.telegram.org/bots/api#date-time-entity-formatting) for more details. */
 		date_time_format?: string;
 	}
 
@@ -1596,7 +1594,7 @@ export interface ExternalReplyVideo extends AbstractExternalReply, AbstractExter
 }
 
 export interface ExternalReplyVideoNote extends AbstractExternalReply {
-	/** Message is a video note, information about the video message */
+	/** Message is a [video note](https://telegram.org/blog/video-messages-and-telescope), information about the video message */
 	video_note: VideoNote;
 }
 
@@ -1641,7 +1639,7 @@ export interface ExternalReplyGiveawayWinners extends AbstractExternalReply {
 }
 
 export interface ExternalReplyInvoice extends AbstractExternalReply {
-	/** Message is an invoice for a payment, information about the invoice. [More about payments »](https://core.telegram.org/bots/api#payments) */
+	/** Message is an invoice for a [payment](https://core.telegram.org/bots/api#payments), information about the invoice. [More about payments »](https://core.telegram.org/bots/api#payments) */
 	invoice: Invoice;
 }
 
@@ -1697,7 +1695,7 @@ export declare namespace ReplyParameters {
 		allow_sending_without_reply?: boolean;
 		/** Quoted part of the message to be replied to; 0-1024 characters after entities parsing. The quote must be an exact substring of the message to be replied to, including bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities. The message will fail to send if the quote isn't found in the original message. Ignored for ephemeral messages. */
 		quote?: string;
-		/** Mode for parsing entities in the quote. See formatting options for more details. */
+		/** Mode for parsing entities in the quote. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		quote_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the quote. It can be specified instead of quote_parse_mode. */
 		quote_entities?: MessageEntity[];
@@ -1731,11 +1729,11 @@ export declare namespace EphemeralMessageParameters {
 		replace_callback_query_message?: boolean;
 	}
 	export interface Chat extends Common {
-		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
+		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See [here](https://core.telegram.org/bots/api#ephemeral-messages-and-commands) for more details. */
 		receiver_user_id: number;
 	}
 	export interface CallbackQuery extends Common {
-		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See here for more details. */
+		/** Identifier of the user who will receive the message; required unless the message is sent as an ephemeral reply to a callback query. If omitted, then the parameter chat_id of the method is ignored. If specified together with callback_query_id, then it must be the identifier of the user who pressed the button. Must be omitted for messages sent in chats where the bot isn't a member, unless the message is a reply to an ephemeral message. It is not guaranteed that the user will receive the message, especially if they are offline. See [here](https://core.telegram.org/bots/api#ephemeral-messages-and-commands) for more details. */
 		receiver_user_id?: undefined;
 		/** Identifier of the callback query which triggered the message, if any. If specified and receiver_user_id is omitted, then the message is sent as an ephemeral reply to the callback query and will be shown only to the user who pressed the button. Ephemeral replies can't be sent to callback queries from messages in channel direct messages chats. The bot must still answer the callback query using answerCallbackQuery. */
 		callback_query_id: string;
@@ -1939,7 +1937,7 @@ export interface Video {
 	file_size?: number;
 }
 
-/** This object represents a video message. */
+/** This object represents a [video message](https://telegram.org/blog/video-messages-and-telescope). */
 export interface VideoNote {
 	/** Identifier for this file, which can be used to download or reuse the file */
 	file_id: string;
@@ -1969,7 +1967,7 @@ export interface Voice {
 	file_size?: number;
 }
 
-/** This object describes an HTML widget. */
+/** This object describes an [HTML widget](https://core.telegram.org/bots/widgets). */
 export interface Widget {
 	/** Unique identifier of the shared widget, which can be used to send the widget again using the method sendSharedWidget; omitted if the widget isn't shared */
 	id?: string;
@@ -2046,7 +2044,7 @@ export interface Contact {
 	last_name?: string;
 	/** Contact's user identifier in Telegram. */
 	user_id?: number;
-	/** Additional data about the contact in the form of a vCard */
+	/** Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard) */
 	vcard?: string;
 }
 
@@ -2200,7 +2198,7 @@ export interface PollOption {
 export interface InputPollOption<F> {
 	/** Option text, 1-100 characters */
 	text: string;
-	/** Mode for parsing entities in the text. See formatting options for more details. Currently, only custom emoji entities are allowed */
+	/** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Currently, only custom emoji entities are allowed */
 	text_parse_mode?: ParseMode;
 	/** A list of special entities that appear in the poll option text. It can be specified instead of text_parse_mode */
 	text_entities?: MessageEntity.CustomEmoji[];
@@ -2246,7 +2244,7 @@ export interface Poll {
 	allows_revoting: boolean;
 	/** True if voting is limited to users who have been members of the chat where the poll was originally sent for more than 24 hours */
 	members_only: boolean;
-	/** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll. The country code “FT” is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll. */
+	/** A list of two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes indicating the countries from which users can vote in the poll. The country code “FT” is used for users with anonymous numbers. If omitted, then users from any country can participate in the poll. */
 	country_codes?: string[];
 	/** Array of 0-based identifiers of the correct answer options. Available only for polls in quiz mode which are closed or were sent (not forwarded) by the bot or to the private chat with the bot. */
 	correct_option_ids?: number[];
@@ -2307,7 +2305,7 @@ export interface InputChecklistTask {
 	id: number;
 	/** Text of the task; 1-100 characters after entities parsing */
 	text: string;
-	/** Mode for parsing entities in the text. See formatting options for more details. */
+	/** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the text, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed. */
 	text_entities?: (
@@ -2325,7 +2323,7 @@ export interface InputChecklistTask {
 export interface InputChecklist {
 	/** Title of the checklist; 1-255 characters after entities parsing */
 	title: string;
-	/** Mode for parsing entities in the title. See formatting options for more details. */
+	/** Mode for parsing entities in the title. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the title, which can be specified instead of parse_mode. Currently, only bold, italic, underline, strikethrough, spoiler, custom_emoji, and date_time entities are allowed. */
 	title_entities?: (
@@ -2381,11 +2379,11 @@ export interface Venue {
 	foursquare_type?: string;
 	/** Google Places identifier of the venue */
 	google_place_id?: string;
-	/** Google Places type of the venue. (See supported types.) */
+	/** Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).) */
 	google_place_type?: string;
 }
 
-/** Describes data sent from a Web App to the bot. */
+/** Describes data sent from a [Web App](https://core.telegram.org/bots/webapps) to the bot. */
 export interface WebAppData {
 	/** The data. Be aware that a bad client can send arbitrary data in this field. */
 	data: string;
@@ -2675,9 +2673,9 @@ export interface ChatShared {
 	photo?: PhotoSize[];
 }
 
-/** This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess. */
+/** This object represents a service message about a user allowing a bot to write messages after adding it to the attachment menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps). */
 export interface WriteAccessAllowed {
-	/** True, if the access was granted after the user accepted an explicit request from a Web App sent by the method requestWriteAccess */
+	/** True, if the access was granted after the user accepted an explicit request from a Web App sent by the method [requestWriteAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps) */
 	from_request?: boolean;
 	/** Name of the Web App, if the access was granted when the Web App was launched from a link */
 	web_app_name?: string;
@@ -2801,7 +2799,7 @@ export interface Giveaway {
 	has_public_winners?: true;
 	/** Description of additional giveaway prize */
 	prize_description?: string;
-	/** A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways. */
+	/** A list of two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes indicating the countries from which eligible users for the giveaway must come. If empty, then all users can participate in the giveaway. Users with a phone number that was bought on Fragment can always participate in giveaways. */
 	country_codes?: string[];
 	/** The number of Telegram Stars to be split between giveaway winners; for Telegram Star giveaways only */
 	prize_star_count?: number;
@@ -2927,13 +2925,13 @@ export interface File {
 	file_path?: string;
 }
 
-/** Describes a Web App. */
+/** Describes a [Web App](https://core.telegram.org/bots/webapps). */
 export interface WebAppInfo {
-	/** An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps */
+	/** An HTTPS URL of a Web App to be opened with additional data as specified in [Initializing Web Apps](https://core.telegram.org/bots/webapps#initializing-mini-apps) */
 	url: string;
 }
 
-/** This object represents a custom keyboard with reply options (see Introduction to bots for details and examples). Not supported in channels and for messages sent on behalf of a business account. */
+/** This object represents a [custom keyboard](https://core.telegram.org/bots/features#keyboards) with reply options (see [Introduction to bots](https://core.telegram.org/bots/features#keyboards) for details and examples). Not supported in channels and for messages sent on behalf of a business account. */
 export interface ReplyKeyboardMarkup {
 	/** Array of button rows, each represented by an Array of KeyboardButton objects */
 	keyboard: KeyboardButton[][];
@@ -2958,7 +2956,7 @@ export declare namespace KeyboardButton {
 	interface Common {
 		/** Text of the button. If none of the fields other than text, icon_custom_emoji_id, and style are used, it will be sent as a message when the button is pressed. */
 		text: string;
-		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
 		icon_custom_emoji_id?: string;
 		/** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
 		style?: "danger" | "success" | "primary";
@@ -2976,7 +2974,7 @@ export declare namespace KeyboardButton {
 		request_chat: KeyboardButtonRequestChat;
 	}
 	export interface RequestManagedBot extends Common {
-		/** If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the `@BotFather` Mini App. Available in private chats only. */
+		/** If specified, pressing the button will ask the user to create and share a bot that will be managed by the current bot. Available for bots that enabled management of other bots in the [`@BotFather`](https://t.me/BotFather) Mini App. Available in private chats only. */
 		request_managed_bot: KeyboardButtonRequestManagedBot;
 	}
 	export interface RequestContact extends Common {
@@ -2992,7 +2990,7 @@ export declare namespace KeyboardButton {
 		request_poll: KeyboardButtonPollType;
 	}
 	export interface WebApp extends Common {
-		/** If specified, the described Web App will be launched when the button is pressed. The Web App will be able to send a “web_app_data” service message. Available in private chats only. */
+		/** If specified, the described [Web App](https://core.telegram.org/bots/webapps) will be launched when the button is pressed. The Web App will be able to send a “web_app_data” service message. Available in private chats only. */
 		web_app: WebAppInfo;
 	}
 
@@ -3094,7 +3092,7 @@ Example: A user votes in a poll, bot returns confirmation message in reply to th
 	selective?: boolean;
 }
 
-/** This object represents an inline keyboard that appears right next to the message it belongs to. */
+/** This object represents an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) that appears right next to the message it belongs to. */
 export interface InlineKeyboardMarkup {
 	/** Array of button rows, each represented by an Array of InlineKeyboardButton objects */
 	inline_keyboard: InlineKeyboardButton[][];
@@ -3106,7 +3104,7 @@ export declare namespace InlineKeyboardButton {
 	interface AbstractInlineKeyboardButton {
 		/** Label text on the button */
 		text: string;
-		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on Fragment or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
+		/** Unique identifier of the custom emoji shown before the text of the button. Can only be used by bots that purchased additional usernames on [Fragment](https://fragment.com/) or in the messages directly sent by the bot to private, group and supergroup chats if the owner of the bot has a Telegram Premium subscription. */
 		icon_custom_emoji_id?: string;
 		/** Style of the button. Must be one of “danger” (red), “success” (green) or “primary” (blue). If omitted, then an app-specific style is used. */
 		style?: "danger" | "success" | "primary";
@@ -3120,11 +3118,11 @@ export declare namespace InlineKeyboardButton {
 		callback_data: string;
 	}
 	export interface WebAppButton extends AbstractInlineKeyboardButton {
-		/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages. */
+		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account and ephemeral messages. */
 		web_app: WebAppInfo;
 	}
 	export interface LoginButton extends AbstractInlineKeyboardButton {
-		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages. */
+		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the [Telegram Login Widget](https://core.telegram.org/widgets/login). Not supported for ephemeral messages. */
 		login_url: LoginUrl;
 	}
 	export interface SwitchInlineButton extends AbstractInlineKeyboardButton {
@@ -3156,7 +3154,7 @@ This offers a quick way for the user to open your bot in inline mode in the same
 		disabled: DisabledButton;
 	}
 	export interface PayButton extends AbstractInlineKeyboardButton {
-		/** Specify True, to send a Pay button. Substrings “⭐” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.
+		/** Specify True, to send a [Pay button](https://core.telegram.org/bots/api#payments). Substrings “⭐” and “XTR” in the buttons's text will be replaced with a Telegram Star icon.
 
 NOTE: This type of button must always be the first button in the first row and can only be used in invoice messages. */
 		pay: boolean;
@@ -3177,16 +3175,16 @@ export type InlineKeyboardButton =
 	| InlineKeyboardButton.PayButton
 	| InlineKeyboardButton.Disabled;
 
-/** This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the Telegram Login Widget when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in.
-Sample bot: `@DiscussBot` */
+/** This object represents a parameter of the inline keyboard button used to automatically authorize a user. It serves as a great replacement for the [Telegram Login Widget](https://core.telegram.org/widgets/login) when the user is coming from Telegram. All the user needs to do is tap/click a button and confirm that they want to log in.
+Sample bot: [`@DiscussBot`](https://t.me/discussbot) */
 export interface LoginUrl {
-	/** An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in Receiving authorization data.
+	/** An HTTPS URL to be opened with user authorization data added to the query string when the button is pressed. If the user refuses to provide authorization data, the original URL without information about the user will be opened. The data added is the same as described in [Receiving authorization data](https://core.telegram.org/widgets/login#receiving-authorization-data).
 
-  NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in Checking authorization. */
+NOTE: You must always check the hash of the received data to verify the authentication and the integrity of the data as described in [Checking authorization](https://core.telegram.org/widgets/login#checking-authorization). */
 	url: string;
 	/** New text of the button in forwarded messages. */
 	forward_text?: string;
-	/** Username of a bot, which will be used for user authorization; not supported in RichMessageButton. See Setting up a bot for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See Linking your domain to the bot for more details. */
+	/** Username of a bot, which will be used for user authorization; not supported in RichMessageButton. See [Setting up a bot](https://core.telegram.org/widgets/login#setting-up-a-bot) for more details. If not specified, the current bot's username will be assumed. The url's domain must be the same as the domain linked with the bot. See [Linking your domain to the bot](https://core.telegram.org/widgets/login#linking-your-domain-to-the-bot) for more details. */
 	bot_username?: string;
 	/** Pass True to request the permission for your bot to send messages to the user. */
 	request_write_access?: boolean;
@@ -3227,7 +3225,7 @@ export declare namespace CallbackQuery {
 		message?: MaybeInaccessibleMessage;
 		/** Identifier of the message sent via the bot in inline mode, that originated the query. */
 		inline_message_id?: string;
-		/** Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in games. */
+		/** Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent. Useful for high scores in [games](https://core.telegram.org/bots/api#games). */
 		chat_instance: string;
 	}
 
@@ -3242,9 +3240,7 @@ export declare namespace CallbackQuery {
 	}
 }
 
-/** This object represents an incoming callback query from a callback button in an inline keyboard. If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in inline mode), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present.
-
- NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters). */
+/** This object represents an incoming callback query from a callback button in an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If the button that originated the query was attached to a message sent by the bot, the field message will be present. If the button was attached to a message sent via the bot (in [inline mode](https://core.telegram.org/bots/api#inline-mode)), the field inline_message_id will be present. Exactly one of the fields data or game_short_name will be present. NOTE: After the user presses a callback button, Telegram clients will display a progress bar until you call answerCallbackQuery. It is, therefore, necessary to react by calling answerCallbackQuery even if no notification to the user is needed (e.g., without specifying any of the optional parameters). */
 export type CallbackQuery = CallbackQuery.DataQuery | CallbackQuery.GameQuery;
 
 /** This object describes the type of a query from a widget. Currently, it can be one of
@@ -4434,7 +4430,7 @@ export type BotCommandScope =
 	| BotCommandScopeChatAdministrators
 	| BotCommandScopeChatMember;
 
-/** Represents the default scope of bot commands. Default commands are used if no commands with a narrower scope are specified for the user. */
+/** Represents the default scope of bot commands. Default commands are used if no commands with a [narrower scope](https://core.telegram.org/bots/api#determining-list-of-commands) are specified for the user. */
 export interface BotCommandScopeDefault {
 	/** Scope type, must be default */
 	type: "default";
@@ -4516,7 +4512,7 @@ export interface MenuButtonCommands {
 	type: "commands";
 }
 
-/** Represents a menu button, which launches a Web App. */
+/** Represents a menu button, which launches a [Web App](https://core.telegram.org/bots/webapps). */
 export interface MenuButtonWebApp {
 	/** Type of the button, must be web_app */
 	type: "web_app";
@@ -4679,7 +4675,7 @@ export interface BusinessMessagesDeleted {
 	message_ids: number[];
 }
 
-/** Describes an inline message sent by a Web App on behalf of a user. */
+/** Describes an inline message sent by a [Web App](https://core.telegram.org/bots/webapps) on behalf of a user. */
 export interface SentWebAppMessage {
 	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. */
 	inline_message_id?: string;
@@ -4753,7 +4749,7 @@ export interface InputMediaAnimation<F> {
 	thumbnail?: F;
 	/** Caption of the animation to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the animation caption. See formatting options for more details. */
+	/** Mode for parsing entities in the animation caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4779,7 +4775,7 @@ export interface InputMediaAudio<F> {
 	thumbnail?: F;
 	/** Caption of the audio to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the audio caption. See formatting options for more details. */
+	/** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4801,7 +4797,7 @@ export interface InputMediaDocument<F> {
 	thumbnail?: F;
 	/** Caption of the document to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the document caption. See formatting options for more details. */
+	/** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4826,7 +4822,7 @@ export interface InputMediaLivePhoto<F> {
 	photo: F | string;
 	/** Caption of the live photo to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the live photo caption. See formatting options for more details. */
+	/** Mode for parsing entities in the live photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4856,7 +4852,7 @@ export interface InputMediaPhoto<F> {
 	media: F | string;
 	/** Caption of the photo to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the photo caption. See formatting options for more details. */
+	/** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4893,7 +4889,7 @@ export interface InputMediaVenue {
 	foursquare_type?: string;
 	/** Google Places identifier of the venue */
 	google_place_id?: string;
-	/** Google Places type of the venue. (See supported types.) */
+	/** Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).) */
 	google_place_type?: string;
 }
 
@@ -4911,7 +4907,7 @@ export interface InputMediaVideo<F> {
 	start_timestamp?: number;
 	/** Caption of the video to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the video caption. See formatting options for more details. */
+	/** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -4936,7 +4932,7 @@ export interface InputMediaVoiceNote<F> {
 	media: F | string;
 	/** Caption of the voice message to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+	/** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -5068,17 +5064,17 @@ export declare namespace Args {
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** Text of the message to be sent, 1-4096 characters after entities parsing */
 		text: string;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		/** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
 		/** Link preview generation options for the message */
 		link_preview_options?: LinkPreviewOptions;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5086,7 +5082,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5118,7 +5114,7 @@ export declare namespace Args {
 		from_chat_id: number | string;
 		/** New start timestamp for the forwarded video in the message */
 		video_start_timestamp?: number;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the forwarded message from forwarding and saving */
 		protect_content?: boolean;
@@ -5148,7 +5144,7 @@ export declare namespace Args {
 		from_chat_id: number | string;
 		/** A list of 1-100 identifiers of messages in the chat from_chat_id to forward. The identifiers must be specified in a strictly increasing order. */
 		message_ids: number[];
-		/** Sends the messages silently. Users will receive a notification with no sound. */
+		/** Sends the messages [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the forwarded messages from forwarding and saving */
 		protect_content?: boolean;
@@ -5176,17 +5172,17 @@ export declare namespace Args {
 		video_start_timestamp?: number;
 		/** New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept */
 		caption?: string;
-		/** Mode for parsing entities in the new caption. See formatting options for more details. */
+		/** Mode for parsing entities in the new caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the new caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True, if the caption must be shown above the message media. Ignored if a new caption isn't specified. */
 		show_caption_above_media?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; only available when copying to private chats */
 		message_effect_id?: string;
@@ -5194,7 +5190,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 }
@@ -5216,7 +5212,7 @@ export declare namespace Args {
 		from_chat_id: number | string;
 		/** A list of 1-100 identifiers of messages in the chat from_chat_id to copy. The identifiers must be specified in a strictly increasing order. */
 		message_ids: number[];
-		/** Sends the messages silently. Users will receive a notification with no sound. */
+		/** Sends the messages [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent messages from forwarding and saving */
 		protect_content?: boolean;
@@ -5246,7 +5242,7 @@ export declare namespace Args {
 		photo: F | string;
 		/** Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the photo caption. See formatting options for more details. */
+		/** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5254,11 +5250,11 @@ export declare namespace Args {
 		show_caption_above_media?: boolean;
 		/** Pass True if the photo needs to be covered with a spoiler animation */
 		has_spoiler?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5266,7 +5262,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5304,7 +5300,7 @@ export declare namespace Args {
 		photo: F | string;
 		/** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the video caption. See formatting options for more details. */
+		/** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5312,11 +5308,11 @@ export declare namespace Args {
 		show_caption_above_media?: boolean;
 		/** Pass True if the video needs to be covered with a spoiler animation */
 		has_spoiler?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5324,7 +5320,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5363,7 +5359,7 @@ export declare namespace Args {
 		audio: F | string;
 		/** Audio caption, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the audio caption. See formatting options for more details. */
+		/** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5375,11 +5371,11 @@ export declare namespace Args {
 		title?: string;
 		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5387,7 +5383,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5427,17 +5423,17 @@ export declare namespace Args {
 		thumbnail?: F;
 		/** Document caption (may also be used when resending documents by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the document caption. See formatting options for more details. */
+		/** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Disables automatic server-side content type detection for files uploaded using multipart/form-data */
 		disable_content_type_detection?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5445,7 +5441,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5496,7 +5492,7 @@ export declare namespace Args {
 		start_timestamp?: number;
 		/** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the video caption. See formatting options for more details. */
+		/** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5506,11 +5502,11 @@ export declare namespace Args {
 		has_spoiler?: boolean;
 		/** Pass True if the uploaded video is suitable for streaming */
 		supports_streaming?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5518,7 +5514,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5562,7 +5558,7 @@ export declare namespace Args {
 		thumbnail?: F;
 		/** Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the animation caption. See formatting options for more details. */
+		/** Mode for parsing entities in the animation caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5570,11 +5566,11 @@ export declare namespace Args {
 		show_caption_above_media?: boolean;
 		/** Pass True if the animation needs to be covered with a spoiler animation */
 		has_spoiler?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5582,7 +5578,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5621,17 +5617,17 @@ export declare namespace Args {
 		voice: F | string;
 		/** Voice message caption, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+		/** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Duration of the voice message in seconds */
 		duration?: number;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5639,7 +5635,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5679,11 +5675,11 @@ export declare namespace Args {
 		length?: number;
 		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5691,7 +5687,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -5732,7 +5728,7 @@ export declare namespace Args {
 		chat_data?: string;
 		/** Widget caption, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+		/** Mode for parsing entities in the widget caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -5742,23 +5738,23 @@ export declare namespace Args {
 		allow_queries?: boolean;
 		/** Pass True to create a shared widget, which can be sent again using the method sendSharedWidget */
 		is_shared?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 }
 
 export interface BotApi<F> {
-	/** Use this method to send a message with an HTML widget. Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
+	/** Use this method to send a message with an [HTML widget](https://core.telegram.org/bots/widgets). Currently, in the production environment, widgets can be sent only to private chats, and sent widgets automatically have protected content and therefore can't be forwarded. On success, the sent Message is returned. */
 	sendWidget(args: Args.SendWidget, options?: CallOptions): Promise<Message.WidgetMessage>;
 }
 
@@ -5774,23 +5770,23 @@ export declare namespace Args {
 		chat_data?: string;
 		/** Widget caption, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+		/** Mode for parsing entities in the widget caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True if the caption must be shown above the widget */
 		show_caption_above_media?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 }
@@ -5818,23 +5814,23 @@ export declare namespace Args {
 		payload?: string;
 		/** Media caption, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the media caption. See formatting options for more details. */
+		/** Mode for parsing entities in the media caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True, if the caption must be shown above the message media */
 		show_caption_above_media?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** An object containing the parameters of the suggested post to send; for direct messages chats only. If the message is sent as a reply to another suggested post, then that suggested post is automatically declined. */
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 }
@@ -5861,11 +5857,11 @@ export declare namespace Args {
 		media: ReadonlyArray<
 			InputMediaAudio<F> | InputMediaDocument<F> | InputMediaLivePhoto<F> | InputMediaPhoto<F> | InputMediaVideo<F>
 		>;
-		/** Sends messages silently. Users will receive a notification with no sound. */
+		/** Sends messages [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent messages from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5905,17 +5901,17 @@ export declare namespace Args {
 		longitude: number;
 		/** The radius of uncertainty for the location, measured in meters; 0-1500 */
 		horizontal_accuracy?: number;
-		/** Period in seconds during which the location will be updated (see Live Locations), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
+		/** Period in seconds during which the location will be updated (see [Live Locations](https://telegram.org/blog/live-locations)), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
 		live_period?: number;
 		/** For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified. */
 		heading?: number;
 		/** For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified. */
 		proximity_alert_radius?: number;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5923,14 +5919,14 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
 	export interface SendLocationEphemeral extends Omit<SendLocation, "ephemeral_message_parameters" | "live_period"> {
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters: EphemeralMessageParameters.Chat;
-		/** Period in seconds during which the location will be updated (see Live Locations), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
+		/** Period in seconds during which the location will be updated (see [Live Locations](https://telegram.org/blog/live-locations)), must be between 60 and 86400, or 0x7FFFFFFF for live locations that can be edited indefinitely. Must be 0 for ephemeral messages. */
 		live_period?: 0;
 	}
 
@@ -5979,13 +5975,13 @@ export declare namespace Args {
 		foursquare_type?: string;
 		/** Google Places identifier of the venue */
 		google_place_id?: string;
-		/** Google Places type of the venue. (See supported types.) */
+		/** Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).) */
 		google_place_type?: string;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -5993,7 +5989,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -6031,13 +6027,13 @@ export declare namespace Args {
 		first_name: string;
 		/** Contact's last name */
 		last_name?: string;
-		/** Additional data about the contact in the form of a vCard, 0-2048 bytes */
+		/** Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes */
 		vcard?: string;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -6045,7 +6041,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -6075,7 +6071,7 @@ export declare namespace Args {
 		message_thread_id?: number;
 		/** Poll question, 1-300 characters */
 		question: string;
-		/** Mode for parsing entities in the question. See formatting options for more details. Currently, only custom emoji entities are allowed */
+		/** Mode for parsing entities in the question. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Currently, only custom emoji entities are allowed */
 		question_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the poll question. It can be specified instead of question_parse_mode */
 		question_entities?: MessageEntity[];
@@ -6097,7 +6093,7 @@ export declare namespace Args {
 		hide_results_until_closes?: boolean;
 		/** Pass True if voting is limited to users who have been members of the chat where the poll is being sent for more than 24 hours; for channel chats only */
 		members_only?: boolean;
-		/** A list of 0-12 two-letter ISO 3166-1 alpha-2 country codes indicating the countries from which users can vote in the poll; for channel chats only. Use “FT” as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll. */
+		/** A list of 0-12 two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country codes indicating the countries from which users can vote in the poll; for channel chats only. Use “FT” as a country code to allow users with anonymous numbers to vote. If omitted or empty, then users from any country can participate in the poll. */
 		country_codes?: string[];
 		/** A list of monotonically increasing 0-based identifiers of the correct answer options, required for polls in quiz mode */
 		correct_option_ids?: number[];
@@ -6106,7 +6102,7 @@ export declare namespace Args {
 		correct_option_id?: number;
 		/** Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing */
 		explanation?: string;
-		/** Mode for parsing entities in the explanation. See formatting options for more details. */
+		/** Mode for parsing entities in the explanation. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		explanation_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the poll explanation. It can be specified instead of explanation_parse_mode */
 		explanation_entities?: MessageEntity[];
@@ -6120,23 +6116,23 @@ export declare namespace Args {
 		is_closed?: boolean;
 		/** Description of the poll to be sent, 0-1024 characters after entities parsing */
 		description?: string;
-		/** Mode for parsing entities in the poll description. See formatting options for more details. */
+		/** Mode for parsing entities in the poll description. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		description_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the poll description, which can be specified instead of description_parse_mode */
 		description_entities?: MessageEntity[];
 		/** Media added to the poll description */
 		media?: InputPollMedia<F>;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -6208,7 +6204,7 @@ export declare namespace Args {
 		message_effect_id?: string;
 		/** An object for description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** An object for an inline keyboard */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -6233,11 +6229,11 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** Emoji on which the dice throw animation is based. Currently, must be one of "🎲", "🎯", "🏀", "⚽", "🎳", or "🎰". Dice can have values 1-6 for "🎲", "🎯" and "🎳", values 1-5 for "🏀" and "⚽", and values 1-64 for "🎰". Defaults to "🎲" */
 		emoji?: string;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -6245,7 +6241,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 }
@@ -6265,7 +6261,7 @@ export declare namespace Args {
 		draft_id: number;
 		/** Text of the message to be sent, 0-4096 characters after entities parsing. Pass an empty text to show a “Thinking…” placeholder. */
 		text?: string;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		/** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
@@ -6308,7 +6304,7 @@ export declare namespace Args {
 export interface BotApi<F> {
 	/** Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns True on success.
 
-  Example: The ImageBot needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use sendChatAction with action = upload_photo. The user will see a "sending photo" status for the bot.
+  Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of "Retrieving image, please wait...", the bot may use sendChatAction with action = upload_photo. The user will see a "sending photo" status for the bot.
 
   We only recommend using this method when a response from the bot will take a noticeable amount of time to arrive. */
 	sendChatAction(args: Args.SendChatAction, options?: CallOptions): Promise<true>;
@@ -6376,7 +6372,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method requestEmojiStatusAccess. Returns True on success. */
+	/** Changes the emoji status for a given user that previously allowed the bot to manage their emoji status via the Mini App method [requestEmojiStatusAccess](https://core.telegram.org/bots/webapps#initializing-mini-apps). Returns True on success. */
 	setUserEmojiStatus(args: Args.SetUserEmojiStatus, options?: CallOptions): Promise<true>;
 }
 
@@ -6680,7 +6676,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to create a subscription invite link for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
+	/** Use this method to create a [subscription invite link](https://telegram.org/blog/superchannels-star-reactions-subscriptions#star-subscriptions) for a channel chat. The bot must have the can_invite_users administrator rights. The link can be edited using the method editChatSubscriptionInviteLink or revoked using the method revokeChatInviteLink. Returns the new invite link as a ChatInviteLink object. */
 	createChatSubscriptionInviteLink(
 		args: Args.CreateChatSubscriptionInviteLink,
 		options?: CallOptions,
@@ -6766,7 +6762,7 @@ export declare namespace Args {
 	export interface SendChatJoinRequestWebApp {
 		/** Unique identifier of the join request query */
 		chat_join_request_query_id: string;
-		/** An HTTPS URL of a Web App to be opened with additional data as specified in Initializing Web Apps */
+		/** An HTTPS URL of a Web App to be opened with additional data as specified in [Initializing Web Apps](https://core.telegram.org/bots/webapps#initializing-mini-apps) */
 		web_app_url: string;
 	}
 }
@@ -7184,9 +7180,9 @@ export declare namespace Args {
 		text?: string;
 		/** If True, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to false. */
 		show_alert?: boolean;
-		/** URL that will be opened by the user's client. If you have created a Game and accepted the conditions via `@BotFather`, specify the URL that opens your game - note that this will only work if the query comes from a callback_game button.
+		/** URL that will be opened by the user's client. If you have created a Game and accepted the conditions via [`@BotFather`](https://t.me/botfather), specify the URL that opens your game - note that this will only work if the query comes from a callback_game button.
 
-    Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
+Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
 		url?: string;
 		/** The maximum amount of time in seconds that the result of the callback query may be cached client-side. Defaults to 0. */
 		cache_time?: number;
@@ -7194,9 +7190,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
-
-  Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via `@BotFather` and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
+	/** Use this method to send answers to callback queries sent from [inline keyboards](https://core.telegram.org/bots/features#inline-keyboards). The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned. Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via [`@BotFather`](https://t.me/botfather) and accept the terms. Otherwise, you may use links like t.me/your_bot?start=XXXX that open your bot with a parameter. */
 	answerCallbackQuery(args: Args.AnswerCallbackQuery, options?: CallOptions): Promise<true>;
 }
 
@@ -7335,7 +7329,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, higher level commands will be shown to affected users. Returns True on success. */
+	/** Use this method to delete the list of the bot's commands for the given scope and user language. After deletion, [higher level commands](https://core.telegram.org/bots/api#determining-list-of-commands) will be shown to affected users. Returns True on success. */
 	deleteMyCommands(args: Args.DeleteMyCommands, options?: CallOptions): Promise<true>;
 }
 
@@ -7520,7 +7514,7 @@ export declare namespace Args {
 		pay_for_upgrade?: boolean;
 		/** Text that will be shown along with the gift; 0-128 characters */
 		text?: string;
-		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+		/** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_entities?: MessageEntity[];
@@ -7549,7 +7543,7 @@ export declare namespace Args {
 		star_count: 1000 | 1500 | 2500;
 		/** Text that will be shown along with the service message about the subscription; 0-128 characters */
 		text?: string;
-		/** Mode for parsing entities in the text. See formatting options for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
+		/** Mode for parsing entities in the text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the gift text. It can be specified instead of text_parse_mode. Entities other than “bold”, “italic”, “underline”, “strikethrough”, “spoiler”, “custom_emoji”, and “date_time” are ignored. */
 		text_entities?: MessageEntity[];
@@ -7567,7 +7561,7 @@ export declare namespace Args {
 		user_id: number;
 		/** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
 		custom_description?: string;
-		/** Mode for parsing entities in the custom description. See formatting options for more details. Only “text_link” entities are supported. */
+		/** Mode for parsing entities in the custom description. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Only “text_link” entities are supported. */
 		custom_description_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only “text_link” entities are supported. */
 		custom_description_entities?: MessageEntity.TextLink[];
@@ -7575,7 +7569,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Verifies a user on behalf of the organization which is represented by the bot. Returns True on success. */
+	/** Verifies a user [on behalf of the organization](https://telegram.org/verify#third-party-verification) which is represented by the bot. Returns True on success. */
 	verifyUser(args: Args.VerifyUser, options?: CallOptions): Promise<true>;
 }
 
@@ -7585,7 +7579,7 @@ export declare namespace Args {
 		chat_id: number | string;
 		/** Custom description for the verification; 0-70 characters. Must be empty if the organization isn't allowed to provide a custom verification description. */
 		custom_description?: string;
-		/** Mode for parsing entities in the custom description. See formatting options for more details. Only “text_link” entities are supported. */
+		/** Mode for parsing entities in the custom description. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. Only “text_link” entities are supported. */
 		custom_description_parse_mode?: ParseMode;
 		/** A list of special entities that appear in the custom description, which can be specified instead of custom_description_parse_mode. Only “text_link” entities are supported. */
 		custom_description_entities?: MessageEntity.TextLink[];
@@ -7593,7 +7587,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Verifies a chat on behalf of the organization which is represented by the bot. Returns True on success. */
+	/** Verifies a chat [on behalf of the organization](https://telegram.org/verify#third-party-verification) which is represented by the bot. Returns True on success. */
 	verifyChat(args: Args.VerifyChat, options?: CallOptions): Promise<true>;
 }
 
@@ -7605,7 +7599,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Removes verification from a user who is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+	/** Removes verification from a user who is currently verified [on behalf of the organization](https://telegram.org/verify#third-party-verification) represented by the bot. Returns True on success. */
 	removeUserVerification(args: Args.RemoveUserVerification, options?: CallOptions): Promise<true>;
 }
 
@@ -7617,7 +7611,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Removes verification from a chat that is currently verified on behalf of the organization represented by the bot. Returns True on success. */
+	/** Removes verification from a chat that is currently verified [on behalf of the organization](https://telegram.org/verify#third-party-verification) represented by the bot. Returns True on success. */
 	removeChatVerification(args: Args.RemoveChatVerification, options?: CallOptions): Promise<true>;
 }
 
@@ -7948,7 +7942,7 @@ export declare namespace Args {
 		active_period: 21600 | 43200 | 86400 | 172800;
 		/** Caption of the story, 0-2048 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the story caption. See formatting options for more details. */
+		/** Mode for parsing entities in the story caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -7998,7 +7992,7 @@ export declare namespace Args {
 		content: InputStoryContent<F>;
 		/** Caption of the story, 0-2048 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the story caption. See formatting options for more details. */
+		/** Mode for parsing entities in the story caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
@@ -8036,7 +8030,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to set the result of an interaction with a Web App and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
+	/** Use this method to set the result of an interaction with a [Web App](https://core.telegram.org/bots/webapps) and send a corresponding message on behalf of the user to the chat from which the query originated. On success, a SentWebAppMessage object is returned. */
 	answerWebAppQuery(args: Args.AnswerWebAppQuery, options?: CallOptions): Promise<SentWebAppMessage>;
 }
 
@@ -8094,7 +8088,7 @@ export declare namespace Args {
 		inline_message_id?: undefined;
 		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
 		text: string;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		/** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
@@ -8102,7 +8096,7 @@ export declare namespace Args {
 		link_preview_options?: LinkPreviewOptions;
 		/** New rich content of the message; required if text isn't specified. Direct upload of new files and explicit upload of files by a URL isn't supported when an inline message is edited. */
 		rich_message?: undefined;
-		/** An object for an inline keyboard. */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8173,13 +8167,13 @@ export declare namespace Args {
 		inline_message_id?: undefined;
 		/** New caption of the message, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the message caption. See formatting options for more details. */
+		/** Mode for parsing entities in the message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True, if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
 		show_caption_above_media?: boolean;
-		/** An object for an inline keyboard. */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8219,7 +8213,7 @@ export declare namespace Args {
 		inline_message_id?: undefined;
 		/** An object for the new media content of the message */
 		media: InputMedia<F>;
-		/** An object for a new inline keyboard. */
+		/** An object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8269,7 +8263,7 @@ export declare namespace Args {
 		heading?: number;
 		/** The maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified. */
 		proximity_alert_radius?: number;
-		/** An object for a new inline keyboard. */
+		/** An object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8307,7 +8301,7 @@ export declare namespace Args {
 		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: undefined;
-		/** An object for a new inline keyboard. */
+		/** An object for a new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8345,7 +8339,7 @@ export declare namespace Args {
 		message_id: number;
 		/** An object for the new checklist */
 		checklist: InputChecklist;
-		/** An object for the new inline keyboard for the message */
+		/** An object for the new [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) for the message */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -8419,7 +8413,7 @@ export declare namespace Args {
 		message_id: number;
 		/** Required if chat_id and message_id are not specified. Identifier of the inline message */
 		inline_message_id?: undefined;
-		/** An object for an inline keyboard. */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8455,7 +8449,7 @@ export declare namespace Args {
 		chat_id: number | string;
 		/** Identifier of the original message with the poll */
 		message_id: number;
-		/** An object for a new message inline keyboard. */
+		/** An object for a new message [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -8475,7 +8469,7 @@ export declare namespace Args {
 		ephemeral_message_id: number;
 		/** New text of the message, 1-4096 characters after entity parsing; required if rich_message isn't specified */
 		text: string;
-		/** Mode for parsing entities in the message text. See formatting options for more details. */
+		/** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in message text, which can be specified instead of parse_mode */
 		entities?: MessageEntity[];
@@ -8483,7 +8477,7 @@ export declare namespace Args {
 		rich_message?: undefined;
 		/** Link preview generation options for the message */
 		link_preview_options?: LinkPreviewOptions;
-		/** An object for an inline keyboard */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 
@@ -8513,7 +8507,7 @@ export declare namespace Args {
 		ephemeral_message_id: number;
 		/** An object for the new media content of the message */
 		media: InputMedia<F>;
-		/** An object for an inline keyboard */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -8533,13 +8527,13 @@ export declare namespace Args {
 		ephemeral_message_id: number;
 		/** New caption of the message, 0-1024 characters after entities parsing */
 		caption?: string;
-		/** Mode for parsing entities in the message caption. See formatting options for more details. */
+		/** Mode for parsing entities in the message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
 		/** Pass True if the caption must be shown above the message media. Supported only for animation, photo and video messages. */
 		show_caption_above_media?: boolean;
-		/** An object for an inline keyboard */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -8557,7 +8551,7 @@ export declare namespace Args {
 		receiver_user_id: number;
 		/** Identifier of the ephemeral message to edit */
 		ephemeral_message_id: number;
-		/** An object for an inline keyboard */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -8699,9 +8693,9 @@ export interface Sticker {
 	width: number;
 	/** Sticker height */
 	height: number;
-	/** True, if the sticker is animated */
+	/** True, if the sticker is [animated](https://telegram.org/blog/animated-stickers) */
 	is_animated: boolean;
-	/** True, if the sticker is a video sticker */
+	/** True, if the sticker is a [video sticker](https://telegram.org/blog/video-stickers-better-reactions) */
 	is_video: boolean;
 	/** Sticker thumbnail in the .WEBP or .JPG format */
 	thumbnail?: PhotoSize;
@@ -8778,11 +8772,11 @@ export declare namespace Args {
 		sticker: F | string;
 		/** Emoji associated with the sticker; only for just uploaded stickers */
 		emoji?: string;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -8790,7 +8784,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -8806,7 +8800,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to send static .WEBP, animated .TGS, or video .WEBM stickers. On success, the sent Message is returned. */
+	/** Use this method to send static .WEBP, [animated](https://telegram.org/blog/animated-stickers) .TGS, or [video](https://telegram.org/blog/video-stickers-better-reactions) .WEBM stickers. On success, the sent Message is returned. */
 	sendSticker(
 		args: Args.SendSticker<F> | Args.SendStickerCallbackQuery<F>,
 		options?: CallOptions,
@@ -9058,13 +9052,13 @@ export declare namespace InputRichMessage {
 		markdown?: undefined;
 	}
 	export interface HtmlMessage<F> extends AbstractInputRichMessage<F> {
-		/** Content of the rich message to send described using HTML formatting. See rich message formatting options for more details. Use media field to specify the media used in the message. */
+		/** Content of the rich message to send described using HTML formatting. See [rich message formatting options](https://core.telegram.org/bots/api#rich-message-formatting-options) for more details. Use media field to specify the media used in the message. */
 		html: string;
 		markdown?: undefined;
 		blocks?: undefined;
 	}
 	export interface MarkdownMessage<F> extends AbstractInputRichMessage<F> {
-		/** Content of the rich message to send described using Markdown formatting. See rich message formatting options for more details. Use media field to specify the media used in the message. */
+		/** Content of the rich message to send described using Markdown formatting. See [rich message formatting options](https://core.telegram.org/bots/api#rich-message-formatting-options) for more details. Use media field to specify the media used in the message. */
 		markdown: string;
 		html?: undefined;
 		blocks?: undefined;
@@ -9105,11 +9099,11 @@ export declare namespace Args {
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
 		/** The message to be sent */
 		rich_message: InputRichMessage<F>;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -9117,7 +9111,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** Additional interface options. An object for an inline keyboard, custom reply keyboard, instructions to remove a reply keyboard or to force a reply from the user. */
+		/** Additional interface options. An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards), [custom reply keyboard](https://core.telegram.org/bots/features#keyboards), instructions to remove a reply keyboard or to force a reply from the user. */
 		reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply;
 	}
 
@@ -9180,11 +9174,11 @@ export declare namespace RichMessageButton {
 		callback_data: string;
 	}
 	export interface WebAppButton extends AbstractRichMessageButton {
-		/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account. */
+		/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to send an arbitrary message on behalf of the user using the method answerWebAppQuery. Available only in private chats between a user and the bot. Not supported for messages sent on behalf of a business account. */
 		web_app: WebAppInfo;
 	}
 	export interface LoginButton extends AbstractRichMessageButton {
-		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the Telegram Login Widget. Not supported for ephemeral messages. */
+		/** An HTTPS URL used to automatically authorize the user. Can be used as a replacement for the [Telegram Login Widget](https://core.telegram.org/widgets/login). Not supported for ephemeral messages. */
 		login_url: Omit<LoginUrl, "bot_username"> & { bot_username?: undefined };
 	}
 	export interface SwitchInlineButton extends AbstractRichMessageButton {
@@ -9339,7 +9333,7 @@ export interface RichTextDateTime {
 	text: RichText;
 	/** The Unix time associated with the entity */
 	unix_time: number;
-	/** The string that defines the formatting of the date and time. See date-time entity formatting for more details. */
+	/** The string that defines the formatting of the date and time. See [date-time entity formatting](https://core.telegram.org/bots/api#date-time-entity-formatting) for more details. */
 	date_time_format: string;
 }
 
@@ -10227,12 +10221,12 @@ export interface AbstractInlineQueryResultsButton {
 }
 
 export interface InlineQueryResultsWebAppButton extends AbstractInlineQueryResultsButton {
-	/** Description of the Web App that will be launched when the user presses the button. The Web App will be able to switch back to the inline mode using the method switchInlineQuery inside the Web App. */
+	/** Description of the [Web App](https://core.telegram.org/bots/webapps) that will be launched when the user presses the button. The Web App will be able to switch back to the inline mode using the method [switchInlineQuery](https://core.telegram.org/bots/webapps#initializing-mini-apps) inside the Web App. */
 	web_app: WebAppInfo;
 }
 
 export interface InlineQueryResultsStartButton extends AbstractInlineQueryResultsButton {
-	/** Deep-linking parameter for the /start message sent to the bot when a user presses the button. 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
+	/** [Deep-linking](https://core.telegram.org/bots/features#deep-linking) parameter for the /start message sent to the bot when a user presses the button. 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed.
 
 Example: An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an OAuth link. Once done, the bot can offer a switch_inline button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities. */
 	start_parameter: string;
@@ -10296,7 +10290,7 @@ export interface InlineQueryResultArticle {
 	title: string;
 	/** Content of the message to be sent */
 	input_message_content: InputMessageContent;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** URL of the result */
 	url?: string;
@@ -10330,13 +10324,13 @@ export interface InlineQueryResultPhoto {
 	description?: string;
 	/** Caption of the photo to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the photo caption. See formatting options for more details. */
+	/** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the photo */
 	input_message_content?: InputMessageContent;
@@ -10364,13 +10358,13 @@ export interface InlineQueryResultGif {
 	title?: string;
 	/** Caption of the GIF file to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the caption. See formatting options for more details. */
+	/** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the GIF animation */
 	input_message_content?: InputMessageContent;
@@ -10398,13 +10392,13 @@ export interface InlineQueryResultMpeg4Gif {
 	title?: string;
 	/** Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the caption. See formatting options for more details. */
+	/** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the video animation */
 	input_message_content?: InputMessageContent;
@@ -10428,7 +10422,7 @@ export interface InlineQueryResultVideo {
 	title: string;
 	/** Caption of the video to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the video caption. See formatting options for more details. */
+	/** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -10442,7 +10436,7 @@ export interface InlineQueryResultVideo {
 	video_duration?: number;
 	/** Short description of the result */
 	description?: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the video. This field is required if InlineQueryResultVideo is used to send an HTML-page as a result (e.g., a YouTube video). */
 	input_message_content?: InputMessageContent;
@@ -10460,7 +10454,7 @@ export interface InlineQueryResultAudio {
 	title: string;
 	/** Caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the audio caption. See formatting options for more details. */
+	/** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -10468,7 +10462,7 @@ export interface InlineQueryResultAudio {
 	performer?: string;
 	/** Audio duration in seconds */
 	audio_duration?: number;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the audio */
 	input_message_content?: InputMessageContent;
@@ -10486,13 +10480,13 @@ export interface InlineQueryResultVoice {
 	title: string;
 	/** Caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+	/** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Recording duration in seconds */
 	voice_duration?: number;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the voice recording */
 	input_message_content?: InputMessageContent;
@@ -10508,7 +10502,7 @@ export interface InlineQueryResultDocument {
 	title: string;
 	/** Caption of the document to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the document caption. See formatting options for more details. */
+	/** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -10518,7 +10512,7 @@ export interface InlineQueryResultDocument {
 	mime_type: "application/pdf" | "application/zip";
 	/** Short description of the result */
 	description?: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the file */
 	input_message_content?: InputMessageContent;
@@ -10550,7 +10544,7 @@ export interface InlineQueryResultLocation {
 	heading?: number;
 	/** For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified. */
 	proximity_alert_radius?: number;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the location */
 	input_message_content?: InputMessageContent;
@@ -10582,9 +10576,9 @@ export interface InlineQueryResultVenue {
 	foursquare_type?: string;
 	/** Google Places identifier of the venue */
 	google_place_id?: string;
-	/** Google Places type of the venue. (See supported types.) */
+	/** Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).) */
 	google_place_type?: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the venue */
 	input_message_content?: InputMessageContent;
@@ -10608,9 +10602,9 @@ export interface InlineQueryResultContact {
 	first_name: string;
 	/** Contact's last name */
 	last_name?: string;
-	/** Additional data about the contact in the form of a vCard, 0-2048 bytes */
+	/** Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes */
 	vcard?: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the contact */
 	input_message_content?: InputMessageContent;
@@ -10630,7 +10624,7 @@ export interface InlineQueryResultGame {
 	id: string;
 	/** Short name of the game */
 	game_short_name: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 }
 
@@ -10648,13 +10642,13 @@ export interface InlineQueryResultCachedPhoto {
 	description?: string;
 	/** Caption of the photo to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the photo caption. See formatting options for more details. */
+	/** Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the photo */
 	input_message_content?: InputMessageContent;
@@ -10672,13 +10666,13 @@ export interface InlineQueryResultCachedGif {
 	title?: string;
 	/** Caption of the GIF file to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the caption. See formatting options for more details. */
+	/** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the GIF animation */
 	input_message_content?: InputMessageContent;
@@ -10696,13 +10690,13 @@ export interface InlineQueryResultCachedMpeg4Gif {
 	title?: string;
 	/** Caption of the MPEG-4 file to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the caption. See formatting options for more details. */
+	/** Mode for parsing entities in the caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the video animation */
 	input_message_content?: InputMessageContent;
@@ -10716,7 +10710,7 @@ export interface InlineQueryResultCachedSticker {
 	id: string;
 	/** A valid file identifier of the sticker */
 	sticker_file_id: string;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the sticker */
 	input_message_content?: InputMessageContent;
@@ -10736,11 +10730,11 @@ export interface InlineQueryResultCachedDocument {
 	description?: string;
 	/** Caption of the document to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the document caption. See formatting options for more details. */
+	/** Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the file */
 	input_message_content?: InputMessageContent;
@@ -10760,13 +10754,13 @@ export interface InlineQueryResultCachedVideo {
 	description?: string;
 	/** Caption of the video to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the video caption. See formatting options for more details. */
+	/** Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
 	/** Pass True, if the caption must be shown above the message media */
 	show_caption_above_media?: boolean;
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the video */
 	input_message_content?: InputMessageContent;
@@ -10784,11 +10778,11 @@ export interface InlineQueryResultCachedVoice {
 	title: string;
 	/** Caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the voice message caption. See formatting options for more details. */
+	/** Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the voice message */
 	input_message_content?: InputMessageContent;
@@ -10804,11 +10798,11 @@ export interface InlineQueryResultCachedAudio {
 	audio_file_id: string;
 	/** Caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the audio caption. See formatting options for more details. */
+	/** Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
-	/** Inline keyboard attached to the message */
+	/** [Inline keyboard](https://core.telegram.org/bots/features#inline-keyboards) attached to the message */
 	reply_markup?: InlineKeyboardMarkup;
 	/** Content of the message to be sent instead of the audio */
 	input_message_content?: InputMessageContent;
@@ -10836,7 +10830,7 @@ export type InputMessageContent =
 export interface InputTextMessageContent {
 	/** Text of the message to be sent, 1-4096 characters */
 	message_text: string;
-	/** Mode for parsing entities in the message text. See formatting options for more details. */
+	/** Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in message text, which can be specified instead of parse_mode */
 	entities?: MessageEntity[];
@@ -10881,7 +10875,7 @@ export interface InputVenueMessageContent {
 	foursquare_type?: string;
 	/** Google Places identifier of the venue */
 	google_place_id?: string;
-	/** Google Places type of the venue. (See supported types.) */
+	/** Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).) */
 	google_place_type?: string;
 }
 
@@ -10893,7 +10887,7 @@ export interface InputContactMessageContent {
 	first_name: string;
 	/** Contact's last name */
 	last_name?: string;
-	/** Additional data about the contact in the form of a vCard, 0-2048 bytes */
+	/** Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes */
 	vcard?: string;
 }
 
@@ -10905,13 +10899,13 @@ export interface InputInvoiceMessageContent {
 	description: string;
 	/** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
 	payload: string;
-	/** Payment provider token, obtained via `@BotFather`. Pass an empty string for payments in Telegram Stars. */
+	/** Payment provider token, obtained via [`@BotFather`](https://t.me/botfather). Pass an empty string for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	provider_token?: string;
-	/** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+	/** Three-letter ISO 4217 currency code, see [more on currencies](https://core.telegram.org/bots/payments#supported-currencies). Pass “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	currency: string;
-	/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+	/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	prices: LabeledPrice[];
-	/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+	/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	max_tip_amount?: number;
 	/** An array of suggested amounts of tip in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
 	suggested_tip_amounts?: number[];
@@ -10925,23 +10919,23 @@ export interface InputInvoiceMessageContent {
 	photo_width?: number;
 	/** Photo height */
 	photo_height?: number;
-	/** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+	/** Pass True if you require the user's full name to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	need_name?: boolean;
-	/** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+	/** Pass True if you require the user's phone number to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	need_phone_number?: boolean;
-	/** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+	/** Pass True if you require the user's email address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	need_email?: boolean;
-	/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+	/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	need_shipping_address?: boolean;
-	/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+	/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	send_phone_number_to_provider?: boolean;
-	/** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+	/** Pass True if the user's email address should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	send_email_to_provider?: boolean;
-	/** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+	/** Pass True if the final price depends on the shipping method. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 	is_flexible?: boolean;
 }
 
-/** Represents the content of a message with an HTML widget to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
+/** Represents the content of a message with an [HTML widget](https://core.telegram.org/bots/widgets) to be sent as the result of an inline query. Currently, widgets can't be sent in response to inline queries in the production environment. */
 export interface InputWidgetMessageContent {
 	/** HTML code of the widget, 1-32768 bytes. The code must not exceed 4096 bytes when compressed by zlib with the maximum compression level. */
 	html: string;
@@ -10955,7 +10949,7 @@ export interface InputWidgetMessageContent {
 	chat_data?: string;
 	/** Widget caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+	/** Mode for parsing entities in the widget caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -10975,7 +10969,7 @@ export interface InputSharedWidgetMessageContent {
 	chat_data?: string;
 	/** Widget caption, 0-1024 characters after entities parsing */
 	caption?: string;
-	/** Mode for parsing entities in the widget caption. See formatting options for more details. */
+	/** Mode for parsing entities in the widget caption. See [formatting options](https://core.telegram.org/bots/api#formatting-options) for more details. */
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
@@ -10983,9 +10977,7 @@ export interface InputSharedWidgetMessageContent {
 	show_caption_above_media?: boolean;
 }
 
-/** Represents a result of an inline query that was chosen by the user and sent to their chat partner.
-
-Note: It is necessary to enable inline feedback via `@BotFather` in order to receive these objects in updates. */
+/** Represents a result of an inline query that was chosen by the user and sent to their chat partner. Note: It is necessary to enable [inline feedback](https://core.telegram.org/bots/inline#collecting-feedback) via [`@BotFather`](https://t.me/botfather) in order to receive these objects in updates. */
 export interface ChosenInlineResult {
 	/** The unique identifier for the result that was chosen */
 	result_id: string;
@@ -10993,7 +10985,7 @@ export interface ChosenInlineResult {
 	from: User;
 	/** Sender location, only for bots that require user location */
 	location?: Location;
-	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message. */
+	/** Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to [edit](https://core.telegram.org/bots/api#updating-messages) the message. */
 	inline_message_id?: string;
 	/** The query that was used to obtain the result */
 	query: string;
@@ -11014,13 +11006,13 @@ export declare namespace Args {
 		description: string;
 		/** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
 		payload: string;
-		/** Payment provider token, obtained via `@BotFather`. Pass an empty string for payments in Telegram Stars. */
+		/** Payment provider token, obtained via [`@BotFather`](https://t.me/botfather). Pass an empty string for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		provider_token?: string;
-		/** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+		/** Three-letter ISO 4217 currency code, see [more on currencies](https://core.telegram.org/bots/payments#supported-currencies). Pass “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		currency: string;
-		/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+		/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		prices: readonly LabeledPrice[];
-		/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+		/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		max_tip_amount?: number;
 		/** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
 		suggested_tip_amounts?: number[];
@@ -11036,25 +11028,25 @@ export declare namespace Args {
 		photo_width?: number;
 		/** Photo height */
 		photo_height?: number;
-		/** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's full name to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_name?: boolean;
-		/** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's phone number to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_phone_number?: boolean;
-		/** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's email address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_email?: boolean;
-		/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_shipping_address?: boolean;
-		/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+		/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		send_phone_number_to_provider?: boolean;
-		/** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+		/** Pass True if the user's email address should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		send_email_to_provider?: boolean;
-		/** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+		/** Pass True if the final price depends on the shipping method. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		is_flexible?: boolean;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance. */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
@@ -11062,7 +11054,7 @@ export declare namespace Args {
 		suggested_post_parameters?: SuggestedPostParameters;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** An object for an inline keyboard. If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Pay total price' button will be shown. If not empty, the first button must be a Pay button. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -11077,7 +11069,7 @@ export interface BotApi<F> {
 
 export declare namespace Args {
 	export interface CreateInvoiceLink {
-		/** Unique identifier of the business connection on behalf of which the link will be created. For payments in Telegram Stars only. */
+		/** Unique identifier of the business connection on behalf of which the link will be created. For payments in [Telegram Stars](https://t.me/BotNews/90) only. */
 		business_connection_id?: string;
 		/** Product name, 1-32 characters */
 		title: string;
@@ -11085,15 +11077,15 @@ export declare namespace Args {
 		description: string;
 		/** Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use it for your internal processes. */
 		payload: string;
-		/** Payment provider token, obtained via `@BotFather`. Pass an empty string for payments in Telegram Stars. */
+		/** Payment provider token, obtained via [`@BotFather`](https://t.me/botfather). Pass an empty string for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		provider_token?: string;
-		/** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+		/** Three-letter ISO 4217 currency code, see [more on currencies](https://core.telegram.org/bots/payments#supported-currencies). Pass “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		currency: string;
-		/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in Telegram Stars. */
+		/** Price breakdown, a list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.). Must contain exactly one item for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		prices: LabeledPrice[];
 		/** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 10000 Telegram Stars. */
 		subscription_period?: undefined;
-		/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in Telegram Stars. */
+		/** The maximum accepted amount for tips in the smallest units of the currency (integer, not float/double). For example, for a maximum tip of US$ 1.45 pass max_tip_amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). Defaults to 0. Not supported for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		max_tip_amount?: number;
 		/** An array of suggested amounts of tips in the smallest units of the currency (integer, not float/double). At most 4 suggested tip amounts can be specified. The suggested tip amounts must be positive, passed in a strictly increased order and must not exceed max_tip_amount. */
 		suggested_tip_amounts?: number[];
@@ -11107,24 +11099,24 @@ export declare namespace Args {
 		photo_width?: number;
 		/** Photo height */
 		photo_height?: number;
-		/** Pass True if you require the user's full name to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's full name to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_name?: boolean;
-		/** Pass True if you require the user's phone number to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's phone number to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_phone_number?: boolean;
-		/** Pass True if you require the user's email address to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's email address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_email?: boolean;
-		/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in Telegram Stars. */
+		/** Pass True if you require the user's shipping address to complete the order. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		need_shipping_address?: boolean;
-		/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in Telegram Stars. */
+		/** Pass True if the user's phone number should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		send_phone_number_to_provider?: boolean;
-		/** Pass True if the user's email address should be sent to the provider. Ignored for payments in Telegram Stars. */
+		/** Pass True if the user's email address should be sent to the provider. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		send_email_to_provider?: boolean;
-		/** Pass True if the final price depends on the shipping method. Ignored for payments in Telegram Stars. */
+		/** Pass True if the final price depends on the shipping method. Ignored for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		is_flexible?: boolean;
 	}
 
 	export interface CreateInvoiceLinkSubscription extends Omit<CreateInvoiceLink, "currency" | "subscription_period"> {
-		/** Three-letter ISO 4217 currency code, see more on currencies. Pass “XTR” for payments in Telegram Stars. */
+		/** Three-letter ISO 4217 currency code, see [more on currencies](https://core.telegram.org/bots/payments#supported-currencies). Pass “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). */
 		currency: "XTR";
 		/** The number of seconds the subscription will be active for before the next payment. The currency must be set to “XTR” (Telegram Stars) if the parameter is used. Currently, it must always be 2592000 (30 days) if specified. Any number of subscriptions can be active for a given bot at the same time, including multiple concurrent subscriptions from the same user. Subscription price must not exceed 10000 Telegram Stars. */
 		subscription_period: 2592000;
@@ -11227,7 +11219,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Refunds a successful payment in Telegram Stars. Returns True on success. */
+	/** Refunds a successful payment in [Telegram Stars](https://t.me/BotNews/90). Returns True on success. */
 	refundStarPayment(args: Args.RefundStarPayment, options?: CallOptions): Promise<true>;
 }
 
@@ -11251,7 +11243,7 @@ export interface BotApi<F> {
 export interface LabeledPrice {
 	/** Portion label */
 	label: string;
-	/** Price of the product in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
+	/** Price of the product in the smallest units of the [currency](https://core.telegram.org/bots/payments#supported-currencies) (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
 	amount: number;
 }
 
@@ -11263,15 +11255,15 @@ export interface Invoice {
 	description: string;
 	/** Unique bot deep-linking parameter that can be used to generate this invoice */
 	start_parameter: string;
-	/** Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars */
+	/** Three-letter ISO 4217 [currency](https://core.telegram.org/bots/payments#supported-currencies) code, or “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90) */
 	currency: string;
-	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
+	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
 	total_amount: number;
 }
 
 /** This object represents a shipping address. */
 export interface ShippingAddress {
-	/** Two-letter ISO 3166-1 alpha-2 country code */
+	/** Two-letter [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code */
 	country_code: string;
 	/** State, if applicable */
 	state: string;
@@ -11309,9 +11301,9 @@ export interface ShippingOption {
 
 /** This object contains basic information about a successful payment. Note that if the buyer initiates a chargeback with the relevant payment provider following this transaction, the funds may be debited from your balance. This is outside of Telegram's control. */
 export interface SuccessfulPayment {
-	/** Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars */
+	/** Three-letter ISO 4217 [currency](https://core.telegram.org/bots/payments#supported-currencies) code, or “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90) */
 	currency: string;
-	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
+	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
 	total_amount: number;
 	/** Bot specified invoice payload */
 	invoice_payload: string;
@@ -11333,9 +11325,9 @@ export interface SuccessfulPayment {
 
 /** This object contains basic information about a refunded payment. */
 export interface RefundedPayment {
-	/** Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars. Currently, always “XTR” */
+	/** Three-letter ISO 4217 [currency](https://core.telegram.org/bots/payments#supported-currencies) code, or “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90). Currently, always “XTR” */
 	currency: "XTR";
-	/** Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, total_amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
+	/** Total refunded price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45, total_amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
 	total_amount: number;
 	/** Bot-specified invoice payload */
 	invoice_payload: string;
@@ -11363,9 +11355,9 @@ export interface PreCheckoutQuery {
 	id: string;
 	/** User who sent the query */
 	from: User;
-	/** Three-letter ISO 4217 currency code, or “XTR” for payments in Telegram Stars */
+	/** Three-letter ISO 4217 [currency](https://core.telegram.org/bots/payments#supported-currencies) code, or “XTR” for payments in [Telegram Stars](https://t.me/BotNews/90) */
 	currency: string;
-	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in currencies.json, it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
+	/** Total price in the smallest units of the currency (integer, not float/double). For example, for a price of US$ 1.45 pass amount = 145. See the exp parameter in [currencies.json](https://core.telegram.org/bots/payments/currencies.json), it shows the number of digits past the decimal point for each currency (2 for the majority of currencies). */
 	total_amount: number;
 	/** Bot-specified invoice payload */
 	invoice_payload: string;
@@ -11541,7 +11533,7 @@ export interface TransactionPartnerTelegramAds {
 	type: "telegram_ads";
 }
 
-/** Describes a transaction with payment for paid broadcasting. */
+/** Describes a transaction with payment for [paid broadcasting](https://core.telegram.org/bots/api#paid-broadcasts). */
 export interface TransactionPartnerTelegramApi {
 	/** Type of the transaction partner, always “telegram_api” */
 	type: "telegram_api";
@@ -11634,7 +11626,7 @@ export interface EncryptedPassportElement {
 	hash: string;
 }
 
-/** Describes data required for decrypting and authenticating EncryptedPassportElement. See the Telegram Passport Documentation for a complete description of the data decryption and authentication processes. */
+/** Describes data required for decrypting and authenticating EncryptedPassportElement. See the [Telegram Passport Documentation](https://core.telegram.org/passport#receiving-information) for a complete description of the data decryption and authentication processes. */
 export interface EncryptedCredentials {
 	/** Base64-encoded encrypted JSON-serialized data with unique user's payload, data hashes and secrets required for EncryptedPassportElement decryption and authentication */
 	data: string;
@@ -11820,19 +11812,19 @@ export declare namespace Args {
 		chat_id: number | string;
 		/** Unique identifier for the target message thread (topic) of a forum; for forum supergroups and private chats of bots with forum topic mode enabled only */
 		message_thread_id?: number;
-		/** Short name of the game, serves as the unique identifier for the game. Set up your games via BotFather. */
+		/** Short name of the game, serves as the unique identifier for the game. Set up your games via [`@BotFather`](https://t.me/botfather). */
 		game_short_name: string;
-		/** Sends the message silently. Users will receive a notification with no sound. */
+		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
 		/** Protects the contents of the sent message from forwarding and saving */
 		protect_content?: boolean;
-		/** Pass True to allow up to 1000 messages per second, ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
+		/** Pass True to allow up to 1000 messages per second, ignoring [broadcasting limits](https://core.telegram.org/bots/faq#how-can-i-message-all-of-my-bot-39s-subscribers-at-once) for a fee of 0.1 Telegram Stars per message. The relevant Stars will be withdrawn from the bot's balance */
 		allow_paid_broadcast?: boolean;
 		/** Unique identifier of the message effect to be added to the message; for private chats only */
 		message_effect_id?: string;
 		/** Description of the message to reply to */
 		reply_parameters?: ReplyParameters;
-		/** An object for an inline keyboard. If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
+		/** An object for an [inline keyboard](https://core.telegram.org/bots/features#inline-keyboards). If empty, one 'Play game_title' button will be shown. If not empty, the first button must launch the game. */
 		reply_markup?: InlineKeyboardMarkup;
 	}
 }
@@ -11854,11 +11846,11 @@ export interface Game {
 	text?: string;
 	/** Special entities that appear in text, such as usernames, URLs, bot commands, etc. */
 	text_entities?: MessageEntity[];
-	/** Animation that will be displayed in the game message in chats. Upload via BotFather */
+	/** Animation that will be displayed in the game message in chats. Upload via [BotFather](https://t.me/botfather) */
 	animation?: Animation;
 }
 
-/** A placeholder, currently holds no information. Use BotFather to set up your game. */
+/** A placeholder, currently holds no information. Use [BotFather](https://t.me/botfather) to set up your game. */
 export interface CallbackGame {
 	// An empty interface takes any value but null and undefined, `true` among them.
 	[key: string]: never;
