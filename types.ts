@@ -490,6 +490,8 @@ export declare namespace ChatFullInfo {
 		community?: Community;
 		/** For private chats, the TON wallet card of the user, which is shown on their profile page */
 		ton_wallet_card?: TonWalletCard;
+		/** For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used */
+		share_theme?: ChatShareTheme;
 	}
 	/** Internal type representing group chats returned from `getChat`. */
 	export interface GroupChat extends Chat.GroupChat {
@@ -612,6 +614,8 @@ export declare namespace ChatFullInfo {
 		guard_bot?: User;
 		/** The Community to which the chat belongs */
 		community?: Community;
+		/** For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used */
+		share_theme?: ChatShareTheme;
 	}
 	/** Internal type representing channel chats returned from `getChat`. */
 	export interface ChannelChat extends Chat.ChannelChat {
@@ -659,6 +663,8 @@ export declare namespace ChatFullInfo {
 		guard_bot?: User;
 		/** The Community to which the chat belongs */
 		community?: Community;
+		/** For private chats, supergroups and channels, the theme of the screen for sharing a link to the user or the chat; omitted if the default theme is used */
+		share_theme?: ChatShareTheme;
 	}
 }
 
@@ -3725,6 +3731,70 @@ export interface TonWalletCard {
 	background_nft_address?: string;
 }
 
+/** This object describes an emoji. Currently, it can be one of
+
+- EmojiTypeEmoji
+- EmojiTypeCustomEmoji
+ */
+export type EmojiType = EmojiTypeEmoji | EmojiTypeCustomEmoji;
+
+/** A regular emoji. */
+export interface EmojiTypeEmoji {
+	/** Type of the emoji, always “emoji” */
+	type: "emoji";
+	/** The emoji */
+	emoji: string;
+}
+
+/** A custom emoji. */
+export interface EmojiTypeCustomEmoji {
+	/** Type of the emoji, always “custom_emoji” */
+	type: "custom_emoji";
+	/** Identifier of the custom emoji. Use getCustomEmojiStickers to get full information about the sticker. */
+	custom_emoji_id: string;
+}
+
+/** This object describes the theme of the screen for sharing a link to a user or a chat. Currently, it can be one of
+
+- ChatShareThemeEmoji
+- ChatShareThemeUniqueGift
+ */
+export type ChatShareTheme = ChatShareThemeEmoji | ChatShareThemeUniqueGift;
+
+/** The theme with emoji placed on a background. */
+export interface ChatShareThemeEmoji {
+	/** Type of the theme, always “emoji” */
+	type: "emoji";
+	/** The emoji; 0-6 regular or custom emoji */
+	emojis: EmojiType[];
+	/** Identifier of the backdrop used as the background; omitted if the default background is used. Use getChatShareThemeBackdrops to get details about the backdrop. */
+	background_backdrop_id?: number;
+}
+
+/** The theme based on a unique gift owned by the user or the chat. */
+export interface ChatShareThemeUniqueGift {
+	/** Type of the theme, always “unique_gift” */
+	type: "unique_gift";
+	/** The gift */
+	gift: UniqueGift;
+}
+
+/** This object contains a list of backdrops, which can be used as the background of a theme of the screen for sharing a link to a user or a chat. */
+export interface ChatShareThemeBackdrops {
+	/** The list of backdrops */
+	backdrops: ChatShareThemeBackdrop[];
+}
+
+/** This object describes a backdrop, which can be used as the background of a theme of the screen for sharing a link to a user or a chat. */
+export interface ChatShareThemeBackdrop {
+	/** Unique identifier of the backdrop */
+	id: number;
+	/** Name of the backdrop */
+	name: string;
+	/** Colors of the backdrop */
+	colors: UniqueGiftBackdropColors;
+}
+
 /** Describes the physical address of a location. */
 export interface LocationAddress {
 	/** The two-letter ISO 3166-1 alpha-2 country code of the country where the location is located */
@@ -6731,6 +6801,11 @@ export declare namespace Args {
 export interface BotApi<F> {
 	/** Use this method to get information about a member of a chat. The method is only guaranteed to work for other users if the bot is an administrator in the chat. Returns a ChatMember object on success. */
 	getChatMember(args: Args.GetChatMember, options?: CallOptions): Promise<ChatMember>;
+}
+
+export interface BotApi<F> {
+	/** Use this method to get the list of backdrops, which can be used as the background of a theme of the screen for sharing a link to a user or a chat. Requires no parameters. Returns a ChatShareThemeBackdrops object. */
+	getChatShareThemeBackdrops(args?: NoArgs, options?: CallOptions): Promise<ChatShareThemeBackdrops>;
 }
 
 export declare namespace Args {

@@ -20,6 +20,7 @@ import type {
 	ChatMember,
 	ChatMemberAdministrator,
 	ChatMemberOwner,
+	ChatShareThemeBackdrops,
 	File,
 	ForumTopic,
 	UserChatBoosts,
@@ -687,9 +688,12 @@ export const administrators = api.getChatAdministrators({ chat_id });
 export const memberCountDeprecated = api.getChatMembersCount({ chat_id });
 export const memberCount = api.getChatMemberCount({ chat_id });
 export const member = api.getChatMember({ chat_id, user_id: 234567890 });
+export const shareThemeBackdrops = api.getChatShareThemeBackdrops();
 export const stickerSetSet = api.setChatStickerSet({ chat_id, sticker_set_name: "weather_stickers" });
 export const stickerSetDeleted = api.deleteChatStickerSet({ chat_id });
 export const boosts = api.getUserChatBoosts({ chat_id, user_id: 234567890 });
+
+export type ShareThemeBackdropsResult = Assert<Equal<typeof shareThemeBackdrops, ChatShareThemeBackdrops>>;
 
 export type AdministrationResults = Assert<
 	Equal<

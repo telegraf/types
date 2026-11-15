@@ -25,6 +25,9 @@ import type {
 	ChatMemberMember,
 	ChatMemberOwner,
 	ChatMemberRestricted,
+	ChatShareTheme,
+	ChatShareThemeBackdrops,
+	EmojiType,
 	ChatMemberUpdated,
 	ChatPermissions,
 	ChatPhoto,
@@ -855,6 +858,59 @@ export const groupChatWithWalletCard: ChatFullInfo.GroupChat = {
 
 // @ts-expect-error — a wallet card lists its stickers, even when there are none
 export const tonWalletCardWithoutStickers: TonWalletCard = { address: tonWalletCard.address, amount: "0" };
+
+// Chat share themes
+
+export const emojiShareTheme: ChatShareTheme = {
+	type: "emoji",
+	emojis: [
+		{ type: "emoji", emoji: "🌧" },
+		{ type: "custom_emoji", custom_emoji_id: "5368324170671202286" },
+	],
+	background_backdrop_id: 7,
+};
+
+export const chatShareThemeBackdrops: ChatShareThemeBackdrops = {
+	backdrops: [
+		{
+			id: 7,
+			name: "Onyx Black",
+			colors: { center_color: 0x4d5254, edge_color: 0x31383b, symbol_color: 0x1e2224, text_color: 0xa4acb0 },
+		},
+	],
+};
+
+export const privateChatWithShareTheme: ChatFullInfo.PrivateChat = { ...privateGetChat, share_theme: emojiShareTheme };
+
+export const supergroupChatWithShareTheme: ChatFullInfo.SupergroupChat = {
+	...supergroupGetChat,
+	share_theme: emojiShareTheme,
+};
+
+export const channelChatWithShareTheme: ChatFullInfo.ChannelChat = { ...channelGetChat, share_theme: emojiShareTheme };
+
+export const groupChatWithShareTheme: ChatFullInfo.GroupChat = {
+	...groupGetChat,
+	// @ts-expect-error — a group has no share theme; private chats, supergroups and channels do
+	share_theme: emojiShareTheme,
+};
+
+export function themeEmojiOf(emoji: EmojiType) {
+	if (emoji.type === "emoji") return emoji.emoji;
+	return emoji.custom_emoji_id;
+}
+
+export type ThemeEmojiOfResult = Assert<Equal<ReturnType<typeof themeEmojiOf>, string>>;
+
+export type ShareThemeTypes = Assert<
+	Equal<[ChatShareTheme["type"], EmojiType["type"]], ["emoji" | "unique_gift", "emoji" | "custom_emoji"]>
+>;
+
+// @ts-expect-error — a custom emoji is named by its identifier
+export const customEmojiWithoutId: EmojiType = { type: "custom_emoji", emoji: "🌧" };
+
+// @ts-expect-error — a theme based on a unique gift names the gift
+export const giftShareThemeWithoutGift: ChatShareTheme = { type: "unique_gift" };
 
 // Required fields
 
