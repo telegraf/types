@@ -1760,6 +1760,7 @@ export type MessageOrigin = MessageOriginUser | MessageOriginHiddenUser | Messag
 
 /** The message was originally sent by a known user. */
 export interface MessageOriginUser extends AbstractMessageOrigin {
+	/** Type of the message origin, always “user” */
 	type: "user";
 	/** User that sent the message originally */
 	sender_user: User;
@@ -1767,6 +1768,7 @@ export interface MessageOriginUser extends AbstractMessageOrigin {
 
 /** The message was originally sent by an unknown user. */
 export interface MessageOriginHiddenUser extends AbstractMessageOrigin {
+	/** Type of the message origin, always “hidden_user” */
 	type: "hidden_user";
 	/** Name of the user that sent the message originally */
 	sender_user_name: string;
@@ -1774,6 +1776,7 @@ export interface MessageOriginHiddenUser extends AbstractMessageOrigin {
 
 /** The message was originally sent on behalf of a chat to a group chat. */
 export interface MessageOriginChat extends AbstractMessageOrigin {
+	/** Type of the message origin, always “chat” */
 	type: "chat";
 	/** Chat that sent the message originally */
 	sender_chat: Chat;
@@ -1783,6 +1786,7 @@ export interface MessageOriginChat extends AbstractMessageOrigin {
 
 /** The message was originally sent to a channel chat. */
 export interface MessageOriginChannel extends AbstractMessageOrigin {
+	/** Type of the message origin, always “channel” */
 	type: "channel";
 	/** Channel chat to which the message was originally sent */
 	chat: Chat;
@@ -3492,6 +3496,7 @@ export type ChatMember =
 
 /** Represents a chat member that owns the chat and has all administrator privileges. */
 export interface ChatMemberOwner extends AbstractChatMember {
+	/** The member's status in the chat, always “creator” */
 	status: "creator";
 	/** True, if the user's presence in the chat is hidden */
 	is_anonymous: boolean;
@@ -3501,6 +3506,7 @@ export interface ChatMemberOwner extends AbstractChatMember {
 
 /** Represents a chat member that has some additional privileges. */
 export interface ChatMemberAdministrator extends AbstractChatMember {
+	/** The member's status in the chat, always “administrator” */
 	status: "administrator";
 	/** True, if the bot is allowed to edit administrator privileges of that user */
 	can_be_edited: boolean;
@@ -3546,6 +3552,7 @@ export interface ChatMemberAdministrator extends AbstractChatMember {
 
 /** Represents a chat member that has no additional privileges or restrictions. */
 export interface ChatMemberMember extends AbstractChatMember {
+	/** The member's status in the chat, always “member” */
 	status: "member";
 	/** Tag of the member */
 	tag?: string;
@@ -3555,6 +3562,7 @@ export interface ChatMemberMember extends AbstractChatMember {
 
 /** Represents a chat member that is under certain restrictions in the chat. Supergroups only. */
 export interface ChatMemberRestricted extends AbstractChatMember {
+	/** The member's status in the chat, always “restricted” */
 	status: "restricted";
 	/** Tag of the member */
 	tag?: string;
@@ -3598,11 +3606,13 @@ export interface ChatMemberRestricted extends AbstractChatMember {
 
 /** Represents a chat member that isn't currently a member of the chat, but may join it themselves. */
 export interface ChatMemberLeft extends AbstractChatMember {
+	/** The member's status in the chat, always “left” */
 	status: "left";
 }
 
 /** Represents a chat member that was banned in the chat and can't return to the chat or view chat messages. */
 export interface ChatMemberBanned extends AbstractChatMember {
+	/** The member's status in the chat, always “kicked” */
 	status: "kicked";
 	/** Date when restrictions will be lifted for this user; Unix time. If 0, then the user is banned forever */
 	until_date: number;
@@ -4024,6 +4034,7 @@ export type TelegramEmoji =
 
 /** The reaction is based on an emoji. */
 export interface ReactionTypeEmoji extends AbstractReactionType {
+	/** Type of the reaction, always “emoji” */
 	type: "emoji";
 	/** Reaction emoji. Currently, it can be one of "❤", "👍", "👎", "🔥", "🥰", "👏", "😁", "🤔", "🤯", "😱", "🤬", "😢", "🎉", "🤩", "🤮", "💩", "🙏", "👌", "🕊", "🤡", "🥱", "🥴", "😍", "🐳", "❤‍🔥", "🌚", "🌭", "💯", "🤣", "⚡", "🍌", "🏆", "💔", "🤨", "😐", "🍓", "🍾", "💋", "🖕", "😈", "😴", "😭", "🤓", "👻", "👨‍💻", "👀", "🎃", "🙈", "😇", "😨", "🤝", "✍", "🤗", "🫡", "🎅", "🎄", "☃", "💅", "🤪", "🗿", "🆒", "💘", "🙉", "🦄", "😘", "💊", "🙊", "😎", "👾", "🤷‍♂", "🤷", "🤷‍♀", "😡". */
 	emoji: TelegramEmoji;
@@ -4031,6 +4042,7 @@ export interface ReactionTypeEmoji extends AbstractReactionType {
 
 /** The reaction is based on a custom emoji. */
 export interface ReactionTypeCustomEmoji extends AbstractReactionType {
+	/** Type of the reaction, always “custom_emoji” */
 	type: "custom_emoji";
 	/** Custom emoji identifier */
 	custom_emoji_id: string;
@@ -4543,6 +4555,7 @@ export type ChatBoostSource = ChatBoostSourcePremium | ChatBoostSourceGiftCode |
 
 /** The boost was obtained by subscribing to Telegram Premium or by gifting a Telegram Premium subscription to another user. */
 export interface ChatBoostSourcePremium extends AbstractChatBoostSource {
+	/** Source of the boost, always “premium” */
 	source: "premium";
 	/** User that boosted the chat. */
 	user: User;
@@ -4550,6 +4563,7 @@ export interface ChatBoostSourcePremium extends AbstractChatBoostSource {
 
 /** The boost was obtained by the creation of Telegram Premium gift codes to boost a chat. Each such code boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription. */
 export interface ChatBoostSourceGiftCode extends AbstractChatBoostSource {
+	/** Source of the boost, always “gift_code” */
 	source: "gift_code";
 	/** User for which the gift code was created. */
 	user: User;
@@ -4557,6 +4571,7 @@ export interface ChatBoostSourceGiftCode extends AbstractChatBoostSource {
 
 /** The boost was obtained by the creation of a Telegram Premium or a Telegram Star giveaway. This boosts the chat 4 times for the duration of the corresponding Telegram Premium subscription for Telegram Premium giveaways and prize_star_count / 500 times for one year for Telegram Star giveaways. */
 export interface ChatBoostSourceGiveaway extends AbstractChatBoostSource {
+	/** Source of the boost, always “giveaway” */
 	source: "giveaway";
 	/** Identifier of a message in the chat with the giveaway; the message could have been deleted already. May be 0 if the message isn't sent yet. */
 	giveaway_message_id: number;
@@ -7315,7 +7330,7 @@ export declare namespace Args {
 }
 
 export interface BotApi<F> {
-	/** Use this method to change the list of the bot's commands. See https://core.telegram.org/bots#commands for more details about bot commands. Returns True on success. */
+	/** Use this method to change the list of the bot's commands. See [this manual](https://core.telegram.org/bots/features#commands) for more details about bot commands. Returns True on success. */
 	setMyCommands(args: Args.SetMyCommands, options?: CallOptions): Promise<true>;
 }
 
