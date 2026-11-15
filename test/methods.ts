@@ -23,6 +23,7 @@ import type {
 	ChatShareThemeBackdrops,
 	File,
 	ForumTopic,
+	UniqueGift,
 	UserChatBoosts,
 	UserFromGetMe,
 	UserProfilePhotos,
@@ -1035,6 +1036,21 @@ export type WidgetResults = Assert<
 export const widgetSentWithoutHtml = api.sendWidget({ chat_id });
 // @ts-expect-error — removing the public data of a shared widget takes an empty string
 export const sharedWidgetDataEditedWithoutData = api.editSharedWidgetData({ widget_id: "AQADwidget" });
+
+// Gifts
+
+export const uniqueGift = api.getUniqueGift({ name: "PlushPepe-42" });
+export const businessGiftDeleted = api.deleteBusinessAccountGift({
+	business_connection_id: "Vy3hYQAAAAAAAAAA",
+	owned_gift_id: "3f1c9a7e",
+});
+
+export type GiftResults = Assert<Equal<[typeof uniqueGift, typeof businessGiftDeleted], [UniqueGift, true]>>;
+
+// @ts-expect-error — a unique gift is found by its name
+export const uniqueGiftWithoutName = api.getUniqueGift({});
+// @ts-expect-error — the gift to delete belongs to a business connection
+export const businessGiftDeletedWithoutConnection = api.deleteBusinessAccountGift({ owned_gift_id: "3f1c9a7e" });
 
 // Payments
 

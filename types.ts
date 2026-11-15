@@ -7697,6 +7697,18 @@ export interface BotApi<F> {
 }
 
 export declare namespace Args {
+	export interface GetUniqueGift {
+		/** Unique name of the gift */
+		name: string;
+	}
+}
+
+export interface BotApi<F> {
+	/** Use this method to get information about a unique gift by its name. Returns a UniqueGift object on success. */
+	getUniqueGift(args: Args.GetUniqueGift, options?: CallOptions): Promise<UniqueGift>;
+}
+
+export declare namespace Args {
 	export interface ConvertGiftToStars {
 		/** Unique identifier of the business connection */
 		business_connection_id: string;
@@ -7744,6 +7756,20 @@ export declare namespace Args {
 export interface BotApi<F> {
 	/** Transfers an owned unique gift to another user. Requires the can_transfer_and_upgrade_gifts business bot right. Requires can_transfer_stars business bot right if the transfer is paid. Returns True on success. */
 	transferGift(args: Args.TransferGift, options?: CallOptions): Promise<true>;
+}
+
+export declare namespace Args {
+	export interface DeleteBusinessAccountGift {
+		/** Unique identifier of the business connection */
+		business_connection_id: string;
+		/** Unique identifier of the regular gift that should be deleted */
+		owned_gift_id: string;
+	}
+}
+
+export interface BotApi<F> {
+	/** Deletes a regular gift owned by a managed business account without receiving Telegram Stars for it. Requires the can_convert_gifts_to_stars business bot right. The gift can be deleted only if it isn't limited (the field total_count of the Gift is omitted) and wasn't refunded. Returns True on success. */
+	deleteBusinessAccountGift(args: Args.DeleteBusinessAccountGift, options?: CallOptions): Promise<true>;
 }
 
 export declare namespace Args {
