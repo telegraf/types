@@ -4715,7 +4715,7 @@ export interface InputMediaAnimation<F> {
 	type: "animation";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 	thumbnail?: F;
 	/** Caption of the animation to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
@@ -4741,7 +4741,7 @@ export interface InputMediaAudio<F> {
 	type: "audio";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 	thumbnail?: F;
 	/** Caption of the audio to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
@@ -4763,7 +4763,7 @@ export interface InputMediaDocument<F> {
 	type: "document";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 	thumbnail?: F;
 	/** Caption of the document to be sent, 0-1024 characters after entities parsing */
 	caption?: string;
@@ -4771,7 +4771,7 @@ export interface InputMediaDocument<F> {
 	parse_mode?: ParseMode;
 	/** List of special entities that appear in the caption, which can be specified instead of parse_mode */
 	caption_entities?: MessageEntity[];
-	/** Disables automatic server-side content type detection for files uploaded using multipart/form-data. Always true, if the document is sent as part of an album. */
+	/** Disables automatic server-side content type detection for files uploaded. Always true, if the document is sent as part of an album. */
 	disable_content_type_detection?: boolean;
 }
 /** Represents an HTTP link to be sent. */
@@ -4869,7 +4869,7 @@ export interface InputMediaVideo<F> {
 	type: "video";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 	thumbnail?: F;
 	/** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	cover?: F | string;
@@ -4941,7 +4941,7 @@ export interface InputPaidMediaVideo<F> {
 	type: "video";
 	/** File to send. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	media: F | string;
-	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+	/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 	thumbnail?: F | string;
 	/** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 	cover?: F | string;
@@ -5215,7 +5215,7 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. */
+		/** Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. */
 		photo: F | string;
 		/** Photo caption (may also be used when resending photos by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5271,9 +5271,9 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
+		/** Live photo video to send. The video must be no longer than 10 seconds and must not exceed 10 MB in size. Pass a file_id as String to send a video that exists on the Telegram servers (recommended) or upload a new video. Sending live photos by a URL is currently unsupported. */
 		live_photo: F | string;
-		/** The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. Sending live photos by a URL is currently unsupported. */
+		/** The static photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended) or upload a new video. Sending live photos by a URL is currently unsupported. */
 		photo: F | string;
 		/** Video caption (may also be used when resending videos by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5332,7 +5332,7 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. */
+		/** Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one. */
 		audio: F | string;
 		/** Audio caption, 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5346,7 +5346,7 @@ export declare namespace Args {
 		performer?: string;
 		/** Track name */
 		title?: string;
-		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
 		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
@@ -5394,9 +5394,9 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
+		/** File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one. */
 		document: F | string;
-		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
 		/** Document caption (may also be used when resending documents by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5404,7 +5404,7 @@ export declare namespace Args {
 		parse_mode?: ParseMode;
 		/** A list of special entities that appear in the caption, which can be specified instead of parse_mode */
 		caption_entities?: MessageEntity[];
-		/** Disables automatic server-side content type detection for files uploaded using multipart/form-data */
+		/** Disables automatic server-side content type detection for files uploaded */
 		disable_content_type_detection?: boolean;
 		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
@@ -5453,7 +5453,7 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. */
+		/** Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video. */
 		video: F | string;
 		/** Duration of sent video in seconds */
 		duration?: number;
@@ -5461,7 +5461,7 @@ export declare namespace Args {
 		width?: number;
 		/** Video height */
 		height?: number;
-		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
 		/** Cover for the video in the message. Pass a file_id to send a file that exists on the Telegram servers (recommended), pass an HTTP URL for Telegram to get a file from the Internet, or use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new one. */
 		cover?: F | string;
@@ -5523,7 +5523,7 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. */
+		/** Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation. */
 		animation: F | string;
 		/** Duration of sent animation in seconds */
 		duration?: number;
@@ -5531,7 +5531,7 @@ export declare namespace Args {
 		width?: number;
 		/** Animation height */
 		height?: number;
-		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
 		/** Animation caption (may also be used when resending animation by file_id), 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5590,7 +5590,7 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. */
+		/** Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one. */
 		voice: F | string;
 		/** Voice message caption, 0-1024 characters after entities parsing */
 		caption?: string;
@@ -5644,13 +5644,13 @@ export declare namespace Args {
 		direct_messages_topic_id?: number;
 		/** An object containing the parameters of the ephemeral message to send */
 		ephemeral_message_parameters?: EphemeralMessageParameters.Chat;
-		/** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data.. Sending video notes by a URL is currently unsupported */
+		/** Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video.. Sending video notes by a URL is currently unsupported */
 		video_note: F | string;
 		/** Duration of sent video in seconds */
 		duration?: number;
 		/** Video width and height, i.e. diameter of the video message */
 		length?: number;
-		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored unless the file itself is uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
+		/** Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported server-side. The thumbnail should be in JPEG format and less than 200 kB in size. A thumbnail's width and height should not exceed 320. Ignored if the file is not uploaded. Thumbnails can't be reused and can be only uploaded as a new file. Use Telegraf's [Input helpers](https://telegraf.js.org/modules/Input.html) to upload a new thumbnail. */
 		thumbnail?: F;
 		/** Sends the message [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound. */
 		disable_notification?: boolean;
@@ -6753,7 +6753,7 @@ export declare namespace Args {
 	export interface SetChatPhoto<F> {
 		/** Unique identifier for the target chat or username of the target channel in the format `@username` */
 		chat_id: number | string;
-		/** New chat photo, uploaded using multipart/form-data */
+		/** New chat photo, uploaded */
 		photo: F;
 	}
 }
@@ -8968,7 +8968,7 @@ export declare namespace Args {
 		name: string;
 		/** User identifier of the sticker set owner */
 		user_id: number;
-		/** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
+		/** A .WEBP or .PNG image with the thumbnail, must be up to 128 kilobytes in size and have a width and height of exactly 100px, or a .TGS animation with a thumbnail up to 32 kilobytes in size (see https://core.telegram.org/stickers#animation-requirements for animated sticker technical requirements), or a .WEBM video with the thumbnail up to 32 kilobytes in size; see https://core.telegram.org/stickers#video-requirements for video sticker technical requirements. Pass a file_id as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one. Animated and video sticker set thumbnails can't be uploaded via HTTP URL. If omitted, then the thumbnail is dropped and the first sticker is used as the thumbnail. */
 		thumbnail?: F | string;
 		/** Format of the thumbnail, must be one of “static” for a .WEBP or .PNG image, “animated” for a .TGS animation, or “video” for a .WEBM video */
 		format: "static" | "animated" | "video";
