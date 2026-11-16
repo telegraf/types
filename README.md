@@ -34,7 +34,7 @@ function textOf(update: Update) {
 }
 ```
 
-The types declared this way are `Update`, `Message`, `Chat`, `ChatFullInfo`, `CallbackQuery`, `MessageEntity`, `InlineKeyboardButton`, `KeyboardButton`, `Location`, `ReplyParameters`, `PollMedia`, `InputRichMessage`, `RichMessageButton` and `TransactionPartnerUser`.
+The types declared this way are `Update`, `Message`, `Chat`, `ChatFullInfo`, `CallbackQuery`, `WidgetQuery`, `MessageEntity`, `InlineKeyboardButton`, `KeyboardButton`, `Location`, `ReplyParameters`, `EphemeralMessageParameters`, `PollMedia`, `InputRichMessage`, `RichMessageButton` and `TransactionPartnerUser`.
 
 If the documentation describes a union, like `InlineQueryResult`, the type is a union of the documented types.
 
