@@ -1,5 +1,6 @@
 import type {
 	ApiMethods,
+	BotApi,
 	InputMedia,
 	InputMediaAnimation,
 	InputMediaAudio,
@@ -20,14 +21,17 @@ import type {
 	ChatMember,
 	ChatMemberAdministrator,
 	ChatMemberOwner,
+	ChatShareThemeBackdrops,
 	File,
 	ForumTopic,
+	UniqueGift,
 	UserChatBoosts,
 	UserFromGetMe,
 	UserProfilePhotos,
 	WebhookInfo,
 } from "../manage.ts";
 import type {
+	EphemeralMessageParameters,
 	GameHighScore,
 	InputPollOption,
 	Message,
@@ -52,6 +56,9 @@ export declare const api: ApiMethods<Upload>;
 
 /** A client that only refers to files by file_id or URL. */
 export declare const fileIdApi: ApiMethods<never>;
+
+/** A client with the current interface: one arm per case of a method, and a promise for each result. */
+export declare const botApi: BotApi<Upload>;
 
 const upload: Upload = { source: new Uint8Array([0xff, 0xd8, 0xff]), filename: "skyline.jpg" };
 const chat_id = -1001234567890;
@@ -115,7 +122,8 @@ export type OptsFields = Assert<
 			Opts<Upload>["sendPoll"]["options"],
 		],
 		[
-			number | string,
+			// A reply to a callback query has no chat, and `Opts` merges that arm with the one that has.
+			number | string | undefined,
 			string,
 			number | string,
 			number | undefined,
@@ -170,6 +178,8 @@ export type AllowedUpdates = Assert<
 			| "managed_bot"
 			| "subscription"
 			| "stopped_message_generation"
+			| "widget_query"
+			| "shared_widget_query"
 		>
 	>
 >;
@@ -532,8 +542,163 @@ export type SendResults = Assert<
 	>
 >;
 
-// @ts-expect-error — every send names its chat
-export const sentWithoutChat = api.sendMessage({ text: "Hi" });
+// Replies to callback queries
+
+// A reply to a callback query is addressed by the query, so it has no chat.
+export const callbackQueryReply = botApi.sendMessage({
+	text: "Only you can see this",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9", replace_callback_query_message: true },
+});
+export const callbackQueryPhotoReply = botApi.sendPhoto({
+	photo: upload,
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+const toCallbackQuery = { ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" } };
+
+// Every method that sends an ephemeral message replies to a callback query the same way.
+export const callbackQueryReplies = [
+	botApi.sendMessage({ ...toCallbackQuery, text: "Only you can see this" }),
+	botApi.sendPhoto({ ...toCallbackQuery, photo: upload }),
+	botApi.sendLivePhoto({ ...toCallbackQuery, live_photo: upload, photo: upload }),
+	botApi.sendAudio({ ...toCallbackQuery, audio: upload }),
+	botApi.sendDocument({ ...toCallbackQuery, document: upload }),
+	botApi.sendVideo({ ...toCallbackQuery, video: upload }),
+	botApi.sendAnimation({ ...toCallbackQuery, animation: upload }),
+	botApi.sendVoice({ ...toCallbackQuery, voice: upload }),
+	botApi.sendVideoNote({ ...toCallbackQuery, video_note: upload }),
+	botApi.sendLocation({ ...toCallbackQuery, latitude: 52.52, longitude: 13.405 }),
+	botApi.sendVenue({
+		...toCallbackQuery,
+		latitude: 52.52,
+		longitude: 13.405,
+		title: "Mauerpark",
+		address: "Gleimstr. 55",
+	}),
+	botApi.sendContact({ ...toCallbackQuery, phone_number: "+4915112345678", first_name: "Erika" }),
+	botApi.sendSticker({ ...toCallbackQuery, sticker: "CAACAgIAAxkBAAI" }),
+	botApi.sendRichMessage({ ...toCallbackQuery, rich_message: { html: "<b>10 °C</b>" } }),
+];
+
+type EphemeralMethod =
+	| "sendMessage"
+	| "sendPhoto"
+	| "sendLivePhoto"
+	| "sendAudio"
+	| "sendDocument"
+	| "sendVideo"
+	| "sendAnimation"
+	| "sendVoice"
+	| "sendVideoNote"
+	| "sendLocation"
+	| "sendVenue"
+	| "sendContact"
+	| "sendSticker"
+	| "sendRichMessage";
+type ArmsOf<M extends keyof BotApi<Upload>> = Parameters<BotApi<Upload>[M]>[0];
+
+// In each of them the arm without a chat takes a callback query, and the arms with a chat take a receiver.
+export type CallbackQueryArms = Assert<
+	Equal<
+		{
+			[M in EphemeralMethod]: Equal<
+				Extract<ArmsOf<M>, { chat_id?: undefined }>["ephemeral_message_parameters"],
+				EphemeralMessageParameters.CallbackQuery
+			> extends true
+				? Equal<
+						Extract<ArmsOf<M>, { chat_id: number | string }>["ephemeral_message_parameters"],
+						EphemeralMessageParameters.Chat | undefined
+					> extends true
+					? never
+					: M
+				: M;
+		}[EphemeralMethod],
+		never
+	>
+>;
+
+// No other method replies to a callback query.
+export type MethodsWithCallbackQueryArm = Assert<
+	Equal<
+		{
+			[M in keyof BotApi<Upload>]: [
+				Extract<ArmsOf<M>, { ephemeral_message_parameters: EphemeralMessageParameters.CallbackQuery }>,
+			] extends [never]
+				? never
+				: M;
+		}[keyof BotApi<Upload>],
+		EphemeralMethod
+	>
+>;
+
+export const ephemeralMessage = botApi.sendMessage({
+	chat_id,
+	text: "Only you can see this",
+	ephemeral_message_parameters: { receiver_user_id: 123456789 },
+});
+// A receiver named together with the callback query is still a user of the chat.
+export const ephemeralMessageAfterCallbackQuery = botApi.sendMessage({
+	chat_id,
+	text: "Only you can see this",
+	ephemeral_message_parameters: { receiver_user_id: 123456789, callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+export type CallbackQueryReplyResults = Assert<
+	Equal<
+		[typeof callbackQueryReply, typeof callbackQueryPhotoReply, typeof ephemeralMessage],
+		[
+			Promise<Message.TextMessage & Message.BusinessSentMessage>,
+			Promise<Message.PhotoMessage & Message.BusinessSentMessage>,
+			Promise<Message.TextMessage & Message.BusinessSentMessage>,
+		]
+	>
+>;
+
+// @ts-expect-error — every send names its chat, unless it replies to a callback query
+export const sentWithoutChat = botApi.sendMessage({ text: "Hi" });
+
+// @ts-expect-error — a reply to a callback query takes its chat from the query
+export const callbackQueryReplyWithChat = botApi.sendMessage({
+	chat_id,
+	text: "Hi",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+// @ts-expect-error — a receiver is a user of the chat the message is sent to
+export const receiverWithoutChat = botApi.sendMessage({
+	text: "Hi",
+	ephemeral_message_parameters: { receiver_user_id: 123456789 },
+});
+
+export const ephemeralMessageWithoutAddressee = botApi.sendMessage({
+	chat_id,
+	text: "Hi",
+	// @ts-expect-error — ephemeral parameters name a receiver or a callback query
+	ephemeral_message_parameters: {},
+});
+
+// @ts-expect-error — a reply to a callback query is ephemeral, so the location in it can't be live
+export const liveLocationToCallbackQuery = botApi.sendLocation({
+	latitude: 52.52,
+	longitude: 13.405,
+	live_period: 900,
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+
+// The deprecated `ApiMethods` merges the arms of a method into one object: it takes a reply to a callback query, and
+// also a send without a chat.
+export const looseCallbackQueryReply = api.sendMessage({
+	text: "Only you can see this",
+	ephemeral_message_parameters: { callback_query_id: "4382bfdwdsb323b2d9" },
+});
+export const looseSendWithoutChat = api.sendMessage({ text: "Hi" });
+
+export type LooseCallbackQueryReply = Assert<
+	Equal<
+		[typeof looseCallbackQueryReply, Opts<Upload>["sendMessage"]["ephemeral_message_parameters"]],
+		[Message.TextMessage & Message.BusinessSentMessage, EphemeralMessageParameters | undefined]
+	>
+>;
 
 // @ts-expect-error — with F = never there is no upload type, only file_id and URL strings
 export const uploadWithoutF = fileIdApi.sendPhoto({ chat_id, photo: upload });
@@ -685,9 +850,12 @@ export const administrators = api.getChatAdministrators({ chat_id });
 export const memberCountDeprecated = api.getChatMembersCount({ chat_id });
 export const memberCount = api.getChatMemberCount({ chat_id });
 export const member = api.getChatMember({ chat_id, user_id: 234567890 });
+export const shareThemeBackdrops = api.getChatShareThemeBackdrops();
 export const stickerSetSet = api.setChatStickerSet({ chat_id, sticker_set_name: "weather_stickers" });
 export const stickerSetDeleted = api.deleteChatStickerSet({ chat_id });
 export const boosts = api.getUserChatBoosts({ chat_id, user_id: 234567890 });
+
+export type ShareThemeBackdropsResult = Assert<Equal<typeof shareThemeBackdrops, ChatShareThemeBackdrops>>;
 
 export type AdministrationResults = Assert<
 	Equal<
@@ -980,6 +1148,92 @@ export const webAppAnswered = api.answerWebAppQuery({
 });
 
 export type InlineResults = Assert<Equal<[typeof inlineAnswered, typeof webAppAnswered], [true, SentWebAppMessage]>>;
+
+// Widgets
+
+export const widgetSent = api.sendWidget({
+	chat_id,
+	html: "<b>Berlin</b>: 12°C",
+	width: 320,
+	height: 120,
+	public_data: "berlin",
+	caption: "Forecast",
+	allow_queries: true,
+	is_shared: true,
+});
+export const sharedWidgetSent = api.sendSharedWidget({ chat_id, widget_id: "AQADwidget", chat_data: "celsius" });
+export const widgetQueryAnswered = api.answerWidgetQuery({ widget_query_id: "7c1d0a52b6e94f03", data: "12°C" });
+export const widgetDataEdited = api.editMessageWidgetData({ chat_id, message_id: 51, chat_data: "fahrenheit" });
+export const inlineWidgetDataEdited = api.editMessageWidgetData({ inline_message_id: "AgAAAPx", public_data: "" });
+export const sharedWidgetDataEdited = api.editSharedWidgetData({
+	widget_id: "AQADwidget",
+	public_data: "hamburg",
+	cache_time: 60,
+});
+export const inlineWidgetsAnswered = api.answerInlineQuery({
+	inline_query_id: "1234567890123456789",
+	results: [
+		{ type: "article", id: "new", title: "Forecast", input_message_content: { html: "<b>Berlin</b>: 12°C" } },
+		{ type: "article", id: "shared", title: "Forecast", input_message_content: { widget_id: "AQADwidget" } },
+	],
+});
+
+export type WidgetResults = Assert<
+	Equal<
+		[
+			typeof widgetSent,
+			typeof sharedWidgetSent,
+			typeof widgetQueryAnswered,
+			typeof widgetDataEdited,
+			typeof inlineWidgetDataEdited,
+			typeof sharedWidgetDataEdited,
+			typeof inlineWidgetsAnswered,
+		],
+		[Message.WidgetMessage, Message.WidgetMessage, true, true, true, true, true]
+	>
+>;
+
+// @ts-expect-error — a widget needs its HTML code
+export const widgetSentWithoutHtml = api.sendWidget({ chat_id });
+// @ts-expect-error — removing the public data of a shared widget takes an empty string
+export const sharedWidgetDataEditedWithoutData = api.editSharedWidgetData({ widget_id: "AQADwidget" });
+
+// Gifts
+
+export const uniqueGift = api.getUniqueGift({ name: "PlushPepe-42" });
+export const businessGiftDeleted = api.deleteBusinessAccountGift({
+	business_connection_id: "Vy3hYQAAAAAAAAAA",
+	owned_gift_id: "3f1c9a7e",
+});
+
+export type GiftResults = Assert<Equal<[typeof uniqueGift, typeof businessGiftDeleted], [UniqueGift, true]>>;
+
+// @ts-expect-error — a unique gift is found by its name
+export const uniqueGiftWithoutName = api.getUniqueGift({});
+// @ts-expect-error — the gift to delete belongs to a business connection
+export const businessGiftDeletedWithoutConnection = api.deleteBusinessAccountGift({ owned_gift_id: "3f1c9a7e" });
+
+// Verification
+
+export const userVerified = api.verifyUser({
+	user_id: 123456789,
+	custom_description: "Verified by Weather Org",
+	custom_description_entities: [{ type: "text_link", offset: 12, length: 11, url: "https://telegraf.js.org" }],
+});
+export const chatVerified = api.verifyChat({
+	chat_id,
+	custom_description: "Verified by <a href='https://telegraf.js.org'>Weather Org</a>",
+	custom_description_parse_mode: "HTML",
+});
+
+export type VerificationResults = Assert<Equal<[typeof userVerified, typeof chatVerified], [true, true]>>;
+
+export const userVerifiedWithBoldDescription = api.verifyUser({
+	user_id: 123456789,
+	custom_description: "Verified",
+	// @ts-expect-error — a custom description supports text_link entities only
+	custom_description_entities: [{ type: "bold", offset: 0, length: 8 }],
+});
 
 // Payments
 

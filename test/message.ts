@@ -10,6 +10,7 @@ import type {
 	Contact,
 	Dice,
 	Document,
+	EphemeralMessageParameters,
 	ExternalReplyAnimation,
 	ExternalReplyAudio,
 	ExternalReplyContact,
@@ -29,6 +30,7 @@ import type {
 	ExternalReplyVideo,
 	ExternalReplyVideoNote,
 	ExternalReplyVoice,
+	ExternalReplyWidget,
 	ForumTopicClosed,
 	ForumTopicCreated,
 	ForumTopicEdited,
@@ -61,6 +63,7 @@ import type {
 	PollOption,
 	ProximityAlertTriggered,
 	ReplyParameters,
+	RichText,
 	SentWebAppMessage,
 	ServiceMessageBundle,
 	SharedUser,
@@ -78,6 +81,7 @@ import type {
 	VideoNote,
 	Voice,
 	WebAppData,
+	Widget,
 	WriteAccessAllowed,
 } from "../message.ts";
 import { type Assert, type Equal, expectType, type Extends, type RequiredKeys } from "./assert.ts";
@@ -164,6 +168,15 @@ export const voice: Voice = {
 	duration: 5,
 	mime_type: "audio/ogg",
 	file_size: 18432,
+};
+
+export const widget: Widget = {
+	id: "AQADwidget",
+	width: 320,
+	height: 120,
+	html: "<b>Berlin</b>: 12°C",
+	public_data: "berlin",
+	chat_data: "celsius",
 };
 
 export const maskPosition: MaskPosition = { point: "eyes", x_shift: 0, y_shift: -0.5, scale: 1.2 };
@@ -323,6 +336,13 @@ export const entities: MessageEntity[] = [
 	customEmojiEntity,
 ];
 
+export const bankCardEntity: MessageEntity.BankCardNumber = { type: "bank_card_number", offset: 0, length: 19 };
+
+export const tonAddressEntity: MessageEntity.TonAddress = { type: "ton_address", offset: 20, length: 48 };
+
+// Neither has a field of its own, so both are among the entities 7.1.0 called common.
+export const paymentEntities: MessageEntity.CommonMessageEntity[] = [bankCardEntity, tonAddressEntity];
+
 export type MessageEntityType = Assert<
 	Equal<
 		MessageEntity["type"],
@@ -333,6 +353,8 @@ export type MessageEntityType = Assert<
 		| "url"
 		| "email"
 		| "phone_number"
+		| "bank_card_number"
+		| "ton_address"
 		| "bold"
 		| "blockquote"
 		| "expandable_blockquote"
@@ -455,16 +477,76 @@ export const replyWithQuoteEntities: ReplyParameters = {
 // An ephemeral message is named by its own identifier, in place of message_id
 export const replyToEphemeralMessage: ReplyParameters = { ephemeral_message_id: 7 };
 
+// Ephemeral message parameters name a receiver in the chat, or the callback query the message replies to.
+export const ephemeralParametersForReceiver: EphemeralMessageParameters = { receiver_user_id: 123456789 };
+
+export const ephemeralParametersForCallbackQuery: EphemeralMessageParameters = {
+	callback_query_id: "4382bfdwdsb323b2d9",
+	replace_callback_query_message: true,
+};
+
+export function addresseeOf(parameters: EphemeralMessageParameters) {
+	if (parameters.receiver_user_id === undefined) {
+		expectType<EphemeralMessageParameters.CallbackQuery>()(parameters);
+		return parameters.callback_query_id;
+	}
+	expectType<EphemeralMessageParameters.Chat>()(parameters);
+	return parameters.receiver_user_id;
+}
+
+export type EphemeralMessageParametersRequiredFields = Assert<
+	Equal<
+		[RequiredKeys<EphemeralMessageParameters.Chat>, RequiredKeys<EphemeralMessageParameters.CallbackQuery>],
+		["receiver_user_id", "callback_query_id"]
+	>
+>;
+
+// @ts-expect-error — ephemeral parameters name a receiver or a callback query
+export const ephemeralParametersWithoutAddressee: EphemeralMessageParameters = { replace_callback_query_message: true };
+
+// A quote from a rich message has one rich text for each quoted text, and its `text` may be empty.
+export const richQuote: TextQuote = {
+	text: "",
+	rich_texts: ["Berlin: ", { type: "bold", text: ["light ", { type: "italic", text: "rain" }] }],
+	position: 0,
+};
+
+export const replyWithRichQuote: ReplyParameters = {
+	message_id: 42,
+	quote_rich_texts: ["Berlin: ", { type: "bold", text: "light rain" }],
+	quote_position: 0,
+};
+
 export type ReplyParametersFields = Assert<
 	Equal<
-		[ReplyParameters["message_id"], ReplyParameters["chat_id"], ReplyParameters["quote_entities"]],
-		[number | undefined, number | string | undefined, MessageEntity[] | undefined]
+		[
+			ReplyParameters["message_id"],
+			ReplyParameters["chat_id"],
+			ReplyParameters["quote_entities"],
+			ReplyParameters["quote_rich_texts"],
+		],
+		[number | undefined, number | string | undefined, MessageEntity[] | undefined, RichText[] | undefined]
 	>
 >;
 
 export type TextQuoteFields = Assert<
-	Equal<[TextQuote["text"], TextQuote["position"], TextQuote["is_manual"]], [string, number, true | undefined]>
+	Equal<
+		[TextQuote["text"], TextQuote["rich_texts"], TextQuote["position"], TextQuote["is_manual"]],
+		[string, RichText[] | undefined, number, true | undefined]
+	>
 >;
+
+// @ts-expect-error — the rich texts of a quote are a list, one for each quoted text
+export const replyWithOneRichText: ReplyParameters = { message_id: 42, quote_rich_texts: "light rain" };
+
+export const tonAddressRichText: RichText = {
+	type: "ton_address",
+	text: "UQBv…g5jL",
+	address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+};
+
+// @ts-expect-error — a TON address in a rich text states the address, apart from its text
+export const tonAddressRichTextWithoutAddress: RichText = { type: "ton_address", text: "UQBv…g5jL" };
 
 export type LinkPreviewOptionsFields = Assert<
 	Equal<[LinkPreviewOptions["is_disabled"], LinkPreviewOptions["url"]], [boolean | undefined, string | undefined]>
@@ -851,6 +933,8 @@ export const externalVideoNote: ExternalReplyVideoNote = { origin: originUser, v
 
 export const externalVoice: ExternalReplyVoice = { origin: originHiddenUser, voice };
 
+export const externalWidget: ExternalReplyWidget = { origin: originUser, widget };
+
 export const externalContact: ExternalReplyContact = { origin: originUser, contact };
 
 export const externalDice: ExternalReplyDice = { origin: originUser, dice };
@@ -888,6 +972,7 @@ export const externalReplies: ExternalReplyInfo[] = [
 	externalVideo,
 	externalVideoNote,
 	externalVoice,
+	externalWidget,
 	externalContact,
 	externalDice,
 	externalGame,
@@ -1014,6 +1099,16 @@ export const videoMessage: Message.VideoMessage = { ...inGroup, video, media_gro
 export const videoNoteMessage: Message.VideoNoteMessage = { ...inPrivate, video_note: videoNote };
 
 export const voiceMessage: Message.VoiceMessage = { ...inPrivate, voice, caption: "Forecast" };
+
+export const widgetMessage: Message.WidgetMessage = {
+	...inPrivate,
+	widget,
+	caption: "Forecast",
+	show_caption_above_media: true,
+};
+
+// @ts-expect-error — a widget always has its HTML code
+export const widgetWithoutHtml: Widget = { id: "AQADwidget" };
 
 export const contactMessage: Message.ContactMessage = { ...inPrivate, contact };
 
@@ -1217,6 +1312,21 @@ export const videoChatParticipantsInvitedMessage: Message.VideoChatParticipantsI
 
 export const webAppDataMessage: Message.WebAppDataMessage = { ...inPrivate, web_app_data: webAppData };
 
+export const paidMessagesWaivedMessage: Message.PaidMessagesWaivedMessage = {
+	...inPrivate,
+	paid_messages_waived: {},
+};
+
+export const tonWalletTransferMessage: Message.TonWalletTransferMessage = {
+	...inPrivate,
+	ton_wallet_transfer: {
+		transaction_id: "6f1c2a9e",
+		peer_address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+		amount: "-1500000000",
+		comment: "Lunch",
+	},
+};
+
 export const commonMessages: CommonMessageBundle[] = [
 	animationMessage,
 	audioMessage,
@@ -1234,6 +1344,7 @@ export const commonMessages: CommonMessageBundle[] = [
 	videoMessage,
 	videoNoteMessage,
 	voiceMessage,
+	widgetMessage,
 ];
 
 export const serviceMessages: ServiceMessageBundle[] = [
@@ -1273,6 +1384,8 @@ export const serviceMessages: ServiceMessageBundle[] = [
 	videoChatEndedMessage,
 	videoChatParticipantsInvitedMessage,
 	webAppDataMessage,
+	tonWalletTransferMessage,
+	paidMessagesWaivedMessage,
 ];
 
 export const messages: Message[] = [...commonMessages, ...serviceMessages];
@@ -1301,6 +1414,7 @@ export type CommonMessageBundleMembers = Assert<
 		| Message.VideoMessage
 		| Message.VideoNoteMessage
 		| Message.VoiceMessage
+		| Message.WidgetMessage
 	>
 >;
 
@@ -1365,6 +1479,8 @@ export type ServiceMessageBundleMembers = Assert<
 		| Message.SuggestedPostPaidMessage
 		| Message.SuggestedPostRefundedMessage
 		| Message.ManagedBotCreatedMessage
+		| Message.TonWalletTransferMessage
+		| Message.PaidMessagesWaivedMessage
 	>
 >;
 
@@ -1507,6 +1623,7 @@ export function readCaption(message: Message) {
 			| Message.PhotoMessage
 			| Message.VideoMessage
 			| Message.VoiceMessage
+			| Message.WidgetMessage
 		>()(message);
 		return message.caption;
 	}

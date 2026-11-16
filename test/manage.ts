@@ -3,6 +3,7 @@ import type {
 	AbstractChatMember,
 	AbstractReactionType,
 	AcceptedGiftTypes,
+	AreaPosition,
 	BotCommand,
 	Chat,
 	ChatAdministratorRights,
@@ -13,6 +14,7 @@ import type {
 	ChatBoostSourcePremium,
 	ChatBoostUpdated,
 	ChatFromGetChat,
+	ChatFullInfo,
 	ChatInviteLink,
 	ChatJoinRequest,
 	ChatLocation,
@@ -23,6 +25,9 @@ import type {
 	ChatMemberMember,
 	ChatMemberOwner,
 	ChatMemberRestricted,
+	ChatShareTheme,
+	ChatShareThemeBackdrops,
+	EmojiType,
 	ChatMemberUpdated,
 	ChatPermissions,
 	ChatPhoto,
@@ -34,7 +39,11 @@ import type {
 	ReactionType,
 	ReactionTypeCustomEmoji,
 	ReactionTypeEmoji,
+	StoryArea,
+	StoryAreaPosition,
 	TelegramEmoji,
+	TonNft,
+	TonWalletCard,
 	User,
 	UserChatBoosts,
 	UserFromGetMe,
@@ -800,6 +809,108 @@ export type BoostFields = Assert<
 
 // @ts-expect-error — a premium boost names its user
 export const premiumWithoutUser: ChatBoostSourcePremium = { source: "premium" };
+
+// Story areas
+
+export const storyAreaPosition: StoryAreaPosition = {
+	x_percentage: 50,
+	y_percentage: 40,
+	width_percentage: 30,
+	height_percentage: 10,
+	rotation_angle: 0,
+	corner_radius_percentage: 2,
+};
+
+export const storyArea: StoryArea = {
+	position: storyAreaPosition,
+	type: { type: "link", url: "https://telegraf.js.org" },
+};
+
+export type StoryAreaPositionName = Assert<Equal<StoryAreaPosition, AreaPosition>>;
+
+// TON wallet
+
+export const tonNft: TonNft = {
+	address: "EQCA14o1-VWhS2efqoh_9M1b_A9DtKTuoqfmkn83AbJzwnPi",
+	index: "42",
+	name: "Plush Pepe #42",
+	description: "A collectible gift",
+	attributes: [{ trait_type: "Backdrop", value: "Onyx Black" }],
+};
+
+export const tonWalletCard: TonWalletCard = {
+	address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
+	amount: "2500000000",
+	stickers: [{ position: storyAreaPosition, nft: tonNft }],
+	background_nft_address: tonNft.address,
+};
+
+export const privateChatWithWalletCard: ChatFullInfo.PrivateChat = {
+	...privateGetChat,
+	ton_wallet_card: tonWalletCard,
+};
+
+export const groupChatWithWalletCard: ChatFullInfo.GroupChat = {
+	...groupGetChat,
+	// @ts-expect-error — only private chats have a TON wallet card
+	ton_wallet_card: tonWalletCard,
+};
+
+// @ts-expect-error — a wallet card lists its stickers, even when there are none
+export const tonWalletCardWithoutStickers: TonWalletCard = { address: tonWalletCard.address, amount: "0" };
+
+// Chat share themes
+
+export const emojiShareTheme: ChatShareTheme = {
+	type: "emoji",
+	emojis: [
+		{ type: "emoji", emoji: "🌧" },
+		{ type: "custom_emoji", custom_emoji_id: "5368324170671202286" },
+	],
+	background_backdrop_id: 7,
+};
+
+export const chatShareThemeBackdrops: ChatShareThemeBackdrops = {
+	backdrops: [
+		{
+			id: 7,
+			name: "Onyx Black",
+			colors: { center_color: 0x4d5254, edge_color: 0x31383b, symbol_color: 0x1e2224, text_color: 0xa4acb0 },
+		},
+	],
+};
+
+export const privateChatWithShareTheme: ChatFullInfo.PrivateChat = { ...privateGetChat, share_theme: emojiShareTheme };
+
+export const supergroupChatWithShareTheme: ChatFullInfo.SupergroupChat = {
+	...supergroupGetChat,
+	share_theme: emojiShareTheme,
+};
+
+export const channelChatWithShareTheme: ChatFullInfo.ChannelChat = { ...channelGetChat, share_theme: emojiShareTheme };
+
+export const groupChatWithShareTheme: ChatFullInfo.GroupChat = {
+	...groupGetChat,
+	// @ts-expect-error — a group has no share theme; private chats, supergroups and channels do
+	share_theme: emojiShareTheme,
+};
+
+export function themeEmojiOf(emoji: EmojiType) {
+	if (emoji.type === "emoji") return emoji.emoji;
+	return emoji.custom_emoji_id;
+}
+
+export type ThemeEmojiOfResult = Assert<Equal<ReturnType<typeof themeEmojiOf>, string>>;
+
+export type ShareThemeTypes = Assert<
+	Equal<[ChatShareTheme["type"], EmojiType["type"]], ["emoji" | "unique_gift", "emoji" | "custom_emoji"]>
+>;
+
+// @ts-expect-error — a custom emoji is named by its identifier
+export const customEmojiWithoutId: EmojiType = { type: "custom_emoji", emoji: "🌧" };
+
+// @ts-expect-error — a theme based on a unique gift names the gift
+export const giftShareThemeWithoutGift: ChatShareTheme = { type: "unique_gift" };
 
 // Required fields
 

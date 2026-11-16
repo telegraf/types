@@ -372,6 +372,8 @@ export type UpdateTypeMembers = Assert<
 		| "managed_bot"
 		| "subscription"
 		| "stopped_message_generation"
+		| "widget_query"
+		| "shared_widget_query"
 	>
 >;
 
@@ -459,6 +461,9 @@ export type MessageSubTypeMembers = Assert<
 		| "suggested_post_paid"
 		| "suggested_post_refunded"
 		| "managed_bot_created"
+		| "ton_wallet_transfer"
+		| "widget"
+		| "paid_messages_waived"
 	>
 >;
 

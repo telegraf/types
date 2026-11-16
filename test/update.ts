@@ -103,6 +103,34 @@ export const callbackQueryUpdate: Update.CallbackQueryUpdate = {
 	},
 };
 
+export const widgetQueryUpdate: Update.WidgetQueryUpdate = {
+	update_id: 10028,
+	widget_query: {
+		id: "7c1d0a52b6e94f03",
+		from: user,
+		chat: { id: 123456789, type: "private", first_name: "Erika" },
+		message_id: 7,
+		chat_instance: "-4237498273498",
+		type: { type: "data" },
+		data: "refresh:berlin",
+	},
+};
+
+export const sharedWidgetQueryUpdate: Update.SharedWidgetQueryUpdate = {
+	update_id: 10029,
+	shared_widget_query: {
+		id: "7c1d0a52b6e94f04",
+		from: user,
+		type: {
+			type: "sent_transaction",
+			wallet: { address: "UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL", amount: "2500000000" },
+			msg_hash: "9f2b6c1e",
+		},
+		data: "paid",
+		widget_id: "AQADwidget",
+	},
+};
+
 export const shippingQueryUpdate: Update.ShippingQueryUpdate = {
 	update_id: 10009,
 	shipping_query: {
@@ -210,6 +238,8 @@ export const updates: Update[] = [
 	inlineQueryUpdate,
 	chosenInlineResultUpdate,
 	callbackQueryUpdate,
+	widgetQueryUpdate,
+	sharedWidgetQueryUpdate,
 	shippingQueryUpdate,
 	preCheckoutQueryUpdate,
 	pollUpdate,
@@ -254,6 +284,8 @@ export type UpdateMembers = Assert<
 		| Update.ManagedBotUpdate
 		| Update.SubscriptionUpdate
 		| Update.StoppedMessageGenerationUpdate
+		| Update.WidgetQueryUpdate
+		| Update.SharedWidgetQueryUpdate
 	>
 >;
 
@@ -289,6 +321,8 @@ export type UpdateType = Assert<
 		| "managed_bot"
 		| "subscription"
 		| "stopped_message_generation"
+		| "widget_query"
+		| "shared_widget_query"
 	>
 >;
 

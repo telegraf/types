@@ -16,6 +16,13 @@ export type {
 	ReplyKeyboardRemove,
 	RichMessageButton,
 	RichMessageButtonText,
+	SharedWidgetQuery,
 	SwitchInlineQueryChosenChat,
 	WebAppInfo,
+	WidgetQuery,
+	WidgetQueryType,
+	WidgetQueryTypeData,
+	WidgetQueryTypeSentTransaction,
+	WidgetQueryTypeSignData,
+	WidgetQueryWallet,
 } from "./types.js";
