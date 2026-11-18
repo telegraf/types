@@ -31,6 +31,7 @@ import type {
 	ExternalReplyVideoNote,
 	ExternalReplyVoice,
 	ExternalReplyWidget,
+	FormattedField,
 	ForumTopicClosed,
 	ForumTopicCreated,
 	ForumTopicEdited,
@@ -2054,3 +2055,11 @@ export type VideoNoteRequiredFields = Assert<
 >;
 export type VoiceRequiredFields = Assert<Extends<"duration" | "file_id" | "file_unique_id", RequiredKeys<Voice>>>;
 export type WebAppDataRequiredFields = Assert<Extends<"button_text" | "data", RequiredKeys<WebAppData>>>;
+
+// The unions named in 10.4.1.
+export const messageKinds: Message.Kind[] = ["text", "photo", "venue", "web_app_data"];
+// @ts-expect-error — `caption` is a field of several kinds of message and tells none apart
+export const captionIsNotAKind: Message.Kind = "caption";
+export const formattedFields: FormattedField[] = ["caption", "quote", "title"];
+// @ts-expect-error — `option_text` is in a service message, which only Telegram sends
+export const optionTextIsNotSent: FormattedField = "option_text";

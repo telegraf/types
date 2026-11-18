@@ -53,6 +53,7 @@ export type {
 	ExternalReplyVideoNote,
 	ExternalReplyVoice,
 	ExternalReplyWidget,
+	FormattedField,
 	ForumTopicClosed,
 	ForumTopicCreated,
 	ForumTopicEdited,
