@@ -156,6 +156,38 @@ export declare namespace Update {
 		/** A user asked the bot to stop the generation of a message */
 		stopped_message_generation: MessageGenerationStopped;
 	}
+
+	/** The kinds of update: the field that holds the content of each, beside `update_id`. */
+	export type Kind =
+		| "message"
+		| "edited_message"
+		| "channel_post"
+		| "edited_channel_post"
+		| "business_connection"
+		| "business_message"
+		| "edited_business_message"
+		| "deleted_business_messages"
+		| "guest_message"
+		| "message_reaction"
+		| "message_reaction_count"
+		| "inline_query"
+		| "chosen_inline_result"
+		| "callback_query"
+		| "widget_query"
+		| "shared_widget_query"
+		| "shipping_query"
+		| "pre_checkout_query"
+		| "purchased_paid_media"
+		| "poll"
+		| "poll_answer"
+		| "my_chat_member"
+		| "chat_member"
+		| "chat_join_request"
+		| "chat_boost"
+		| "removed_chat_boost"
+		| "managed_bot"
+		| "subscription"
+		| "stopped_message_generation";
 }
 
 /** This [object](https://core.telegram.org/bots/api#available-types) represents an incoming update.
@@ -203,7 +235,7 @@ export declare namespace Args {
 		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See {@link Update} for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
 
     Please note that this parameter doesn't affect updates created before the call to getUpdates, so unwanted updates may be received for a short period of time. */
-		allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
+		allowed_updates?: ReadonlyArray<Update.Kind>;
 	}
 }
 
@@ -226,7 +258,7 @@ export declare namespace Args {
 		max_connections?: number;
 		/** A list of the update types you want your bot to receive. For example, specify ["message", "edited_channel_post", "callback_query"] to only receive updates of these types. See {@link Update} for a complete list of available update types. Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used.
 Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time. */
-		allowed_updates?: ReadonlyArray<Exclude<UnionKeys<Update>, "update_id">>;
+		allowed_updates?: ReadonlyArray<Update.Kind>;
 		/** Pass True to drop all pending updates */
 		drop_pending_updates?: boolean;
 		/** A secret token to be sent in a header “X-Telegram-Bot-Api-Secret-Token” in every webhook request, 1-256 characters. Only characters A-Z, a-z, 0-9, _ and - are allowed. The header is useful to ensure that the request comes from a webhook set by you. */
@@ -1192,6 +1224,94 @@ export declare namespace Message {
 		/** Service message: data sent by a Web App */
 		web_app_data: WebAppData;
 	}
+
+	/**
+	 * The kinds of message: the fields that tell the kinds apart, such as `text` or `photo`. A
+	 * message has at least one of them, and some have two: an animation also has `document`,
+	 * and a venue also has `location`.
+	 */
+	export type Kind =
+		| "text"
+		| "audio"
+		| "document"
+		| "paid_media"
+		| "animation"
+		| "photo"
+		| "live_photo"
+		| "sticker"
+		| "story"
+		| "video"
+		| "video_note"
+		| "voice"
+		| "widget"
+		| "checklist"
+		| "contact"
+		| "dice"
+		| "game"
+		| "poll"
+		| "rich_message"
+		| "location"
+		| "venue"
+		| "new_chat_members"
+		| "left_chat_member"
+		| "chat_owner_left"
+		| "chat_owner_changed"
+		| "new_chat_title"
+		| "new_chat_photo"
+		| "delete_chat_photo"
+		| "group_chat_created"
+		| "supergroup_chat_created"
+		| "channel_chat_created"
+		| "message_auto_delete_timer_changed"
+		| "migrate_to_chat_id"
+		| "migrate_from_chat_id"
+		| "pinned_message"
+		| "invoice"
+		| "successful_payment"
+		| "refunded_payment"
+		| "users_shared"
+		| "chat_shared"
+		| "gift"
+		| "unique_gift"
+		| "gift_upgrade_sent"
+		| "connected_website"
+		| "write_access_allowed"
+		| "passport_data"
+		| "proximity_alert_triggered"
+		| "boost_added"
+		| "chat_background_set"
+		| "checklist_tasks_done"
+		| "checklist_tasks_added"
+		| "community_chat_added"
+		| "community_chat_joined"
+		| "community_chat_removed"
+		| "direct_message_price_changed"
+		| "forum_topic_created"
+		| "forum_topic_edited"
+		| "forum_topic_closed"
+		| "forum_topic_reopened"
+		| "general_forum_topic_hidden"
+		| "general_forum_topic_unhidden"
+		| "giveaway_created"
+		| "giveaway"
+		| "giveaway_winners"
+		| "giveaway_completed"
+		| "managed_bot_created"
+		| "paid_message_price_changed"
+		| "paid_messages_waived"
+		| "poll_option_added"
+		| "poll_option_deleted"
+		| "suggested_post_approved"
+		| "suggested_post_approval_failed"
+		| "suggested_post_declined"
+		| "suggested_post_paid"
+		| "suggested_post_refunded"
+		| "ton_wallet_transfer"
+		| "video_chat_scheduled"
+		| "video_chat_started"
+		| "video_chat_ended"
+		| "video_chat_participants_invited"
+		| "web_app_data";
 }
 
 /** This object represents a message. */
@@ -1516,6 +1636,21 @@ Please note:
 - To escape characters '_', '*', '`', '[' outside of an entity, prepend the character '\' before them.
 - Escaping inside entities is not allowed, so entity must be closed first and reopened again: use `_snake_\__case_` for italic `snake_case` and `*2*\**2=4*` for bold `2*2=4`. */
 export type ParseMode = "Markdown" | "MarkdownV2" | "HTML";
+
+/**
+ * The fields that a bot sends formatted text in, each beside the field of its entities:
+ * `caption` beside `caption_entities`. The text of a message is `text` beside `entities`,
+ * which is not among them.
+ */
+export type FormattedField =
+	| "caption"
+	| "custom_description"
+	| "description"
+	| "explanation"
+	| "question"
+	| "quote"
+	| "text"
+	| "title";
 
 /** This object contains information about the quoted part of a message that is replied to by the given message. */
 export interface TextQuote {

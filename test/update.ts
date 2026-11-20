@@ -595,3 +595,8 @@ export type UpdateRemovedChatBoostUpdateRequiredFields = Assert<
 export type UpdateShippingQueryUpdateRequiredFields = Assert<
 	Extends<"shipping_query" | "update_id", RequiredKeys<Update.ShippingQueryUpdate>>
 >;
+
+// The union named in 10.4.1.
+export const updateKinds: Update.Kind[] = ["message", "callback_query", "stopped_message_generation"];
+// @ts-expect-error — every update has `update_id`, beside the field of its kind
+export const updateIdIsNotAKind: Update.Kind = "update_id";
